@@ -138,10 +138,20 @@ const Contribute = () => {
       }
 
       // Submit validated data
+      const payload = {
+        email: result.data.email || null,
+        location: result.data.location || null,
+        age_range: result.data.ageRange,
+        interests: result.data.interests,
+        device_ownership: result.data.deviceOwnership,
+        ev_ownership: result.data.evOwnership,
+        sustainability: result.data.sustainability || null,
+        sensor_data: result.data.sensorData || {}
+      };
+
       const { error } = await supabase
         .from("data_submissions")
-        .insert([result.data]);
-
+        .insert([payload]);
       if (error) throw error;
 
       toast({
