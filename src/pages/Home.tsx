@@ -129,10 +129,10 @@ const Home = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { value: "12,847", label: "Datasets Contributed" },
-              { value: "$89,420", label: "Funds Raised" },
-              { value: "15", label: "Projects Funded" },
-              { value: "25,694", label: "Trees Planted" },
+              { value: "—", label: "Datasets Contributed" },
+              { value: "—", label: "Funds Raised" },
+              { value: "—", label: "Projects Funded" },
+              { value: "—", label: "Trees Planted" },
             ].map((stat, index) => (
               <motion.div
                 key={index}
