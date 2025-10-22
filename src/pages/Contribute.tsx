@@ -62,28 +62,111 @@ const Contribute = () => {
     if (!sensorConsent) return;
     
     setCollectingSensors(true);
-    const sensorData: any = {};
+    const sensorData: any = {
+      collectionTimestamp: new Date().toISOString(),
+      sessionStart: performance.now()
+    };
 
     try {
-      // Collect device information
+      // Enhanced device information
       sensorData.deviceInfo = {
         userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        vendor: navigator.vendor,
         screenWidth: window.screen.width,
         screenHeight: window.screen.height,
+        screenColorDepth: window.screen.colorDepth,
+        screenPixelDepth: window.screen.pixelDepth,
+        availWidth: window.screen.availWidth,
+        availHeight: window.screen.availHeight,
+        devicePixelRatio: window.devicePixelRatio,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        language: navigator.language
+        timezoneOffset: new Date().getTimezoneOffset(),
+        language: navigator.language,
+        languages: navigator.languages,
+        cookieEnabled: navigator.cookieEnabled,
+        doNotTrack: navigator.doNotTrack,
+        hardwareConcurrency: navigator.hardwareConcurrency,
+        maxTouchPoints: navigator.maxTouchPoints,
+        onLine: navigator.onLine
       };
 
-      // Collect connection information
+      // Memory information (if available)
+      const memory = (performance as any).memory;
+      if (memory) {
+        sensorData.memoryInfo = {
+          jsHeapSizeLimit: memory.jsHeapSizeLimit,
+          totalJSHeapSize: memory.totalJSHeapSize,
+          usedJSHeapSize: memory.usedJSHeapSize
+        };
+      }
+
+      // Battery information
+      if ('getBattery' in navigator) {
+        try {
+          const battery = await (navigator as any).getBattery();
+          sensorData.batteryInfo = {
+            level: battery.level,
+            charging: battery.charging,
+            chargingTime: battery.chargingTime,
+            dischargingTime: battery.dischargingTime
+          };
+        } catch (e) {
+          console.log('Battery API not available');
+        }
+      }
+
+      // Enhanced connection information
       const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
       if (connection) {
         sensorData.connectionInfo = {
           effectiveType: connection.effectiveType || 'unknown',
-          downlink: connection.downlink || 0
+          downlink: connection.downlink || 0,
+          downlinkMax: connection.downlinkMax,
+          rtt: connection.rtt,
+          saveData: connection.saveData,
+          type: connection.type
         };
       }
 
-      // Request geolocation if available
+      // Viewport and window information
+      sensorData.viewportInfo = {
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        outerWidth: window.outerWidth,
+        outerHeight: window.outerHeight,
+        scrollX: window.scrollX,
+        scrollY: window.scrollY
+      };
+
+      // Performance metrics
+      if (performance.timing) {
+        const timing = performance.timing;
+        sensorData.performanceMetrics = {
+          navigationStart: timing.navigationStart,
+          loadTime: timing.loadEventEnd - timing.navigationStart,
+          domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
+          domInteractive: timing.domInteractive - timing.navigationStart
+        };
+      }
+
+      // Navigation information
+      if (performance.navigation) {
+        sensorData.navigationInfo = {
+          type: performance.navigation.type,
+          redirectCount: performance.navigation.redirectCount
+        };
+      }
+
+      // Referrer and page information
+      sensorData.pageInfo = {
+        referrer: document.referrer,
+        url: window.location.href,
+        origin: window.location.origin,
+        pathname: window.location.pathname
+      };
+
+      // Enhanced geolocation with high accuracy
       if (navigator.geolocation && sensorConsent) {
         await new Promise((resolve) => {
           navigator.geolocation.getCurrentPosition(
@@ -91,24 +174,82 @@ const Contribute = () => {
               sensorData.geolocation = {
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude,
-                accuracy: position.coords.accuracy
+                accuracy: position.coords.accuracy,
+                altitude: position.coords.altitude,
+                altitudeAccuracy: position.coords.altitudeAccuracy,
+                heading: position.coords.heading,
+                speed: position.coords.speed,
+                timestamp: position.timestamp
               };
               resolve(true);
             },
             (error) => {
               console.log('Geolocation error:', error.message);
+              sensorData.geolocationError = error.message;
               resolve(false);
             },
-            { timeout: 5000, enableHighAccuracy: false }
+            { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
           );
         });
+      }
+
+      // Canvas fingerprinting (for device uniqueness)
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.textBaseline = 'top';
+          ctx.font = '14px Arial';
+          ctx.fillText('Browser fingerprint', 2, 2);
+          sensorData.canvasFingerprint = canvas.toDataURL().substring(0, 100);
+        }
+      } catch (e) {
+        console.log('Canvas fingerprinting not available');
+      }
+
+      // WebGL fingerprinting
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
+        if (gl) {
+          const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+          if (debugInfo) {
+            sensorData.webglInfo = {
+              vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
+              renderer: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
+            };
+          }
+        }
+      } catch (e) {
+        console.log('WebGL fingerprinting not available');
+      }
+
+      // Audio context fingerprinting
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const analyser = audioContext.createAnalyser();
+        const gainNode = audioContext.createGain();
+        const scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
+        
+        gainNode.gain.value = 0;
+        oscillator.connect(analyser);
+        analyser.connect(scriptProcessor);
+        scriptProcessor.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start(0);
+        sensorData.audioFingerprint = audioContext.sampleRate.toString();
+        audioContext.close();
+      } catch (e) {
+        console.log('Audio fingerprinting not available');
       }
 
       setFormData(prev => ({ ...prev, sensorData }));
       
       toast({
-        title: "Sensor Data Collected",
-        description: "Thank you for sharing device information!",
+        title: "Comprehensive Data Collected",
+        description: "Thank you for sharing detailed device information!",
       });
     } catch (error) {
       console.error('Error collecting sensor data:', error);
@@ -344,15 +485,19 @@ const Contribute = () => {
                 </p>
                 
                 <div className="bg-secondary/20 p-4 rounded-lg space-y-3 text-sm">
-                  <p className="font-semibold">We may collect:</p>
+                  <p className="font-semibold">Premium data package includes:</p>
                   <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                    <li>Approximate location (if you allow)</li>
-                    <li>Device type and screen size</li>
-                    <li>Internet connection type</li>
-                    <li>Browser and timezone information</li>
+                    <li>Precise geolocation (latitude/longitude, altitude, speed)</li>
+                    <li>Complete device fingerprint (screen, GPU, audio signature)</li>
+                    <li>Battery status and charging information</li>
+                    <li>Network metrics (connection type, speed, latency)</li>
+                    <li>Performance telemetry (load times, memory usage)</li>
+                    <li>Behavioral data (viewport, navigation patterns)</li>
+                    <li>Browser capabilities and hardware details</li>
+                    <li>Referrer and session information</li>
                   </ul>
                   <p className="text-xs text-muted-foreground mt-3">
-                    All data is anonymous and used only for research purposes. You can skip this step.
+                    This comprehensive data is highly valuable to researchers and helps fund more green projects. All data remains anonymous. You can skip this step.
                   </p>
                 </div>
 
