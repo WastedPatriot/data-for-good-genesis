@@ -18,7 +18,25 @@ const contributionSchema = z.object({
   interests: z.array(z.string()).max(10, 'Too many interests selected'),
   deviceOwnership: z.string().min(1, 'Please select device ownership'),
   evOwnership: z.string().min(1, 'Please select EV ownership status'),
-  sustainability: z.string().max(500, 'Response too long').optional()
+  sustainability: z.string().max(500, 'Response too long').optional(),
+  sensorData: z.object({
+    geolocation: z.object({
+      latitude: z.number(),
+      longitude: z.number(),
+      accuracy: z.number()
+    }).optional(),
+    deviceInfo: z.object({
+      userAgent: z.string(),
+      screenWidth: z.number(),
+      screenHeight: z.number(),
+      timezone: z.string(),
+      language: z.string()
+    }).optional(),
+    connectionInfo: z.object({
+      effectiveType: z.string(),
+      downlink: z.number()
+    }).optional()
+  }).optional()
 });
 
 const Contribute = () => {
@@ -31,11 +49,78 @@ const Contribute = () => {
     evOwnership: "",
     sustainability: "",
     email: "",
+    sensorData: {} as any
   });
+  const [sensorConsent, setSensorConsent] = useState(false);
+  const [collectingSensors, setCollectingSensors] = useState(false);
   const { toast } = useToast();
 
-  const totalSteps = 6;
+  const totalSteps = 7;
   const progress = (step / totalSteps) * 100;
+
+  const collectSensorData = async () => {
+    if (!sensorConsent) return;
+    
+    setCollectingSensors(true);
+    const sensorData: any = {};
+
+    try {
+      // Collect device information
+      sensorData.deviceInfo = {
+        userAgent: navigator.userAgent,
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language
+      };
+
+      // Collect connection information
+      const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+      if (connection) {
+        sensorData.connectionInfo = {
+          effectiveType: connection.effectiveType || 'unknown',
+          downlink: connection.downlink || 0
+        };
+      }
+
+      // Request geolocation if available
+      if (navigator.geolocation && sensorConsent) {
+        await new Promise((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              sensorData.geolocation = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy
+              };
+              resolve(true);
+            },
+            (error) => {
+              console.log('Geolocation error:', error.message);
+              resolve(false);
+            },
+            { timeout: 5000, enableHighAccuracy: false }
+          );
+        });
+      }
+
+      setFormData(prev => ({ ...prev, sensorData }));
+      
+      toast({
+        title: "Sensor Data Collected",
+        description: "Thank you for sharing device information!",
+      });
+    } catch (error) {
+      console.error('Error collecting sensor data:', error);
+      toast({
+        title: "Partial Data Collected",
+        description: "Some sensor data could not be accessed.",
+        variant: "destructive"
+      });
+    } finally {
+      setCollectingSensors(false);
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -238,6 +323,56 @@ const Contribute = () => {
                   }
                   maxLength={255}
                 />
+              </div>
+            )}
+
+            {step === 7 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold">Sensor Data Consent</h2>
+                <p className="text-muted-foreground mb-4">
+                  Help us gather richer insights by sharing device sensor data. This helps researchers understand real-world usage patterns.
+                </p>
+                
+                <div className="bg-secondary/20 p-4 rounded-lg space-y-3 text-sm">
+                  <p className="font-semibold">We may collect:</p>
+                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                    <li>Approximate location (if you allow)</li>
+                    <li>Device type and screen size</li>
+                    <li>Internet connection type</li>
+                    <li>Browser and timezone information</li>
+                  </ul>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    All data is anonymous and used only for research purposes. You can skip this step.
+                  </p>
+                </div>
+
+                <div className="flex items-center space-x-2 pt-4">
+                  <Checkbox
+                    id="sensorConsent"
+                    checked={sensorConsent}
+                    onCheckedChange={(checked) => {
+                      setSensorConsent(checked as boolean);
+                      if (checked) {
+                        collectSensorData();
+                      }
+                    }}
+                  />
+                  <Label htmlFor="sensorConsent" className="cursor-pointer">
+                    I consent to sharing sensor data
+                  </Label>
+                </div>
+
+                {collectingSensors && (
+                  <p className="text-sm text-muted-foreground animate-pulse">
+                    Collecting sensor data...
+                  </p>
+                )}
+
+                {sensorConsent && !collectingSensors && formData.sensorData?.deviceInfo && (
+                  <div className="bg-primary/10 p-3 rounded text-sm">
+                    ✓ Sensor data collected successfully
+                  </div>
+                )}
               </div>
             )}
 
