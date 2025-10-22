@@ -1,13 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Leaf } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-transparent.png";
 
 const Navigation = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   const links = [
     { to: "/", label: "Home" },
@@ -23,7 +24,20 @@ const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <img src={logo} alt="Data for Earth" className="h-10 w-10" />
+            {logoError ? (
+              <div className="h-10 w-10 grid place-items-center rounded-md bg-secondary text-primary">
+                <Leaf className="h-6 w-6" />
+              </div>
+            ) : (
+              <img
+                src={logo}
+                alt="Data for Earth logo"
+                className="h-10 w-10 object-contain"
+                loading="eager"
+                decoding="async"
+                onError={() => setLogoError(true)}
+              />
+            )}
             <span className="font-bold text-lg">Data for Earth</span>
           </Link>
 
