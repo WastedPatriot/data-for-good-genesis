@@ -12,7 +12,7 @@ import About from "./pages/About";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
-import EarthBackground from "./components/EarthBackground";
+import Earth3DBackground from "./components/Earth3DBackground";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +22,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <EarthBackground />
+        <Earth3DBackground />
         <Navigation />
         <div className="pt-16 relative z-10">
           <Routes>
