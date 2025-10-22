@@ -23,6 +23,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Earth3DBackground />
+        <div
+          className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,_hsl(var(--background)/0.35)_0%,_hsl(var(--background)/0.6)_60%,_hsl(var(--background)/0.75)_100%)]"
+          aria-hidden="true"
+        />
         <Navigation />
         <div className="pt-16 relative z-10">
           <Routes>

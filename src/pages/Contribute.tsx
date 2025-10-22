@@ -51,7 +51,7 @@ const Contribute = () => {
 
   if (step > totalSteps) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="min-h-screen flex items-center justify-center bg-transparent px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -78,7 +78,7 @@ const Contribute = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="min-h-screen bg-transparent py-12 px-4">
       <div className="container mx-auto max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

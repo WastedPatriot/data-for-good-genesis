@@ -6,7 +6,7 @@ import logo from "@/assets/logo.png";
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Content */}

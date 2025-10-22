@@ -11,7 +11,7 @@ const Marketplace = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="min-h-screen bg-transparent py-12 px-4">
       <div className="container mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
