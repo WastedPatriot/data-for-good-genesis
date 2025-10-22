@@ -6,10 +6,10 @@ const EarthBackground = () => {
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
       {/* Massive Earth Sphere in Center */}
       <motion.div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-20"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] rounded-full"
         style={{
-          background: "radial-gradient(circle, rgba(71, 229, 139, 0.25) 0%, rgba(71, 229, 139, 0.12) 30%, rgba(71, 229, 139, 0.05) 50%, transparent 70%)",
-          boxShadow: "inset 0 0 100px rgba(71, 229, 139, 0.2), 0 0 100px rgba(71, 229, 139, 0.15)",
+          background: "radial-gradient(circle, rgba(34, 197, 94, 0.4) 0%, rgba(34, 197, 94, 0.25) 25%, rgba(22, 163, 74, 0.15) 50%, rgba(21, 128, 61, 0.08) 70%, transparent 85%)",
+          boxShadow: "inset 0 0 150px rgba(34, 197, 94, 0.3), 0 0 150px rgba(34, 197, 94, 0.25), 0 0 300px rgba(34, 197, 94, 0.15)",
         }}
         animate={{
           rotate: 360,
@@ -21,18 +21,20 @@ const EarthBackground = () => {
         }}
       >
         {/* Continents-like patterns */}
-        {[...Array(8)].map((_, i) => (
+        {[...Array(12)].map((_, i) => (
           <motion.div
             key={`continent-${i}`}
-            className="absolute rounded-full bg-primary/10"
+            className="absolute rounded-full"
             style={{
-              width: `${50 + Math.random() * 100}px`,
-              height: `${30 + Math.random() * 60}px`,
+              width: `${60 + Math.random() * 120}px`,
+              height: `${40 + Math.random() * 80}px`,
               top: `${Math.random() * 80}%`,
               left: `${Math.random() * 80}%`,
+              background: "rgba(22, 163, 74, 0.3)",
+              boxShadow: "0 0 20px rgba(34, 197, 94, 0.2)",
             }}
             animate={{
-              opacity: [0.3, 0.5, 0.3],
+              opacity: [0.5, 0.7, 0.5],
             }}
             transition={{
               duration: 8 + i * 2,
@@ -63,7 +65,7 @@ const EarthBackground = () => {
             ease: "linear",
           }}
         >
-          <Globe className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-6 text-primary/20" />
+          <Globe className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-6 text-primary/40" />
         </motion.div>
       ))}
 
@@ -78,7 +80,7 @@ const EarthBackground = () => {
           }}
           initial={{ opacity: 0, y: 30 }}
           animate={{
-            opacity: [0, 0.3, 0],
+            opacity: [0, 0.6, 0],
             y: [30, -20, -50],
           }}
           transition={{
@@ -88,7 +90,7 @@ const EarthBackground = () => {
             ease: "easeOut",
           }}
         >
-          <Trees className="w-6 h-6 text-primary/25" />
+          <Trees className="w-6 h-6 text-green-500/50" />
         </motion.div>
       ))}
 
@@ -103,7 +105,7 @@ const EarthBackground = () => {
           }}
           animate={{
             scale: [0, 1, 0],
-            opacity: [0, 0.25, 0],
+            opacity: [0, 0.5, 0],
             rotate: [0, 15, -15, 0],
           }}
           transition={{
@@ -113,7 +115,7 @@ const EarthBackground = () => {
             ease: "easeInOut",
           }}
         >
-          <Sprout className="w-5 h-5 text-primary/30" />
+          <Sprout className="w-5 h-5 text-green-400/60" />
         </motion.div>
       ))}
 
@@ -128,7 +130,7 @@ const EarthBackground = () => {
           }}
           animate={{
             x: [-30, 150],
-            opacity: [0, 0.15, 0],
+            opacity: [0, 0.3, 0],
           }}
           transition={{
             duration: 10 + Math.random() * 5,
@@ -137,7 +139,7 @@ const EarthBackground = () => {
             ease: "easeInOut",
           }}
         >
-          <Wind className="w-10 h-10 text-primary/15" />
+          <Wind className="w-10 h-10 text-primary/30" />
         </motion.div>
       ))}
 
@@ -153,7 +155,7 @@ const EarthBackground = () => {
           animate={{
             y: [0, -40, 0],
             rotate: [0, 360],
-            opacity: [0, 0.25, 0],
+            opacity: [0, 0.5, 0],
             x: [0, Math.random() * 40 - 20],
           }}
           transition={{
@@ -163,7 +165,7 @@ const EarthBackground = () => {
             ease: "easeInOut",
           }}
         >
-          <Leaf className="w-4 h-4 text-primary/20" />
+          <Leaf className="w-4 h-4 text-green-400/40" />
         </motion.div>
       ))}
 
@@ -171,14 +173,14 @@ const EarthBackground = () => {
       {[...Array(4)].map((_, i) => (
         <motion.div
           key={`ring-${i}`}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/10"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary/20"
           style={{
             width: `${400 + i * 100}px`,
             height: `${400 + i * 100}px`,
           }}
           animate={{
             scale: [1, 1.2, 1],
-            opacity: [0.1, 0.05, 0.1],
+            opacity: [0.2, 0.1, 0.2],
           }}
           transition={{
             duration: 6 + i * 2,
