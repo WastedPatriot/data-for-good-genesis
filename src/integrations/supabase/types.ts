@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      badge_codes: {
+        Row: {
+          claimed: boolean
+          claimed_at: string | null
+          code: string
+          created_at: string
+          dataset_id: string | null
+          id: string
+          purchase_id: string | null
+        }
+        Insert: {
+          claimed?: boolean
+          claimed_at?: string | null
+          code: string
+          created_at?: string
+          dataset_id?: string | null
+          id?: string
+          purchase_id?: string | null
+        }
+        Update: {
+          claimed?: boolean
+          claimed_at?: string | null
+          code?: string
+          created_at?: string
+          dataset_id?: string | null
+          id?: string
+          purchase_id?: string | null
+        }
+        Relationships: []
+      }
       data_submissions: {
         Row: {
           age_range: string | null

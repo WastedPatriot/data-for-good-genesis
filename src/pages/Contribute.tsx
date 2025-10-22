@@ -9,6 +9,17 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Leaf } from "lucide-react";
+import { z } from "zod";
+
+const contributionSchema = z.object({
+  email: z.string().email('Invalid email format').max(255, 'Email too long').optional().or(z.literal('')),
+  location: z.string().max(200, 'Location must be under 200 characters').optional(),
+  ageRange: z.string().min(1, 'Please select an age range'),
+  interests: z.array(z.string()).max(10, 'Too many interests selected'),
+  deviceOwnership: z.string().min(1, 'Please select device ownership'),
+  evOwnership: z.string().min(1, 'Please select EV ownership status'),
+  sustainability: z.string().max(500, 'Response too long').optional()
+});
 
 const Contribute = () => {
   const [step, setStep] = useState(1);
@@ -28,9 +39,23 @@ const Contribute = () => {
 
   const handleSubmit = async () => {
     try {
+      // Validate input before submission
+      const result = contributionSchema.safeParse(formData);
+      
+      if (!result.success) {
+        const firstError = result.error.errors[0];
+        toast({
+          title: "Validation Error",
+          description: firstError.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Submit validated data
       const { error } = await supabase
         .from("data_submissions")
-        .insert([formData]);
+        .insert([result.data]);
 
       if (error) throw error;
 
@@ -41,6 +66,7 @@ const Contribute = () => {
 
       setStep(totalSteps + 1);
     } catch (error) {
+      console.error('Submission error:', error);
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
@@ -120,6 +146,7 @@ const Contribute = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, location: e.target.value })
                   }
+                  maxLength={200}
                 />
               </div>
             )}
@@ -209,6 +236,7 @@ const Contribute = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
+                  maxLength={255}
                 />
               </div>
             )}

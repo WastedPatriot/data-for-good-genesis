@@ -9,13 +9,36 @@ const ClaimBadge = () => {
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState("");
 
-  const handleVerify = () => {
-    // This will be connected to Supabase to verify codes
-    if (code.length > 0) {
-      setVerified(true);
-      setError("");
-    } else {
+  const handleVerify = async () => {
+    if (!code || code.trim().length === 0) {
       setError("Please enter a valid code");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-badge`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({ code: code.trim() })
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.valid) {
+        setVerified(true);
+        setError("");
+      } else {
+        setError("Invalid code. Please check and try again.");
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
+      setError("Verification failed. Please try again.");
     }
   };
 
