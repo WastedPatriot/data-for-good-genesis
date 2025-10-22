@@ -1,28 +1,132 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Globe, Database, Leaf, TrendingUp } from "lucide-react";
+import { Database, Leaf, TrendingUp, Trees, Sprout, Wind } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Home = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0 z-0">
+        {/* Animated Environmental Background */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
+          
+          {/* Spinning Earth Glow */}
           <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-primary/20 blur-3xl"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
+            style={{
+              background: "radial-gradient(circle, rgba(71, 229, 139, 0.15) 0%, rgba(71, 229, 139, 0.05) 40%, transparent 70%)",
+            }}
             animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
+              rotate: 360,
+              scale: [1, 1.1, 1],
             }}
             transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
+              rotate: { duration: 40, repeat: Infinity, ease: "linear" },
+              scale: { duration: 8, repeat: Infinity, ease: "easeInOut" },
             }}
           />
+
+          {/* Growing Forest Elements */}
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={`tree-${i}`}
+              className="absolute"
+              style={{
+                left: `${20 + (i * 10)}%`,
+                bottom: `${10 + (i % 3) * 15}%`,
+              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{
+                opacity: [0, 0.4, 0],
+                y: [20, -10, -30],
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                delay: i * 0.8,
+                ease: "easeOut",
+              }}
+            >
+              <Trees className="w-8 h-8 text-primary/30" />
+            </motion.div>
+          ))}
+
+          {/* Growing Sprouts */}
+          {[...Array(6)].map((_, i) => (
+            <motion.div
+              key={`sprout-${i}`}
+              className="absolute"
+              style={{
+                left: `${15 + (i * 15)}%`,
+                top: `${30 + (i % 2) * 20}%`,
+              }}
+              animate={{
+                scale: [0, 1, 0],
+                opacity: [0, 0.3, 0],
+                rotate: [0, 10, -10, 0],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                delay: i * 1.2,
+                ease: "easeInOut",
+              }}
+            >
+              <Sprout className="w-6 h-6 text-primary/40" />
+            </motion.div>
+          ))}
+
+          {/* Wind/Nature Flow */}
+          {[...Array(4)].map((_, i) => (
+            <motion.div
+              key={`wind-${i}`}
+              className="absolute"
+              style={{
+                right: `${10 + (i * 20)}%`,
+                top: `${20 + (i * 15)}%`,
+              }}
+              animate={{
+                x: [-20, 100],
+                opacity: [0, 0.2, 0],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                delay: i * 2,
+                ease: "easeInOut",
+              }}
+            >
+              <Wind className="w-12 h-12 text-primary/20" />
+            </motion.div>
+          ))}
+
+          {/* Pulsing Leaves */}
+          {[...Array(12)].map((_, i) => (
+            <motion.div
+              key={`leaf-${i}`}
+              className="absolute"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, -30, 0],
+                rotate: [0, 360],
+                opacity: [0, 0.3, 0],
+              }}
+              transition={{
+                duration: 10 + i,
+                repeat: Infinity,
+                delay: i * 0.5,
+                ease: "easeInOut",
+              }}
+            >
+              <Leaf className="w-4 h-4 text-primary/25" />
+            </motion.div>
+          ))}
         </div>
 
         {/* Content */}
@@ -34,10 +138,10 @@ const Home = () => {
           >
             <motion.div
               className="inline-block mb-8"
-              animate={{ rotateY: 360 }}
+              animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             >
-              <Globe className="w-24 h-24 text-primary mx-auto" />
+              <img src={logo} alt="Data for Earth" className="w-24 h-24 mx-auto drop-shadow-[0_0_25px_rgba(71,229,139,0.5)]" />
             </motion.div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
