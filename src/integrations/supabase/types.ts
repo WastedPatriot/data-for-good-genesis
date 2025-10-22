@@ -54,6 +54,7 @@ export type Database = {
           id: string
           interests: string[] | null
           location: string | null
+          sensor_data: Json | null
           sustainability: string | null
         }
         Insert: {
@@ -65,6 +66,7 @@ export type Database = {
           id?: string
           interests?: string[] | null
           location?: string | null
+          sensor_data?: Json | null
           sustainability?: string | null
         }
         Update: {
@@ -76,6 +78,7 @@ export type Database = {
           id?: string
           interests?: string[] | null
           location?: string | null
+          sensor_data?: Json | null
           sustainability?: string | null
         }
         Relationships: []
