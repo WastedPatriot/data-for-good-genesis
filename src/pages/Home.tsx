@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Database, Leaf, TrendingUp } from "lucide-react";
-import logo from "@/assets/logo.png";
+import EarthLogo from "@/components/EarthLogo";
 
 const Home = () => {
   return (
@@ -25,15 +25,9 @@ const Home = () => {
                 ease: "linear",
               }}
             >
-              <img 
-                src={logo} 
-                alt="Data for Earth" 
-                className="w-24 h-24 mx-auto"
-                style={{
-                  filter: "brightness(0) invert(1) drop-shadow(0 0 25px rgba(71,229,139,0.6))",
-                  mixBlendMode: "screen",
-                }}
-              />
+              <div className="w-24 h-24 mx-auto">
+                <EarthLogo size={96} />
+              </div>
             </motion.div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
