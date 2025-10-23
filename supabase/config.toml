@@ -23,6 +23,3 @@ verify_jwt = false
 
 [functions.data-harvest-api]
 verify_jwt = false
-
-[functions.process-data-submission]
-verify_jwt = false

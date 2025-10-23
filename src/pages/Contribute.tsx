@@ -13,34 +13,18 @@ import { z } from "zod";
 
 const contributionSchema = z.object({
   email: z.string().email('Invalid email format').max(255, 'Email too long').optional().or(z.literal('')),
-  location: z.string().max(200, 'Location must be under 200 characters').optional(),
+  location: z.string().max(200, 'Location must be under 200 characters').optional().or(z.literal('')),
   ageRange: z.string().min(1, 'Please select an age range'),
-  interests: z.array(z.string()).max(10, 'Too many interests selected'),
+  interests: z.array(z.string()).min(0).max(10, 'Too many interests selected'),
   deviceOwnership: z.string().min(1, 'Please select device ownership'),
   evOwnership: z.string().min(1, 'Please select EV ownership status'),
-  sustainability: z.string().max(500, 'Response too long').optional(),
-  sensorData: z.object({
-    geolocation: z.object({
-      latitude: z.number(),
-      longitude: z.number(),
-      accuracy: z.number()
-    }).optional(),
-    deviceInfo: z.object({
-      userAgent: z.string(),
-      screenWidth: z.number(),
-      screenHeight: z.number(),
-      timezone: z.string(),
-      language: z.string()
-    }).optional(),
-    connectionInfo: z.object({
-      effectiveType: z.string(),
-      downlink: z.number()
-    }).optional()
-  }).optional()
+  sustainability: z.string().max(500, 'Response too long').optional().or(z.literal('')),
+  sensorData: z.any().optional()
 });
 
 const Contribute = () => {
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     ageRange: "",
     location: "",
@@ -265,6 +249,8 @@ const Contribute = () => {
 
   const handleSubmit = async () => {
     try {
+      setIsSubmitting(true);
+
       // Validate input before submission
       const result = contributionSchema.safeParse(formData);
       
@@ -283,7 +269,7 @@ const Contribute = () => {
         email: result.data.email || null,
         location: result.data.location || null,
         age_range: result.data.ageRange,
-        interests: result.data.interests,
+        interests: result.data.interests || [],
         device_ownership: result.data.deviceOwnership,
         ev_ownership: result.data.evOwnership,
         sustainability: result.data.sustainability || null,
@@ -308,24 +294,34 @@ const Contribute = () => {
 
       // Trigger AI processing in background (non-blocking)
       if (submission) {
-        try {
-          const { error: processError } = await supabase.functions.invoke("process-data-submission", {
-            body: { submissionId: submission.id }
-          });
-          
+        supabase.functions.invoke("process-data-submission", {
+          body: { submissionId: submission.id }
+        }).then(({ error: processError }) => {
           if (processError) {
             console.error("AI processing error:", processError);
-            // Don't block submission on processing error
+          } else {
+            console.log("AI processing started successfully");
           }
-        } catch (err) {
+        }).catch((err) => {
           console.error("Failed to trigger AI processing:", err);
-          // Don't block submission on processing error
-        }
+        });
       }
 
       toast({
         title: "Thank you for contributing!",
         description: "Your data is being processed by our AI system and will help fund environmental projects.",
+      });
+
+      // Reset form
+      setFormData({
+        ageRange: "",
+        location: "",
+        interests: [],
+        deviceOwnership: "",
+        evOwnership: "",
+        sustainability: "",
+        email: "",
+        sensorData: {}
       });
 
       setStep(totalSteps + 1);
@@ -336,6 +332,8 @@ const Contribute = () => {
         description: error?.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
