@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, Users, Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function DataImpactCounter() {
   const [stats, setStats] = useState({
@@ -10,14 +11,41 @@ export default function DataImpactCounter() {
   });
 
   useEffect(() => {
-    // Simulate real-time growth
-    const interval = setInterval(() => {
-      setStats(prev => ({
-        contributors: prev.contributors + Math.floor(Math.random() * 3),
-        datasets: prev.datasets + Math.floor(Math.random() * 2),
-        revenue: prev.revenue + Math.floor(Math.random() * 50),
-      }));
-    }, 3000);
+    const fetchRealStats = async () => {
+      try {
+        // Get unique contributors (unique sessions from visitor analytics)
+        const { count: contributorsCount } = await supabase
+          .from('visitor_analytics')
+          .select('*', { count: 'exact', head: true });
+
+        // Get active datasets
+        const { count: datasetsCount } = await supabase
+          .from('datasets')
+          .select('*', { count: 'exact', head: true })
+          .eq('active', true);
+
+        // Get total revenue from completed purchases
+        const { data: purchases } = await supabase
+          .from('purchases')
+          .select('amount_paid')
+          .eq('status', 'completed');
+
+        const totalRevenue = purchases?.reduce((sum, p) => sum + Number(p.amount_paid), 0) || 0;
+
+        setStats({
+          contributors: contributorsCount || 0,
+          datasets: datasetsCount || 0,
+          revenue: Math.floor(totalRevenue),
+        });
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    };
+
+    fetchRealStats();
+    
+    // Refresh stats every 30 seconds
+    const interval = setInterval(fetchRealStats, 30000);
 
     return () => clearInterval(interval);
   }, []);
