@@ -119,10 +119,10 @@ export function AIMarketingAssistant() {
   };
 
   const sendTestEmail = async () => {
-    if (!testEmail) {
+    if (!testEmail || !testEmail.includes('@')) {
       toast({
-        title: "Missing Email",
-        description: "Please enter a test email address",
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
         variant: "destructive",
       });
       return;
@@ -139,9 +139,11 @@ export function AIMarketingAssistant() {
 
       if (error) throw error;
 
+      console.log('Test email result:', data);
+      
       toast({
         title: "Test Email Sent!",
-        description: `Check ${testEmail} for the test message`,
+        description: `Check ${testEmail} for the test message from hello@dataforearth.org`,
       });
     } catch (error: any) {
       console.error("Test email error:", error);
