@@ -11,16 +11,44 @@ const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Check current auth state
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-    });
+      
+      if (user) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        
+        setIsAdmin(!!roleData);
+      }
+    };
+    
+    checkAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
       setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        
+        setIsAdmin(!!roleData);
+      } else {
+        setIsAdmin(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -79,12 +107,19 @@ const Navigation = () => {
               <Button size="sm" variant="outline">Claim Badge</Button>
             </Link>
             {user ? (
-              <Link to="/organization-profile">
-                <Button size="sm" className="gap-2">
-                  <User className="w-4 h-4" />
-                  Profile
-                </Button>
-              </Link>
+              <>
+                {isAdmin && (
+                  <Link to="/admin">
+                    <Button size="sm" variant="secondary">Admin</Button>
+                  </Link>
+                )}
+                <Link to="/organization-profile">
+                  <Button size="sm" className="gap-2">
+                    <User className="w-4 h-4" />
+                    Profile
+                  </Button>
+                </Link>
+              </>
             ) : (
               <Link to="/login">
                 <Button size="sm">Sign In</Button>

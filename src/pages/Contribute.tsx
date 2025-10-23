@@ -298,15 +298,21 @@ const Contribute = () => {
       
       if (error) throw error;
 
-      // Trigger AI processing in background
+      // Trigger AI processing in background (non-blocking)
       if (submission) {
-        supabase.functions.invoke("process-data-submission", {
-          body: { submissionId: submission.id }
-        }).then(({ error: processError }) => {
+        try {
+          const { error: processError } = await supabase.functions.invoke("process-data-submission", {
+            body: { submissionId: submission.id }
+          });
+          
           if (processError) {
             console.error("AI processing error:", processError);
+            // Don't block submission on processing error
           }
-        });
+        } catch (err) {
+          console.error("Failed to trigger AI processing:", err);
+          // Don't block submission on processing error
+        }
       }
 
       toast({
