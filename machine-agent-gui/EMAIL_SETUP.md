@@ -14,21 +14,22 @@ Admin notifications go to: `hello@dataforearth.org`
 3. Enter: `dataforearth.org`
 4. Resend will show DNS records you need to add
 
-**Required DNS Records:**
+**Required DNS Records (for sending):**
 
 ```
 Type: TXT
 Name: @
-Value: v=spf1 include:_spf.resend.com ~all
+Value: v=spf1 include:_spf.resend.com include:_spf.protonmail.ch ~all
 
-Type: TXT  
+Type: TXT
 Name: resend._domainkey
-Value: [Resend will provide this - copy exactly]
+Value: [Resend DKIM value exactly as shown in Resend dashboard]
+```
 
-Type: MX
-Name: @
-Priority: 10
-Value: feedback-smtp.us-east-1.amazonses.com
+⚠️ Important: Do NOT change MX to Resend. Keep MX pointed to Proton to receive mail:
+```
+Type: MX   Name: @   Priority: 10   Value: mail.protonmail.ch
+Type: MX   Name: @   Priority: 20   Value: mailsec.protonmail.ch
 ```
 
 ### Step 2: Add DNS Records
