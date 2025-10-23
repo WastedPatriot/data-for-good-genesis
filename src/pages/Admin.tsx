@@ -272,6 +272,19 @@ export default function Admin() {
             </CardContent>
           </Card>
 
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/data-pipeline")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="w-5 h-5" />
+                Data Pipeline
+              </CardTitle>
+              <CardDescription>Automate data curation flow</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">View Pipeline</Button>
+            </CardContent>
+          </Card>
+
           <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/contacts")}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

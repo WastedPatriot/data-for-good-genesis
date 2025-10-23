@@ -33,6 +33,7 @@ import ContactManagement from "./pages/admin/ContactManagement";
 import LiveAnalytics from "./pages/admin/LiveAnalytics";
 import VisitorInsights from "./pages/admin/VisitorInsights";
 import WarmLeads from "./pages/admin/WarmLeads";
+import DataPipeline from "./pages/admin/DataPipeline";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -132,6 +133,11 @@ const AppContent = () => {
           <Route path="/admin/warm-leads" element={
             <ProtectedRoute requireAdmin={true}>
               <WarmLeads />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/data-pipeline" element={
+            <ProtectedRoute requireAdmin={true}>
+              <DataPipeline />
             </ProtectedRoute>
           } />
           <Route path="*" element={<NotFound />} />

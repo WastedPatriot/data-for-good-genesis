@@ -86,3 +86,6 @@ verify_jwt = false
 
 [functions.identify-warm-leads]
 verify_jwt = false
+
+[functions.auto-curate-approved]
+verify_jwt = false
