@@ -20,17 +20,29 @@ from datetime import datetime
 from sites.eco_sentiment import EcoSentimentScraper
 from sites.ev_demand import EVDemandScraper
 from sites.sustainability_keywords import SustainabilityKeywordsScraper
+from sites.carbon_futures import CarbonFuturesScraper
+from sites.regulatory_violations import RegulatoryViolationsScraper
+from sites.supply_chain_signals import SupplyChainSignalsScraper
+from sites.climate_risk import ClimateRiskScraper
+from sites.esg_litigation import ESGLitigationScraper
 
 # Import utilities
 from utils.user_agents import get_random_user_agent
 from utils.rate_limiter import RateLimiter
 from utils.normalizer import normalize_to_submission_format
+from utils.signal_fusion import SignalFusionEngine
+from utils.feature_engineering import FeatureEngineer
 
 # Available scrapers registry
 SCRAPERS = {
     "eco_sentiment": EcoSentimentScraper,
     "ev_demand": EVDemandScraper,
     "sustainability_keywords": SustainabilityKeywordsScraper,
+    "carbon_futures": CarbonFuturesScraper,
+    "regulatory_violations": RegulatoryViolationsScraper,
+    "supply_chain_signals": SupplyChainSignalsScraper,
+    "climate_risk": ClimateRiskScraper,
+    "esg_litigation": ESGLitigationScraper,
 }
 
 

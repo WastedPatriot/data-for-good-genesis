@@ -6,6 +6,8 @@ import EcoProjects from './components/EcoProjects';
 import BadgeCodes from './components/BadgeCodes';
 import Logs from './components/Logs';
 import Settings from './components/Settings';
+import { ExternalScraperFeeds } from './components/ExternalScraperFeeds';
+import { InstitutionalSignals } from './components/InstitutionalSignals';
 
 declare global {
   interface Window {
@@ -13,7 +15,7 @@ declare global {
   }
 }
 
-type Tab = 'dashboard' | 'automation' | 'eco-projects' | 'badges' | 'logs' | 'settings';
+type Tab = 'dashboard' | 'automation' | 'eco-projects' | 'badges' | 'logs' | 'settings' | 'scraper-feeds' | 'institutional-signals';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
@@ -31,6 +33,8 @@ function App() {
   const tabs = [
     { id: 'dashboard', label: '📊 Dashboard' },
     { id: 'automation', label: '🤖 Dataset Automation' },
+    { id: 'scraper-feeds', label: '🔄 Scraper Feeds' },
+    { id: 'institutional-signals', label: '📈 Institutional Signals' },
     { id: 'eco-projects', label: '🌱 Eco Projects' },
     { id: 'badges', label: '🏆 Badge Codes' },
     { id: 'logs', label: '📝 Logs' },
@@ -63,6 +67,8 @@ function App() {
         <main className="content">
           {activeTab === 'dashboard' && <Dashboard config={config} />}
           {activeTab === 'automation' && <DatasetAutomation config={config} />}
+          {activeTab === 'scraper-feeds' && <ExternalScraperFeeds />}
+          {activeTab === 'institutional-signals' && <InstitutionalSignals />}
           {activeTab === 'eco-projects' && <EcoProjects config={config} />}
           {activeTab === 'badges' && <BadgeCodes config={config} />}
           {activeTab === 'logs' && <Logs />}

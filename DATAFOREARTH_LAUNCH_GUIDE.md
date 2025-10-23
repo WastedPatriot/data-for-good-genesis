@@ -1,8 +1,50 @@
-# Data for Earth - Business Launch Guide
+# DataForEarth - Complete Launch Guide
 
-## 🚀 New Features Delivered
+## 🚀 System Overview & New Institutional Features
 
-### 1. Website Enhancements
+### 1. Institutional-Grade Signal Scrapers (NEW)
+
+#### **Carbon Futures Scraper** 
+- Monitors EU ETS, UK ETS, California Cap-and-Trade pricing
+- Tracks carbon credit volatility and trading volumes
+- Output: Market prices, volume trends, regional comparisons
+
+#### **Regulatory Violations Scraper**
+- EPA enforcement database (ECHO)
+- EU environmental compliance violations
+- Tracks penalties, facility names, sectors affected
+
+#### **Supply Chain Signals Scraper**
+- Sustainable supply chain disclosures (CDP, EcoVadis)
+- Shipping emissions data
+- Transparency scores, renewable energy adoption
+
+#### **Physical Climate Risk Scraper**
+- NOAA storm events database
+- NASA wildfire tracking (FIRMS)
+- Sea level rise indicators
+- Disaster impact assessments
+
+#### **ESG Litigation Monitor**
+- Environmental lawsuits from PACER
+- Climate change litigation (Sabin Center)
+- Social responsibility cases
+- Tracks damages claimed, case status
+
+#### **Signal Fusion Engine**
+Combines all institutional signals into unified metrics:
+- **Risk Index** (0-100): Overall ESG risk exposure
+- **Volatility Score** (0-100): Market stability indicator
+- **Momentum Score** (-100 to +100): Directional trend
+- **Forward Pressure Score** (0-100): Urgency to act
+
+#### **Feature Engineering Pipeline**
+- Time-series features (moving averages, trends)
+- Anomaly detection (2-sigma threshold)
+- Sector clustering and correlation analysis
+- Derived metrics (urgency, stability, sentiment)
+
+### 2. Website Enhancements
 
 #### **Why Contribute Page** (`/why-contribute`)
 - Explains the complete data → eco funding cycle
