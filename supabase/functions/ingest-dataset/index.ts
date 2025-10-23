@@ -106,12 +106,45 @@ serve(async (req) => {
       );
     }
 
-    // Validate required fields
-    if (!dataset?.name || !dataset?.description || !dataset?.category || dataset?.price === undefined) {
+    // Validate required fields (price is optional - will be AI-generated)
+    if (!dataset?.name || !dataset?.description || !dataset?.category) {
       return new Response(
         JSON.stringify({ success: false, error: "VALIDATION_ERROR", message: "Missing required dataset fields" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
+    }
+
+    // If no price provided, use AI-powered pricing
+    let finalPrice = dataset.price;
+    if (!finalPrice || finalPrice <= 0) {
+      try {
+        const pricingResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-dynamic-pricing`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`
+          },
+          body: JSON.stringify({
+            datasetInfo: { name: dataset.name, description: dataset.description },
+            qualityScore: dataset.quality_score || 0.75,
+            dataType: dataset.data_type || "behavioral",
+            category: dataset.category,
+            recordCount: dataset.record_count || 100
+          })
+        });
+
+        if (pricingResponse.ok) {
+          const pricingData = await pricingResponse.json();
+          finalPrice = pricingData.recommended_price || 49.99;
+          console.log(`AI-generated price: $${finalPrice} (strategy: ${pricingData.pricing_strategy})`);
+        } else {
+          finalPrice = 49.99; // Fallback
+          console.log("AI pricing failed, using fallback: $49.99");
+        }
+      } catch (pricingError) {
+        console.error("Pricing error:", pricingError);
+        finalPrice = 49.99; // Fallback
+      }
     }
 
     // Check for duplicate dataset name
@@ -165,7 +198,7 @@ serve(async (req) => {
 
         const price = await stripe.prices.create({
           product: stripeProductId,
-          unit_amount: Math.round(dataset.price * 100),
+          unit_amount: Math.round(finalPrice * 100),
           currency: "usd",
         });
         stripePriceId = price.id;
@@ -185,7 +218,7 @@ serve(async (req) => {
         name: dataset.name,
         description: dataset.description,
         category: dataset.category,
-        price: dataset.price,
+        price: finalPrice,
         size_mb: dataset.size_mb || null,
         sample_data: dataset.sample_data || null,
         stripe_product_id: stripeProductId,

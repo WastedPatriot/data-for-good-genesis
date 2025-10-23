@@ -83,6 +83,83 @@ export type Database = {
         }
         Relationships: []
       }
+      charity_partnerships: {
+        Row: {
+          agreement_url: string | null
+          charity_registration_number: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string | null
+          country: string
+          created_at: string
+          ends_at: string | null
+          id: string
+          impact_areas: string[] | null
+          organization_id: string | null
+          organization_name: string
+          registration_proof_url: string | null
+          starts_at: string | null
+          status: Database["public"]["Enums"]["partnership_status"]
+          updated_at: string
+          verification_notes: string | null
+          verified_at: string | null
+          verified_by: string | null
+          website_url: string | null
+        }
+        Insert: {
+          agreement_url?: string | null
+          charity_registration_number: string
+          contact_email: string
+          contact_name: string
+          contact_phone?: string | null
+          country: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          impact_areas?: string[] | null
+          organization_id?: string | null
+          organization_name: string
+          registration_proof_url?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["partnership_status"]
+          updated_at?: string
+          verification_notes?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          agreement_url?: string | null
+          charity_registration_number?: string
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string | null
+          country?: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          impact_areas?: string[] | null
+          organization_id?: string | null
+          organization_name?: string
+          registration_proof_url?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["partnership_status"]
+          updated_at?: string
+          verification_notes?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charity_partnerships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_submissions: {
         Row: {
           admin_notes: string | null
@@ -329,6 +406,186 @@ export type Database = {
         }
         Relationships: []
       }
+      project_milestones: {
+        Row: {
+          completed_at: string | null
+          completion_proof_url: string | null
+          created_at: string
+          description: string
+          id: string
+          order_index: number
+          project_id: string
+          target_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completion_proof_url?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          order_index?: number
+          project_id: string
+          target_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completion_proof_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          order_index?: number
+          project_id?: string
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_milestones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_votes: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          user_id: string
+          vote_weight: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          user_id: string
+          vote_weight?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          user_id?: string
+          vote_weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_votes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          active_from: string | null
+          active_until: string | null
+          category: string
+          charity_registration_number: string | null
+          created_at: string
+          description: string
+          documentation_url: string | null
+          flag_reason: string | null
+          flagged: boolean | null
+          funded_amount: number
+          funding_goal: number
+          icon: string | null
+          id: string
+          image_url: string | null
+          long_description: string | null
+          organization_id: string | null
+          organization_name: string
+          proof_of_work_url: string | null
+          status: Database["public"]["Enums"]["project_status"]
+          submitted_by: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          verification_notes: string | null
+          verified_at: string | null
+          verified_by: string | null
+          votes_count: number
+          website_url: string | null
+        }
+        Insert: {
+          active_from?: string | null
+          active_until?: string | null
+          category: string
+          charity_registration_number?: string | null
+          created_at?: string
+          description: string
+          documentation_url?: string | null
+          flag_reason?: string | null
+          flagged?: boolean | null
+          funded_amount?: number
+          funding_goal: number
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          long_description?: string | null
+          organization_id?: string | null
+          organization_name: string
+          proof_of_work_url?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          submitted_by?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          verification_notes?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          votes_count?: number
+          website_url?: string | null
+        }
+        Update: {
+          active_from?: string | null
+          active_until?: string | null
+          category?: string
+          charity_registration_number?: string | null
+          created_at?: string
+          description?: string
+          documentation_url?: string | null
+          flag_reason?: string | null
+          flagged?: boolean | null
+          funded_amount?: number
+          funding_goal?: number
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          long_description?: string | null
+          organization_id?: string | null
+          organization_name?: string
+          proof_of_work_url?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          submitted_by?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          verification_notes?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          votes_count?: number
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       purchases: {
         Row: {
           amount_paid: number
@@ -412,6 +669,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      partnership_status: "pending" | "verified" | "rejected" | "suspended"
+      project_status:
+        | "proposed"
+        | "under_review"
+        | "verified"
+        | "active"
+        | "funded"
+        | "completed"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -540,6 +806,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      partnership_status: ["pending", "verified", "rejected", "suspended"],
+      project_status: [
+        "proposed",
+        "under_review",
+        "verified",
+        "active",
+        "funded",
+        "completed",
+        "rejected",
+      ],
     },
   },
 } as const
