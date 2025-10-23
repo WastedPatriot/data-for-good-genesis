@@ -233,6 +233,32 @@ export default function Admin() {
             </CardContent>
           </Card>
 
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/analytics")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                Live Analytics
+              </CardTitle>
+              <CardDescription>Real-time platform metrics</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">View Analytics</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/contacts")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="w-5 h-5" />
+                Contact Management
+              </CardTitle>
+              <CardDescription>Reply to user inquiries</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">Manage Contacts</Button>
+            </CardContent>
+          </Card>
+
           <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/logs")}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

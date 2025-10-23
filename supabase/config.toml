@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.agent-webhook-handler]
 verify_jwt = false
+
+[functions.send-admin-reply]
+verify_jwt = true

@@ -28,6 +28,8 @@ import AdminUsers from "./pages/admin/Users";
 import AdminDatasets from "./pages/admin/Datasets";
 import AdminPurchases from "./pages/admin/Purchases";
 import SystemLogs from "./pages/admin/SystemLogs";
+import ContactManagement from "./pages/admin/ContactManagement";
+import LiveAnalytics from "./pages/admin/LiveAnalytics";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -102,6 +104,16 @@ const App = () => (
             <Route path="/admin/logs" element={
               <ProtectedRoute requireAdmin={true}>
                 <SystemLogs />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/contacts" element={
+              <ProtectedRoute requireAdmin={true}>
+                <ContactManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/analytics" element={
+              <ProtectedRoute requireAdmin={true}>
+                <LiveAnalytics />
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />
