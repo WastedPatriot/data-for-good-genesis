@@ -192,14 +192,89 @@ export default function Admin() {
           </Card>
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="activity" className="space-y-6">
+        {/* Main Management Cards */}
+        <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-3 mb-8">
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/users")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                User Management
+              </CardTitle>
+              <CardDescription>Manage accounts and permissions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">View Users</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/datasets")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="w-5 h-5" />
+                Dataset Management
+              </CardTitle>
+              <CardDescription>Control marketplace inventory</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">Manage Datasets</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/purchases")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Orders & Revenue
+              </CardTitle>
+              <CardDescription>Track sales and transactions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">View Orders</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/logs")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                System Logs
+              </CardTitle>
+              <CardDescription>Audit trail and activity</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">View Logs</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/review")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Review Queue
+              </CardTitle>
+              <CardDescription>Approve data submissions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">Review Items</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/release-policy")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                Release Policy
+              </CardTitle>
+              <CardDescription>Configure publishing rules</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">Edit Policy</Button>
+            </CardContent>
+          </Card>
+        </div>
           <TabsList>
-            <TabsTrigger value="activity">Recent Activity</TabsTrigger>
             <TabsTrigger value="marketing">AI Marketing</TabsTrigger>
-            <TabsTrigger value="submissions">Data Submissions</TabsTrigger>
-            <TabsTrigger value="organizations">Organizations</TabsTrigger>
-            <TabsTrigger value="contacts">Contact Forms</TabsTrigger>
+            <TabsTrigger value="activity">Recent Activity</TabsTrigger>
           </TabsList>
 
           <TabsContent value="marketing">
@@ -242,56 +317,6 @@ export default function Admin() {
                     ))}
                   </TableBody>
                 </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="submissions">
-            <Card>
-              <CardHeader>
-                <CardTitle>Data Submissions Management</CardTitle>
-                <CardDescription>Review and manage user data contributions</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-4">
-                  <Button onClick={() => navigate("/admin/submissions")}>
-                    View All Submissions
-                  </Button>
-                  <Button onClick={() => navigate("/admin/review")} variant="secondary">
-                    Review Queue
-                  </Button>
-                  <Button onClick={() => navigate("/admin/release-policy")} variant="outline">
-                    Release Policy
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="organizations">
-            <Card>
-              <CardHeader>
-                <CardTitle>Organization Management</CardTitle>
-                <CardDescription>Verify and manage organization accounts</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button onClick={() => navigate("/admin/organizations")}>
-                  View All Organizations
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="contacts">
-            <Card>
-              <CardHeader>
-                <CardTitle>Contact Form Submissions</CardTitle>
-                <CardDescription>Respond to user inquiries</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button onClick={() => navigate("/admin/contacts")}>
-                  View All Contacts
-                </Button>
               </CardContent>
             </Card>
           </TabsContent>

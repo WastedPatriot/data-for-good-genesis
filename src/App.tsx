@@ -22,6 +22,12 @@ import Terms from "./pages/Terms";
 import OrganizationSignup from "./pages/OrganizationSignup";
 import OrganizationProfile from "./pages/OrganizationProfile";
 import Admin from "./pages/Admin";
+import AdminReview from "./pages/AdminReview";
+import AdminReleasePolicy from "./pages/AdminReleasePolicy";
+import AdminUsers from "./pages/admin/Users";
+import AdminDatasets from "./pages/admin/Datasets";
+import AdminPurchases from "./pages/admin/Purchases";
+import SystemLogs from "./pages/admin/SystemLogs";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -66,6 +72,36 @@ const App = () => (
             <Route path="/admin" element={
               <ProtectedRoute requireAdmin={true}>
                 <Admin />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/review" element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminReview />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/release-policy" element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminReleasePolicy />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/datasets" element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminDatasets />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/purchases" element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminPurchases />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/logs" element={
+              <ProtectedRoute requireAdmin={true}>
+                <SystemLogs />
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />

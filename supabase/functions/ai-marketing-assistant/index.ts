@@ -86,9 +86,10 @@ serve(async (req) => {
       console.log("Sending test email to:", test_email);
       
       const emailResult = await resend.emails.send({
-        from: "DataForEarth <hello@dataforearth.org>",
+        from: "DataForEarth <onboarding@resend.dev>",
         to: [test_email],
         subject: "Test Email from DataForEarth AI Marketing Assistant",
+        replyTo: "hello@dataforearth.org",
         html: `
           <h1>Test Email Successful!</h1>
           <p>This is a test email from your DataForEarth AI Marketing Assistant.</p>
