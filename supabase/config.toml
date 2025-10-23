@@ -80,3 +80,9 @@ verify_jwt = false
 
 [functions.process-visitor-insights]
 verify_jwt = false
+
+[functions.build-visitor-dataset]
+verify_jwt = false
+
+[functions.identify-warm-leads]
+verify_jwt = false

@@ -19,6 +19,7 @@ import Contact from "./pages/Contact";
 import Help from "./pages/Help";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import DataCollection from "./pages/DataCollection";
 import OrganizationSignup from "./pages/OrganizationSignup";
 import OrganizationProfile from "./pages/OrganizationProfile";
 import Admin from "./pages/Admin";
@@ -31,6 +32,7 @@ import SystemLogs from "./pages/admin/SystemLogs";
 import ContactManagement from "./pages/admin/ContactManagement";
 import LiveAnalytics from "./pages/admin/LiveAnalytics";
 import VisitorInsights from "./pages/admin/VisitorInsights";
+import WarmLeads from "./pages/admin/WarmLeads";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -38,11 +40,14 @@ import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
 import Earth3DBackground from "./components/Earth3DBackground";
 import { useVisitorTracking } from "./hooks/useVisitorTracking";
+import { useLeadScoring } from "./hooks/useLeadScoring";
+import { CookieConsent } from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   useVisitorTracking();
+  useLeadScoring();
   
   return (
   <QueryClientProvider client={queryClient}>
@@ -56,6 +61,7 @@ const App = () => {
           aria-hidden="true"
         />
         <Navigation />
+        <CookieConsent />
         <div className="pt-16 relative z-10">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -74,6 +80,7 @@ const App = () => {
             <Route path="/help" element={<Help />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/data-collection" element={<DataCollection />} />
             <Route path="/organization-signup" element={<OrganizationSignup />} />
             <Route path="/organization-profile" element={<OrganizationProfile />} />
             <Route path="/admin" element={
@@ -124,6 +131,11 @@ const App = () => {
             <Route path="/admin/visitor-insights" element={
               <ProtectedRoute requireAdmin={true}>
                 <VisitorInsights />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/warm-leads" element={
+              <ProtectedRoute requireAdmin={true}>
+                <WarmLeads />
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />

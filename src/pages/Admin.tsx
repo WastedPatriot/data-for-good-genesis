@@ -259,6 +259,19 @@ export default function Admin() {
             </CardContent>
           </Card>
 
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/warm-leads")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Warm Leads
+              </CardTitle>
+              <CardDescription>High-intent visitor tracking</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">View Leads</Button>
+            </CardContent>
+          </Card>
+
           <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/contacts")}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
