@@ -112,11 +112,18 @@ const Help = () => {
     <div className="min-h-screen bg-transparent py-12 px-4">
       <div className="container mx-auto max-w-5xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-center mb-12"
         >
-          <HelpCircle className="w-16 h-16 text-primary mx-auto mb-4" />
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
+          >
+            <HelpCircle className="w-16 h-16 text-primary mx-auto mb-4" />
+          </motion.div>
           <h1 className="text-5xl font-black mb-4 text-gradient">Help Center</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Find answers to common questions or contact our support team
@@ -124,15 +131,22 @@ const Help = () => {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
           className="space-y-8"
         >
           {faqs.map((category, idx) => {
             const Icon = category.icon;
             return (
-              <div key={idx} className="bg-card border-2 border-border rounded-xl p-8 hover-lift">
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
+                whileHover={{ scale: 1.01 }}
+                className="bg-card border-2 border-border rounded-xl p-8"
+              >
                 <div className="flex items-center gap-3 mb-6">
                   <Icon className="w-8 h-8 text-primary" />
                   <h2 className="text-2xl font-black">{category.category}</h2>
@@ -150,7 +164,7 @@ const Help = () => {
                     </AccordionItem>
                   ))}
                 </Accordion>
-              </div>
+              </motion.div>
             );
           })}
         </motion.div>

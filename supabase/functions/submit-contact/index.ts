@@ -50,7 +50,7 @@ serve(async (req) => {
 
     console.log("Contact submission saved:", data.id);
 
-    // Send confirmation email
+    // Send confirmation email to user
     try {
       await resend.emails.send({
         from: "Data for Earth <onboarding@resend.dev>",
@@ -83,6 +83,48 @@ serve(async (req) => {
     } catch (emailError) {
       console.error("Failed to send confirmation email:", emailError);
       // Don't fail the request if email fails
+    }
+
+    // Send notification email to admin
+    const adminEmail = Deno.env.get("ADMIN_EMAIL") || "contact@dataforearth.org";
+    try {
+      await resend.emails.send({
+        from: "Data for Earth <onboarding@resend.dev>",
+        to: [adminEmail],
+        replyTo: [email],
+        subject: `New ${submissionType} inquiry from ${name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #10b981;">New Contact Form Submission</h1>
+            
+            <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h2 style="margin-top: 0;">Contact Details</h2>
+              <p><strong>Name:</strong> ${name}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              ${organization ? `<p><strong>Organization:</strong> ${organization}</p>` : ''}
+              <p><strong>Type:</strong> ${submissionType}</p>
+            </div>
+
+            <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h2 style="margin-top: 0;">Message</h2>
+              <p><strong>Subject:</strong> ${subject}</p>
+              <p style="white-space: pre-wrap;">${message}</p>
+            </div>
+
+            <p><strong>Submission ID:</strong> ${data.id}</p>
+            <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+
+            <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+              Reply directly to this email to respond to ${name}
+            </p>
+          </div>
+        `,
+      });
+
+      console.log("Admin notification sent to:", adminEmail);
+    } catch (emailError) {
+      console.error("Failed to send admin notification:", emailError);
+      // Don't fail the request if admin email fails
     }
 
     // Log audit
