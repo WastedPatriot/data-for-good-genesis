@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          resource_id: string | null
+          resource_type: string
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          resource_id?: string | null
+          resource_type: string
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          resource_id?: string | null
+          resource_type?: string
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       badge_codes: {
         Row: {
           claimed: boolean
@@ -43,6 +82,108 @@ export type Database = {
           purchase_id?: string | null
         }
         Relationships: []
+      }
+      contact_submissions: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          organization: string | null
+          status: string | null
+          subject: string
+          submission_type: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          organization?: string | null
+          status?: string | null
+          subject: string
+          submission_type: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          organization?: string | null
+          status?: string | null
+          subject?: string
+          submission_type?: string
+        }
+        Relationships: []
+      }
+      data_processing_queue: {
+        Row: {
+          ai_analysis: Json | null
+          backup_location: string | null
+          categorization: Json | null
+          created_at: string
+          error_message: string | null
+          id: string
+          processed_at: string | null
+          processed_data: Json | null
+          processing_status: string | null
+          published_dataset_id: string | null
+          quality_score: number | null
+          submission_id: string
+          updated_at: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          backup_location?: string | null
+          categorization?: Json | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          processed_at?: string | null
+          processed_data?: Json | null
+          processing_status?: string | null
+          published_dataset_id?: string | null
+          quality_score?: number | null
+          submission_id: string
+          updated_at?: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          backup_location?: string | null
+          categorization?: Json | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          processed_at?: string | null
+          processed_data?: Json | null
+          processing_status?: string | null
+          published_dataset_id?: string | null
+          quality_score?: number | null
+          submission_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_processing_queue_published_dataset_id_fkey"
+            columns: ["published_dataset_id"]
+            isOneToOne: false
+            referencedRelation: "datasets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "data_processing_queue_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "data_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       data_submissions: {
         Row: {
@@ -128,6 +269,63 @@ export type Database = {
           stripe_price_id?: string
           stripe_product_id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      organization_profiles: {
+        Row: {
+          compliance_accepted: boolean
+          contact_email: string
+          contact_phone: string | null
+          country: string
+          created_at: string
+          description: string | null
+          id: string
+          organization_name: string
+          organization_type: string
+          privacy_accepted_at: string | null
+          tax_id: string | null
+          terms_accepted_at: string | null
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+          website: string | null
+        }
+        Insert: {
+          compliance_accepted?: boolean
+          contact_email: string
+          contact_phone?: string | null
+          country: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          organization_name: string
+          organization_type: string
+          privacy_accepted_at?: string | null
+          tax_id?: string | null
+          terms_accepted_at?: string | null
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+          website?: string | null
+        }
+        Update: {
+          compliance_accepted?: boolean
+          contact_email?: string
+          contact_phone?: string | null
+          country?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          organization_name?: string
+          organization_type?: string
+          privacy_accepted_at?: string | null
+          tax_id?: string | null
+          terms_accepted_at?: string | null
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+          website?: string | null
         }
         Relationships: []
       }
