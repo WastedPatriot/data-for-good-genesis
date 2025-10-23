@@ -290,14 +290,28 @@ const Contribute = () => {
         sensor_data: result.data.sensorData || {}
       };
 
-      const { error } = await supabase
+      const { data: submission, error } = await supabase
         .from("data_submissions")
-        .insert([payload]);
+        .insert([payload])
+        .select()
+        .single();
+      
       if (error) throw error;
 
+      // Trigger AI processing in background
+      if (submission) {
+        supabase.functions.invoke("process-data-submission", {
+          body: { submissionId: submission.id }
+        }).then(({ error: processError }) => {
+          if (processError) {
+            console.error("AI processing error:", processError);
+          }
+        });
+      }
+
       toast({
-        title: "Thank you! 🌱",
-        description: "Your data helps fund green projects chosen by the community.",
+        title: "Thank you for contributing!",
+        description: "Your data is being processed by our AI system and will help fund environmental projects.",
       });
 
       setStep(totalSteps + 1);

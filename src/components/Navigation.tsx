@@ -1,14 +1,30 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Leaf } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, Leaf, User } from "lucide-react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo-new.png";
 
 const Navigation = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Check current auth state
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const links = [
     { to: "/", label: "Home" },
@@ -60,8 +76,20 @@ const Navigation = () => {
               </Link>
             ))}
             <Link to="/claim-badge">
-              <Button size="sm">Claim Badge</Button>
+              <Button size="sm" variant="outline">Claim Badge</Button>
             </Link>
+            {user ? (
+              <Link to="/organization-profile">
+                <Button size="sm" className="gap-2">
+                  <User className="w-4 h-4" />
+                  Profile
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/login">
+                <Button size="sm">Sign In</Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
