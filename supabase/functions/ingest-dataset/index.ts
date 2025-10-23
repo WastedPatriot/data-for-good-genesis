@@ -265,7 +265,7 @@ serve(async (req) => {
     // Send admin email
     try {
       await resend.emails.send({
-        from: "DataForEarth <onboarding@resend.dev>",
+        from: "Data for Earth <noreply@dataforearth.org>",
         to: ["hello@dataforearth.org"],
         subject: `New Dataset Published: ${dataset.name}`,
         html: `
