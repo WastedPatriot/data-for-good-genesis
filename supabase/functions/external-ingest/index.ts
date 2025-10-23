@@ -1,10 +1,43 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-ingest-signature",
 };
+
+// Rate limiting
+const rateLimitMap = new Map<string, number[]>();
+const MAX_REQUESTS_PER_HOUR = 50;
+
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now();
+  const hourAgo = now - 3600000;
+  
+  const timestamps = rateLimitMap.get(identifier) || [];
+  const recentTimestamps = timestamps.filter(t => t > hourAgo);
+  
+  if (recentTimestamps.length >= MAX_REQUESTS_PER_HOUR) {
+    return false;
+  }
+  
+  recentTimestamps.push(now);
+  rateLimitMap.set(identifier, recentTimestamps);
+  return true;
+}
+
+// Validation schema
+const submissionSchema = z.object({
+  email: z.string().email().max(255).optional().nullable(),
+  location: z.string().max(200).optional().nullable(),
+  age_range: z.string().max(50).optional(),
+  interests: z.array(z.string().max(100)).max(20).optional(),
+  device_ownership: z.string().max(100).optional().nullable(),
+  ev_ownership: z.string().max(100).optional().nullable(),
+  sustainability: z.string().max(500).optional().nullable(),
+  sensor_data: z.record(z.any()).optional()
+});
 
 /**
  * External Ingest Endpoint
@@ -26,6 +59,21 @@ serve(async (req) => {
 
   try {
     console.log("[EXTERNAL-INGEST] Request received");
+
+    // Rate limiting
+    const clientIp = req.headers.get("x-forwarded-for") || "unknown";
+    if (!checkRateLimit(clientIp)) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Rate limit exceeded. Please try again later.",
+          code: "RATE_LIMIT_EXCEEDED"
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429,
+        }
+      );
+    }
 
     // Verify HMAC signature
     const ingestSecret = Deno.env.get("INGEST_SECRET");
@@ -82,9 +130,20 @@ serve(async (req) => {
     const processingPromises = [];
 
     for (const submission of submissions) {
-      // Validate required fields
-      if (!submission.age_range && !submission.sensor_data?.scraper_source) {
-        console.warn("[EXTERNAL-INGEST] Skipping invalid submission (missing required fields)");
+      // Validate with zod
+      let validatedSubmission;
+      try {
+        validatedSubmission = submissionSchema.parse(submission);
+      } catch (validationError) {
+        console.warn("[EXTERNAL-INGEST] Skipping invalid submission:", validationError);
+        insertResults.push({ success: false, error: "VALIDATION_FAILED" });
+        continue;
+      }
+
+      // Additional check for scraper data
+      if (!validatedSubmission.age_range && !validatedSubmission.sensor_data?.scraper_source) {
+        console.warn("[EXTERNAL-INGEST] Skipping submission (missing required fields)");
+        insertResults.push({ success: false, error: "MISSING_REQUIRED_FIELDS" });
         continue;
       }
 
@@ -92,14 +151,14 @@ serve(async (req) => {
       const { data: insertedData, error: insertError } = await supabaseClient
         .from("data_submissions")
         .insert({
-          email: submission.email || null,
-          location: submission.location || null,
-          age_range: submission.age_range || "Unknown",
-          interests: submission.interests || [],
-          device_ownership: submission.device_ownership || null,
-          ev_ownership: submission.ev_ownership || null,
-          sustainability: submission.sustainability || null,
-          sensor_data: submission.sensor_data || {},
+          email: validatedSubmission.email,
+          location: validatedSubmission.location,
+          age_range: validatedSubmission.age_range || "Unknown",
+          interests: validatedSubmission.interests || [],
+          device_ownership: validatedSubmission.device_ownership,
+          ev_ownership: validatedSubmission.ev_ownership,
+          sustainability: validatedSubmission.sustainability,
+          sensor_data: validatedSubmission.sensor_data || {},
         })
         .select()
         .single();

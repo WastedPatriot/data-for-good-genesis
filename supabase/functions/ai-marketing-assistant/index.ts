@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { Resend } from "https://esm.sh/resend@4.0.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,6 +10,27 @@ const corsHeaders = {
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+
+// Input validation schemas
+const testEmailSchema = z.object({
+  action: z.literal("send_test_email"),
+  test_email: z.string().email().max(255)
+});
+
+const approveCampaignSchema = z.object({
+  action: z.literal("approve_campaign"),
+  campaign_id: z.string().uuid()
+});
+
+const chatMessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().max(10000)
+});
+
+const chatRequestSchema = z.object({
+  action: z.literal("chat").optional(),
+  messages: z.array(chatMessageSchema).min(1).max(50)
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -55,10 +77,12 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { action, messages, test_email, campaign_id } = body;
+    const { action } = body;
 
-    // Handle different actions
+    // Validate input based on action
     if (action === "send_test_email") {
+      const validated = testEmailSchema.parse(body);
+      const { test_email } = validated;
       console.log("Sending test email to:", test_email);
       
       const emailResult = await resend.emails.send({
@@ -95,6 +119,8 @@ serve(async (req) => {
     }
 
     if (action === "approve_campaign") {
+      const validated = approveCampaignSchema.parse(body);
+      const { campaign_id } = validated;
       console.log("Approving campaign:", campaign_id);
       
       // Get campaign details
@@ -160,6 +186,9 @@ serve(async (req) => {
     }
 
     if (action === "chat") {
+      const validated = chatRequestSchema.parse(body);
+      const { messages } = validated;
+      
       console.log("Processing AI chat request");
       
       // Call Lovable AI for chat response
@@ -250,8 +279,24 @@ Keep responses concise and actionable.`
 
   } catch (error: any) {
     console.error("AI Marketing Assistant error:", error);
+    
+    // Handle validation errors
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid request data. Please check your input.",
+          code: "VALIDATION_ERROR",
+          details: error.errors
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+    
     return new Response(
-      JSON.stringify({ error: error.message || "Unexpected error" }),
+      JSON.stringify({ 
+        error: "Unable to process request. Please try again.",
+        code: "REQUEST_FAILED"
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }

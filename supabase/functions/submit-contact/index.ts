@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { Resend } from "https://esm.sh/resend@4.0.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,6 +9,36 @@ const corsHeaders = {
 };
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+// Rate limiting (in-memory, resets on function cold start)
+const rateLimitMap = new Map<string, number[]>();
+const MAX_REQUESTS_PER_HOUR = 20;
+
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now();
+  const hourAgo = now - 3600000;
+  
+  const timestamps = rateLimitMap.get(identifier) || [];
+  const recentTimestamps = timestamps.filter(t => t > hourAgo);
+  
+  if (recentTimestamps.length >= MAX_REQUESTS_PER_HOUR) {
+    return false;
+  }
+  
+  recentTimestamps.push(now);
+  rateLimitMap.set(identifier, recentTimestamps);
+  return true;
+}
+
+// Input validation schema
+const contactSchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  email: z.string().email().max(255),
+  subject: z.string().trim().min(1).max(200),
+  message: z.string().trim().min(1).max(5000),
+  submissionType: z.enum(['general', 'partnership', 'support', 'data', 'organization']),
+  organization: z.string().max(200).optional()
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -20,14 +51,31 @@ serve(async (req) => {
   );
 
   try {
-    const { name, email, organization, subject, message, submissionType } = await req.json();
-
-    console.log("Contact submission received:", { name, email, submissionType });
-
-    // Validate input
-    if (!name || !email || !subject || !message || !submissionType) {
-      throw new Error("Missing required fields");
+    // Rate limiting by IP
+    const clientIp = req.headers.get("x-forwarded-for") || "unknown";
+    if (!checkRateLimit(clientIp)) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Too many requests. Please try again later.",
+          code: "RATE_LIMIT_EXCEEDED"
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429,
+        }
+      );
     }
+
+    const rawData = await req.json();
+
+    console.log("Contact submission received:", { 
+      email: rawData.email, 
+      submissionType: rawData.submissionType 
+    });
+
+    // Validate input with zod
+    const validated = contactSchema.parse(rawData);
+    const { name, email, organization, subject, message, submissionType } = validated;
 
     // Store in database
     const { data, error: dbError } = await supabaseClient
@@ -150,6 +198,22 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error in submit-contact:", error);
+    
+    // Handle validation errors specifically
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid input data. Please check your submission.",
+          code: "VALIDATION_ERROR",
+          details: error.errors
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        }
+      );
+    }
+    
     return new Response(
       JSON.stringify({ 
         error: "Unable to process your submission. Please try again later.",
