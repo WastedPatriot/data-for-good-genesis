@@ -1,0 +1,45 @@
+{
+  "name": "dataforearth-machine-agent",
+  "version": "1.0.0",
+  "description": "DataForEarth Machine Agent - Automated Dataset Publisher",
+  "main": "dist/electron/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:electron\" \"npm run dev:react\"",
+    "dev:electron": "tsc -p tsconfig.electron.json && electron .",
+    "dev:react": "vite",
+    "build": "npm run build:react && npm run build:electron",
+    "build:react": "vite build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "package": "npm run build && electron-builder",
+    "package:linux": "npm run build && electron-builder --linux AppImage"
+  },
+  "build": {
+    "appId": "org.dataforearth.agent",
+    "productName": "DataForEarth Agent",
+    "directories": {
+      "output": "dist-package"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Utility"
+    }
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "chart.js": "^4.4.1",
+    "react-chartjs-2": "^5.2.0",
+    "date-fns": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0"
+  }
+}

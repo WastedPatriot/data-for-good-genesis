@@ -1,0 +1,20 @@
+[Unit]
+Description=DataForEarth Machine Agent
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt
+ExecStart=/opt/dataforearth-agent.AppImage --no-sandbox
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
