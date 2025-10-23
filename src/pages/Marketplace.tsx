@@ -219,6 +219,7 @@ const Marketplace = () => {
                 {option.label}
               </Button>
             ))}
+          </div>
 
           {datasets.length === 0 ? (
             <div className="col-span-full text-center py-16">
@@ -321,7 +322,6 @@ const Marketplace = () => {
                 </Button>
               ))}
             </div>
-          </div>
           </div>
         </motion.div>
       </div>
