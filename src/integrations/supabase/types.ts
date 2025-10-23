@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_events: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed: boolean | null
+          processed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          processed?: boolean | null
+          processed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed?: boolean | null
+          processed_at?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -199,6 +229,65 @@ export type Database = {
         }
         Relationships: []
       }
+      curated_pool: {
+        Row: {
+          batch_number: number | null
+          category: string
+          confidence_score: number
+          created_at: string
+          curated_payload: Json
+          enterprise_grade: boolean | null
+          id: string
+          last_used_at: string | null
+          limited_supply: number | null
+          quality_tier: string
+          review_queue_id: string
+          tags: string[] | null
+          usage_count: number
+          used_in_datasets: string[] | null
+        }
+        Insert: {
+          batch_number?: number | null
+          category: string
+          confidence_score: number
+          created_at?: string
+          curated_payload: Json
+          enterprise_grade?: boolean | null
+          id?: string
+          last_used_at?: string | null
+          limited_supply?: number | null
+          quality_tier: string
+          review_queue_id: string
+          tags?: string[] | null
+          usage_count?: number
+          used_in_datasets?: string[] | null
+        }
+        Update: {
+          batch_number?: number | null
+          category?: string
+          confidence_score?: number
+          created_at?: string
+          curated_payload?: Json
+          enterprise_grade?: boolean | null
+          id?: string
+          last_used_at?: string | null
+          limited_supply?: number | null
+          quality_tier?: string
+          review_queue_id?: string
+          tags?: string[] | null
+          usage_count?: number
+          used_in_datasets?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curated_pool_review_queue_id_fkey"
+            columns: ["review_queue_id"]
+            isOneToOne: false
+            referencedRelation: "review_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       data_processing_queue: {
         Row: {
           ai_analysis: Json | null
@@ -301,48 +390,104 @@ export type Database = {
         }
         Relationships: []
       }
+      dataset_files: {
+        Row: {
+          checksum_sha256: string | null
+          created_at: string
+          dataset_id: string
+          download_url: string | null
+          file_path: string
+          file_size_bytes: number | null
+          format: string
+          id: string
+          presigned_url_expires_at: string | null
+        }
+        Insert: {
+          checksum_sha256?: string | null
+          created_at?: string
+          dataset_id: string
+          download_url?: string | null
+          file_path: string
+          file_size_bytes?: number | null
+          format: string
+          id?: string
+          presigned_url_expires_at?: string | null
+        }
+        Update: {
+          checksum_sha256?: string | null
+          created_at?: string
+          dataset_id?: string
+          download_url?: string | null
+          file_path?: string
+          file_size_bytes?: number | null
+          format?: string
+          id?: string
+          presigned_url_expires_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dataset_files_dataset_id_fkey"
+            columns: ["dataset_id"]
+            isOneToOne: false
+            referencedRelation: "datasets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       datasets: {
         Row: {
           active: boolean | null
+          batch_number: number | null
           category: string
           created_at: string
           description: string
+          enterprise_grade: boolean | null
           featured: boolean | null
           id: string
+          limited_supply: number | null
           name: string
           price: number
           sample_data: Json | null
           size_mb: number | null
+          source_channel: string | null
           stripe_price_id: string
           stripe_product_id: string
           updated_at: string
         }
         Insert: {
           active?: boolean | null
+          batch_number?: number | null
           category: string
           created_at?: string
           description: string
+          enterprise_grade?: boolean | null
           featured?: boolean | null
           id?: string
+          limited_supply?: number | null
           name: string
           price: number
           sample_data?: Json | null
           size_mb?: number | null
+          source_channel?: string | null
           stripe_price_id: string
           stripe_product_id: string
           updated_at?: string
         }
         Update: {
           active?: boolean | null
+          batch_number?: number | null
           category?: string
           created_at?: string
           description?: string
+          enterprise_grade?: boolean | null
           featured?: boolean | null
           id?: string
+          limited_supply?: number | null
           name?: string
           price?: number
           sample_data?: Json | null
           size_mb?: number | null
+          source_channel?: string | null
           stripe_price_id?: string
           stripe_product_id?: string
           updated_at?: string
@@ -677,6 +822,128 @@ export type Database = {
             columns: ["dataset_id"]
             isOneToOne: false
             referencedRelation: "datasets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      release_policy: {
+        Row: {
+          burst_activated_at: string | null
+          burst_mode_enabled: boolean | null
+          burst_reason: string | null
+          channel: string
+          created_at: string
+          id: string
+          last_release_at: string | null
+          max_datasets_per_week: number
+          min_confidence: number
+          min_days_between_releases: number
+          min_quality_tier: string
+          updated_at: string
+        }
+        Insert: {
+          burst_activated_at?: string | null
+          burst_mode_enabled?: boolean | null
+          burst_reason?: string | null
+          channel: string
+          created_at?: string
+          id?: string
+          last_release_at?: string | null
+          max_datasets_per_week?: number
+          min_confidence?: number
+          min_days_between_releases?: number
+          min_quality_tier?: string
+          updated_at?: string
+        }
+        Update: {
+          burst_activated_at?: string | null
+          burst_mode_enabled?: boolean | null
+          burst_reason?: string | null
+          channel?: string
+          created_at?: string
+          id?: string
+          last_release_at?: string | null
+          max_datasets_per_week?: number
+          min_confidence?: number
+          min_days_between_releases?: number
+          min_quality_tier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      review_queue: {
+        Row: {
+          category: string | null
+          confidence_score: number | null
+          created_at: string
+          duplicate_of: string | null
+          id: string
+          normalized_payload: Json | null
+          provenance_hash: string
+          publish_decision: string | null
+          published_to: string[] | null
+          quality_tier: string | null
+          raw_payload: Json
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          similar_items: Json | null
+          source_reference: string
+          source_type: string
+          status: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          duplicate_of?: string | null
+          id?: string
+          normalized_payload?: Json | null
+          provenance_hash: string
+          publish_decision?: string | null
+          published_to?: string[] | null
+          quality_tier?: string | null
+          raw_payload: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          similar_items?: Json | null
+          source_reference: string
+          source_type: string
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          duplicate_of?: string | null
+          id?: string
+          normalized_payload?: Json | null
+          provenance_hash?: string
+          publish_decision?: string | null
+          published_to?: string[] | null
+          quality_tier?: string | null
+          raw_payload?: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          similar_items?: Json | null
+          source_reference?: string
+          source_type?: string
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_queue_duplicate_of_fkey"
+            columns: ["duplicate_of"]
+            isOneToOne: false
+            referencedRelation: "review_queue"
             referencedColumns: ["id"]
           },
         ]

@@ -123,8 +123,15 @@ const Navigation = () => {
                   size="sm" 
                   variant="ghost"
                   onClick={async () => {
-                    await supabase.auth.signOut();
-                    window.location.href = "/";
+                    try {
+                      const { error } = await supabase.auth.signOut();
+                      if (error) throw error;
+                      setUser(null);
+                      setIsAdmin(false);
+                      window.location.href = "/";
+                    } catch (error) {
+                      console.error("Logout error:", error);
+                    }
                   }}
                 >
                   Log Out
@@ -198,9 +205,16 @@ const Navigation = () => {
                     variant="ghost"
                     className="w-full"
                     onClick={async () => {
-                      await supabase.auth.signOut();
-                      setMobileMenuOpen(false);
-                      window.location.href = "/";
+                      try {
+                        const { error } = await supabase.auth.signOut();
+                        if (error) throw error;
+                        setUser(null);
+                        setIsAdmin(false);
+                        setMobileMenuOpen(false);
+                        window.location.href = "/";
+                      } catch (error) {
+                        console.error("Logout error:", error);
+                      }
                     }}
                   >
                     Log Out

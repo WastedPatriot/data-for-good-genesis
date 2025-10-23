@@ -41,3 +41,24 @@ verify_jwt = true
 
 [functions.dataset-status]
 verify_jwt = false
+
+[functions.contrib-handoff-for-review]
+verify_jwt = false
+
+[functions.scrape-batch-handoff-for-review]
+verify_jwt = false
+
+[functions.review-queue-fetch]
+verify_jwt = true
+
+[functions.review-queue-update]
+verify_jwt = true
+
+[functions.build-dataset-from-curated]
+verify_jwt = true
+
+[functions.inventory-throttle]
+verify_jwt = false
+
+[functions.agent-webhook-handler]
+verify_jwt = false
