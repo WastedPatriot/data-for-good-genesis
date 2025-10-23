@@ -272,6 +272,9 @@ export default function Admin() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Quick Actions Tabs */}
+        <Tabs defaultValue="marketing" className="space-y-6">
           <TabsList>
             <TabsTrigger value="marketing">AI Marketing</TabsTrigger>
             <TabsTrigger value="activity">Recent Activity</TabsTrigger>
