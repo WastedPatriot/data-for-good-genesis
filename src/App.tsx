@@ -34,6 +34,7 @@ import LiveAnalytics from "./pages/admin/LiveAnalytics";
 import VisitorInsights from "./pages/admin/VisitorInsights";
 import WarmLeads from "./pages/admin/WarmLeads";
 import DataPipeline from "./pages/admin/DataPipeline";
+import Communications from "./pages/admin/Communications";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -138,6 +139,11 @@ const AppContent = () => {
           <Route path="/admin/data-pipeline" element={
             <ProtectedRoute requireAdmin={true}>
               <DataPipeline />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/communications" element={
+            <ProtectedRoute requireAdmin={true}>
+              <Communications />
             </ProtectedRoute>
           } />
           <Route path="*" element={<NotFound />} />

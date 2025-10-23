@@ -44,31 +44,36 @@ serve(async (req) => {
       throw new Error("Admin access required");
     }
 
-    const { to, subject, message, original_name, original_message } = await req.json();
+    const { to, from, subject, message, contactName, originalMessage } = await req.json();
 
-    console.log("Sending admin reply:", { to, subject });
+    console.log("Sending admin reply:", { to, from, subject });
 
     if (!to || !message) {
       throw new Error("Missing required fields");
     }
 
+    // Map from addresses - note: these must be verified domains in Resend
+    const fromAddress = from || "onboarding@resend.dev";
+
     const emailResponse = await resend.emails.send({
-      from: "DataForEarth Support <onboarding@resend.dev>",
+      from: `DataForEarth <${fromAddress}>`,
       to: [to],
-      replyTo: "hello@dataforearth.org",
+      replyTo: from || "hello@dataforearth.org",
       subject: subject || "Re: Your inquiry",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #10b981;">DataForEarth Support</h2>
+          <h2 style="color: #10b981;">DataForEarth</h2>
+          
+          ${contactName ? `<p>Hi ${contactName},</p>` : ''}
           
           <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
             ${message.split('\n').map((line: string) => `<p>${line}</p>`).join('')}
           </div>
 
-          ${original_message ? `
+          ${originalMessage ? `
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
               <p style="color: #6b7280; font-size: 14px;"><strong>Your original message:</strong></p>
-              <p style="color: #6b7280; font-size: 14px;">${original_message}</p>
+              <p style="color: #6b7280; font-size: 14px;">${originalMessage}</p>
             </div>
           ` : ''}
 

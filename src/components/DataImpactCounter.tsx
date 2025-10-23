@@ -13,9 +13,9 @@ export default function DataImpactCounter() {
   useEffect(() => {
     const fetchRealStats = async () => {
       try {
-        // Get unique contributors (unique sessions from visitor analytics)
+        // Get actual data contributors (people who submitted data)
         const { count: contributorsCount } = await supabase
-          .from('visitor_analytics')
+          .from('data_submissions')
           .select('*', { count: 'exact', head: true });
 
         // Get active datasets

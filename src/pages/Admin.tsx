@@ -285,16 +285,16 @@ export default function Admin() {
             </CardContent>
           </Card>
 
-          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/contacts")}>
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/communications")}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
-                Contact Management
+                Communications Center
               </CardTitle>
-              <CardDescription>Reply to user inquiries</CardDescription>
+              <CardDescription>All customer communications</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full">Manage Contacts</Button>
+              <Button variant="outline" className="w-full">Manage Communications</Button>
             </CardContent>
           </Card>
 
