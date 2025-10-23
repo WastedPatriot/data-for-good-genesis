@@ -26,3 +26,18 @@ verify_jwt = false
 
 [functions.submit-data-submission]
 verify_jwt = false
+
+[functions.ingest-dataset]
+verify_jwt = false
+
+[functions.publish-dataset]
+verify_jwt = true
+
+[functions.create-badge-codes]
+verify_jwt = false
+
+[functions.download-dataset]
+verify_jwt = true
+
+[functions.dataset-status]
+verify_jwt = false
