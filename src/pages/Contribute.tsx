@@ -276,11 +276,21 @@ const Contribute = () => {
         sensor_data: result.data.sensorData || {}
       };
 
-      const { data: submission, error } = await supabase
-        .from("data_submissions")
-        .insert([payload])
-        .select()
-        .single();
+      const { data: resp, error } = await supabase.functions.invoke("submit-data-submission", {
+        body: payload
+      });
+
+      if (error) {
+        console.error('Insert error:', error);
+        toast({
+          title: "Submission failed",
+          description: (error as any)?.message || 'Unable to save your data. Please try again.',
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const submission = resp?.submission;
 
       if (error) {
         console.error('Insert error:', error);
