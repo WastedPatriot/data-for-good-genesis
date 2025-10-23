@@ -10,6 +10,7 @@ import Marketplace from "./pages/Marketplace";
 import ClaimBadge from "./pages/ClaimBadge";
 import Projects from "./pages/Projects";
 import About from "./pages/About";
+import Donate from "./pages/Donate";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/claim-badge" element={<ClaimBadge />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/about" element={<About />} />
+            <Route path="/donate" element={<Donate />} />
             <Route path="/login" element={<Login />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

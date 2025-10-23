@@ -16,6 +16,7 @@ const Navigation = () => {
     { to: "/marketplace", label: "Marketplace" },
     { to: "/projects", label: "Projects" },
     { to: "/about", label: "About" },
+    { to: "/donate", label: "Donate" },
   ];
 
   return (
