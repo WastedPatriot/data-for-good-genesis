@@ -14,6 +14,7 @@ import { LoadingScreen } from "./components/LoadingScreen";
 import About from "./pages/About";
 import Donate from "./pages/Donate";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 import Contact from "./pages/Contact";
 import Help from "./pages/Help";
 import Privacy from "./pages/Privacy";
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/donate" element={<Donate />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/help" element={<Help />} />
             <Route path="/privacy" element={<Privacy />} />

@@ -113,12 +113,22 @@ const Navigation = () => {
                     <Button size="sm" variant="secondary">Admin</Button>
                   </Link>
                 )}
-                <Link to="/organization-profile">
-                  <Button size="sm" className="gap-2">
+                <Link to="/profile">
+                  <Button size="sm" variant="outline" className="gap-2">
                     <User className="w-4 h-4" />
                     Profile
                   </Button>
                 </Link>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = "/";
+                  }}
+                >
+                  Log Out
+                </Button>
               </>
             ) : (
               <Link to="/login">
@@ -170,6 +180,37 @@ const Navigation = () => {
                   Claim Badge
                 </Button>
               </Link>
+              {user ? (
+                <>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
+                      <Button size="sm" variant="secondary" className="w-full">Admin</Button>
+                    </Link>
+                  )}
+                  <Link to="/profile" onClick={() => setMobileMenuOpen(false)}>
+                    <Button size="sm" variant="outline" className="w-full gap-2">
+                      <User className="w-4 h-4" />
+                      Profile
+                    </Button>
+                  </Link>
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    className="w-full"
+                    onClick={async () => {
+                      await supabase.auth.signOut();
+                      setMobileMenuOpen(false);
+                      window.location.href = "/";
+                    }}
+                  >
+                    Log Out
+                  </Button>
+                </>
+              ) : (
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button size="sm" className="w-full">Sign In</Button>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
