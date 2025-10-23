@@ -8,6 +8,8 @@ import Logs from './components/Logs';
 import Settings from './components/Settings';
 import { ExternalScraperFeeds } from './components/ExternalScraperFeeds';
 import { InstitutionalSignals } from './components/InstitutionalSignals';
+import DataHarvestHub from './components/DataHarvestHub';
+import DatasetPublisher from './components/DatasetPublisher';
 
 declare global {
   interface Window {
@@ -15,7 +17,7 @@ declare global {
   }
 }
 
-type Tab = 'dashboard' | 'automation' | 'eco-projects' | 'badges' | 'logs' | 'settings' | 'scraper-feeds' | 'institutional-signals';
+type Tab = 'dashboard' | 'harvest' | 'publisher' | 'automation' | 'eco-projects' | 'badges' | 'logs' | 'settings' | 'scraper-feeds' | 'institutional-signals';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
@@ -32,6 +34,8 @@ function App() {
 
   const tabs = [
     { id: 'dashboard', label: '📊 Dashboard' },
+    { id: 'harvest', label: '🔍 Data Harvest' },
+    { id: 'publisher', label: '🚀 Publisher' },
     { id: 'automation', label: '🤖 Dataset Automation' },
     { id: 'scraper-feeds', label: '🔄 Scraper Feeds' },
     { id: 'institutional-signals', label: '📈 Institutional Signals' },
@@ -66,6 +70,8 @@ function App() {
 
         <main className="content">
           {activeTab === 'dashboard' && <Dashboard config={config} />}
+          {activeTab === 'harvest' && <DataHarvestHub />}
+          {activeTab === 'publisher' && <DatasetPublisher />}
           {activeTab === 'automation' && <DatasetAutomation config={config} />}
           {activeTab === 'scraper-feeds' && <ExternalScraperFeeds />}
           {activeTab === 'institutional-signals' && <InstitutionalSignals />}
