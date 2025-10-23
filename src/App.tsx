@@ -30,16 +30,21 @@ import AdminPurchases from "./pages/admin/Purchases";
 import SystemLogs from "./pages/admin/SystemLogs";
 import ContactManagement from "./pages/admin/ContactManagement";
 import LiveAnalytics from "./pages/admin/LiveAnalytics";
+import VisitorInsights from "./pages/admin/VisitorInsights";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
 import Earth3DBackground from "./components/Earth3DBackground";
+import { useVisitorTracking } from "./hooks/useVisitorTracking";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useVisitorTracking();
+  
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -116,12 +121,18 @@ const App = () => (
                 <LiveAnalytics />
               </ProtectedRoute>
             } />
+            <Route path="/admin/visitor-insights" element={
+              <ProtectedRoute requireAdmin={true}>
+                <VisitorInsights />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

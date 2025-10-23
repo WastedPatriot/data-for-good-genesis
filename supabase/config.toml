@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.ai-complaint-resolver]
 verify_jwt = false
+
+[functions.process-visitor-insights]
+verify_jwt = false

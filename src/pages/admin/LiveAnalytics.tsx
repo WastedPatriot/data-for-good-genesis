@@ -149,6 +149,19 @@ export default function LiveAnalytics() {
         .select("*", { count: "exact", head: true })
         .eq("status", "pending");
 
+      // Real visitor analytics - unique visitors today
+      const { count: uniqueVisitorsCount } = await supabase
+        .from("visitor_analytics")
+        .select("session_id", { count: "exact", head: true })
+        .gte("created_at", today.toISOString());
+
+      // Active sessions (last 30 minutes)
+      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+      const { count: activeSessionsCount } = await supabase
+        .from("visitor_analytics")
+        .select("session_id", { count: "exact", head: true })
+        .gte("visited_at", thirtyMinutesAgo.toISOString());
+
       // Recent activity
       const { data: logs } = await supabase
         .from("audit_logs")
@@ -159,10 +172,10 @@ export default function LiveAnalytics() {
       setStats({
         totalRevenue,
         todayRevenue,
-        activeSessions: Math.floor(Math.random() * 20) + 5, // Simulated for now
+        activeSessions: activeSessionsCount || 0,
         recentPurchases: recentPurchases?.length || 0,
         pendingReviews: pendingReviews?.length || 0,
-        activeUsers: Math.floor(Math.random() * 50) + 10 // Simulated for now
+        activeUsers: uniqueVisitorsCount || 0
       });
 
       setRecentActivity(logs || []);
