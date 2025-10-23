@@ -269,6 +269,270 @@ ipcMain.handle('read-logs', async () => {
   }
 });
 
+// Review Queue Management
+ipcMain.handle('fetch-review-queue', async (_, status: string, filters: any) => {
+  try {
+    const config = await loadConfigSync();
+    if (!config) throw new Error('Config not loaded');
+
+    const params = new URLSearchParams({ status, ...filters });
+    const response = await fetch(
+      `${config.SUPABASE_URL}/functions/v1/review-queue-fetch?${params}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Ingest-Secret': config.INGEST_SECRET
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    log('info', `Fetched ${data.items?.length || 0} review queue items`);
+    return { success: true, data };
+  } catch (error) {
+    log('error', `Failed to fetch review queue: ${error}`);
+    return { success: false, error: String(error) };
+  }
+});
+
+ipcMain.handle('approve-review-item', async (_, id: string, notes: string) => {
+  try {
+    const config = await loadConfigSync();
+    if (!config) throw new Error('Config not loaded');
+
+    const response = await fetch(
+      `${config.SUPABASE_URL}/functions/v1/review-queue-update`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Ingest-Secret': config.INGEST_SECRET
+        },
+        body: JSON.stringify({ itemId: id, action: 'approve', notes })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+
+    log('info', `Approved review item: ${id}`);
+    return { success: true };
+  } catch (error) {
+    log('error', `Failed to approve review item: ${error}`);
+    return { success: false, error: String(error) };
+  }
+});
+
+ipcMain.handle('reject-review-item', async (_, id: string, notes: string) => {
+  try {
+    const config = await loadConfigSync();
+    if (!config) throw new Error('Config not loaded');
+
+    const response = await fetch(
+      `${config.SUPABASE_URL}/functions/v1/review-queue-update`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Ingest-Secret': config.INGEST_SECRET
+        },
+        body: JSON.stringify({ itemId: id, action: 'reject', notes })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+
+    log('info', `Rejected review item: ${id}`);
+    return { success: true };
+  } catch (error) {
+    log('error', `Failed to reject review item: ${error}`);
+    return { success: false, error: String(error) };
+  }
+});
+
+// Dataset Building
+ipcMain.handle('build-dataset', async (_, mode: string, filters: any) => {
+  try {
+    const config = await loadConfigSync();
+    if (!config) throw new Error('Config not loaded');
+
+    const response = await fetch(
+      `${config.SUPABASE_URL}/functions/v1/build-dataset-from-curated`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Ingest-Secret': config.INGEST_SECRET
+        },
+        body: JSON.stringify({ mode, filters })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    log('info', `Built dataset: ${data.datasetId}`);
+    return { success: true, data };
+  } catch (error) {
+    log('error', `Failed to build dataset: ${error}`);
+    return { success: false, error: String(error) };
+  }
+});
+
+// Release Policy Management
+ipcMain.handle('get-release-policy', async () => {
+  try {
+    const config = await loadConfigSync();
+    if (!config) throw new Error('Config not loaded');
+
+    const response = await fetch(
+      `${config.SUPABASE_URL}/rest/v1/release_policy?select=*`,
+      {
+        headers: {
+          'apikey': config.INGEST_SECRET,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    return { success: true, data };
+  } catch (error) {
+    log('error', `Failed to get release policy: ${error}`);
+    return { success: false, error: String(error) };
+  }
+});
+
+ipcMain.handle('update-release-policy', async (_, payload: any) => {
+  try {
+    const config = await loadConfigSync();
+    if (!config) throw new Error('Config not loaded');
+
+    const response = await fetch(
+      `${config.SUPABASE_URL}/rest/v1/release_policy?id=eq.${payload.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'apikey': config.INGEST_SECRET,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+
+    log('info', 'Release policy updated');
+    return { success: true };
+  } catch (error) {
+    log('error', `Failed to update release policy: ${error}`);
+    return { success: false, error: String(error) };
+  }
+});
+
+ipcMain.handle('trigger-burst-mode', async (_, reason: string) => {
+  try {
+    const config = await loadConfigSync();
+    if (!config) throw new Error('Config not loaded');
+
+    const response = await fetch(
+      `${config.SUPABASE_URL}/rest/v1/release_policy?channel=eq.on_site`,
+      {
+        method: 'PATCH',
+        headers: {
+          'apikey': config.INGEST_SECRET,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          burst_mode_enabled: true,
+          burst_reason: reason,
+          burst_activated_at: new Date().toISOString()
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+
+    log('info', `Burst mode triggered: ${reason}`);
+    return { success: true };
+  } catch (error) {
+    log('error', `Failed to trigger burst mode: ${error}`);
+    return { success: false, error: String(error) };
+  }
+});
+
+ipcMain.handle('get-trending-signals', async () => {
+  try {
+    const config = await loadConfigSync();
+    if (!config) throw new Error('Config not loaded');
+
+    // Query curated_pool for trending tags and categories
+    const response = await fetch(
+      `${config.SUPABASE_URL}/rest/v1/curated_pool?select=tags,category,confidence_score&order=created_at.desc&limit=100`,
+      {
+        headers: {
+          'apikey': config.INGEST_SECRET,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    
+    // Analyze trending patterns
+    const tagFrequency: Record<string, number> = {};
+    const categoryFrequency: Record<string, number> = {};
+    
+    data.forEach((item: any) => {
+      if (item.tags) {
+        item.tags.forEach((tag: string) => {
+          tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
+        });
+      }
+      if (item.category) {
+        categoryFrequency[item.category] = (categoryFrequency[item.category] || 0) + 1;
+      }
+    });
+
+    const trending = {
+      tags: Object.entries(tagFrequency)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 10)
+        .map(([tag, count]) => ({ tag, count })),
+      categories: Object.entries(categoryFrequency)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5)
+        .map(([category, count]) => ({ category, count }))
+    };
+
+    return { success: true, data: trending };
+  } catch (error) {
+    log('error', `Failed to get trending signals: ${error}`);
+    return { success: false, error: String(error) };
+  }
+});
+
 // Automation control
 ipcMain.handle('start-automation', async () => {
   const config = await loadConfigSync();

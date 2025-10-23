@@ -252,10 +252,18 @@ export default function Admin() {
                 <CardTitle>Data Submissions Management</CardTitle>
                 <CardDescription>Review and manage user data contributions</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Button onClick={() => navigate("/admin/submissions")}>
-                  View All Submissions
-                </Button>
+              <CardContent className="space-y-4">
+                <div className="flex gap-4">
+                  <Button onClick={() => navigate("/admin/submissions")}>
+                    View All Submissions
+                  </Button>
+                  <Button onClick={() => navigate("/admin/review")} variant="secondary">
+                    Review Queue
+                  </Button>
+                  <Button onClick={() => navigate("/admin/release-policy")} variant="outline">
+                    Release Policy
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
