@@ -29,7 +29,7 @@ serve(async (req) => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "Data for Earth <onboarding@resend.dev>",
+      from: "Data for Earth <noreply@dataforearth.org>",
       to: [userEmail],
       subject: `Purchase Confirmation: ${datasetName}`,
       html: `

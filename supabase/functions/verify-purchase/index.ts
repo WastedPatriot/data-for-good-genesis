@@ -52,6 +52,31 @@ serve(async (req) => {
 
       console.log("Purchase verified and updated successfully");
 
+      // Fetch purchase row to get ID and send confirmation
+      const { data: purchaseRow } = await supabaseClient
+        .from("purchases")
+        .select("id")
+        .eq("stripe_session_id", sessionId)
+        .single();
+
+      try {
+        const userEmail = session.customer_details?.email || undefined;
+        const datasetName = (session.metadata as any)?.dataset_name || "Dataset";
+        const amount = (session.amount_total || 0) / 100;
+        if (userEmail) {
+          await supabaseClient.functions.invoke('send-purchase-confirmation', {
+            body: {
+              purchaseId: purchaseRow?.id,
+              userEmail,
+              datasetName,
+              amount,
+            },
+          });
+        }
+      } catch (e) {
+        console.error('Failed to send confirmation email:', e);
+      }
+
       return new Response(
         JSON.stringify({ success: true, status: "completed" }),
         {

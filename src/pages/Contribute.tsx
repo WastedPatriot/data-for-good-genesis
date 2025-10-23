@@ -295,8 +295,16 @@ const Contribute = () => {
         .insert([payload])
         .select()
         .single();
-      
-      if (error) throw error;
+
+      if (error) {
+        console.error('Insert error:', error);
+        toast({
+          title: "Submission failed",
+          description: error.message || 'Unable to save your data. Please try again.',
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Trigger AI processing in background (non-blocking)
       if (submission) {
@@ -321,11 +329,11 @@ const Contribute = () => {
       });
 
       setStep(totalSteps + 1);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submission error:', error);
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error?.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }

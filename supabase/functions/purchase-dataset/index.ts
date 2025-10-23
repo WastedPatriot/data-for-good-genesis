@@ -98,7 +98,7 @@ serve(async (req) => {
           quantity: 1,
         },
       ],
-      success_url: `${req.headers.get("origin")}/marketplace?success=true&dataset=${dataset.name}`,
+      success_url: `${req.headers.get("origin")}/marketplace?success=true&dataset=${encodeURIComponent(dataset.name)}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/marketplace?canceled=true`,
       metadata: {
         dataset_id: datasetId,

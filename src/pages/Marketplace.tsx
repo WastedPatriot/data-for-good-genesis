@@ -34,28 +34,39 @@ const Marketplace = () => {
     fetchDatasets();
     checkAuth();
     
-    // Check for success/cancel in URL params
     const params = new URLSearchParams(window.location.search);
     const success = params.get("success");
     const canceled = params.get("canceled");
     const datasetName = params.get("dataset");
+    const sessionId = params.get("session_id");
 
-    if (success === "true") {
-      toast({
-        title: "Purchase Successful! 🎉",
-        description: `You now have access to ${datasetName}. Check your email for details.`,
-      });
-      // Clean URL
-      window.history.replaceState({}, document.title, "/marketplace");
-    } else if (canceled === "true") {
-      toast({
-        title: "Purchase Canceled",
-        description: "Your purchase was canceled. You can try again anytime.",
-        variant: "destructive",
-      });
-      // Clean URL
-      window.history.replaceState({}, document.title, "/marketplace");
-    }
+    const verify = async () => {
+      if (success === "true" && sessionId) {
+        try {
+          await supabase.functions.invoke("verify-purchase", {
+            body: { sessionId },
+          });
+          await checkAuth();
+          toast({
+            title: "Purchase Successful!",
+            description: `You now have access to ${datasetName}. Check your email for details.`,
+          });
+        } catch (e: any) {
+          console.error("Verify purchase error:", e);
+        } finally {
+          window.history.replaceState({}, document.title, "/marketplace");
+        }
+      } else if (canceled === "true") {
+        toast({
+          title: "Purchase Canceled",
+          description: "Your purchase was canceled. You can try again anytime.",
+          variant: "destructive",
+        });
+        window.history.replaceState({}, document.title, "/marketplace");
+      }
+    };
+
+    verify();
   }, [toast]);
 
   const checkAuth = async () => {
