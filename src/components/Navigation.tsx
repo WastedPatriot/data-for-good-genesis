@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Leaf } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "@/assets/logo-transparent.png";
+import logo from "@/assets/logo-new.png";
 
 const Navigation = () => {
   const location = useLocation();
