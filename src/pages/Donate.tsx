@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Heart, Leaf, Droplet, Sun, Wind, Server, Code } from "lucide-react";
+import { Heart, Leaf, Droplet, Sun, Wind, Server, Code, CheckCircle, XCircle } from "lucide-react";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const donationSchema = z.object({
   amount: z.string().refine((val) => {
@@ -26,7 +27,34 @@ const Donate = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
+
+  // Check for success/cancel in URL params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get("success");
+    const canceled = params.get("canceled");
+    const amount = params.get("amount");
+    const purpose = params.get("purpose");
+
+    if (success === "true") {
+      toast({
+        title: "Thank You! 💚",
+        description: `Your donation of $${amount} for ${purpose === "platform" ? "platform operations" : "environmental projects"} was successful!`,
+      });
+      // Clean URL
+      window.history.replaceState({}, document.title, "/donate");
+    } else if (canceled === "true") {
+      toast({
+        title: "Donation Canceled",
+        description: "Your donation was canceled. You can try again anytime.",
+        variant: "destructive",
+      });
+      // Clean URL
+      window.history.replaceState({}, document.title, "/donate");
+    }
+  }, [toast]);
 
   const predefinedAmounts = ["10", "25", "50", "100", "250", "500"];
 
@@ -62,6 +90,7 @@ const Donate = () => {
 
   const handleDonate = async () => {
     try {
+      setIsProcessing(true);
       const amount = customAmount || selectedAmount;
       
       const result = donationSchema.safeParse({
@@ -78,40 +107,43 @@ const Donate = () => {
           description: firstError.message,
           variant: "destructive",
         });
+        setIsProcessing(false);
         return;
       }
 
-      // TODO: Integrate with Stripe
-      console.log("Donation:", {
-        type: donationType,
-        purpose: donationPurpose,
-        amount: parseFloat(amount),
-        name,
-        email,
-        message,
-      });
-
-      const purposeText = donationPurpose === "platform" 
-        ? "supporting the platform" 
-        : "environmental projects";
-
       toast({
-        title: "Thank You! 💚",
-        description: `Your ${donationType === "monthly" ? "monthly" : ""} donation of $${amount} for ${purposeText} will make a real impact.`,
+        title: "Redirecting to payment...",
+        description: "Please wait while we prepare your donation.",
       });
 
-      // Reset form
-      setCustomAmount("");
-      setSelectedAmount("25");
-      setName("");
-      setEmail("");
-      setMessage("");
-    } catch (error) {
+      // Call the edge function to create Stripe checkout session
+      const { data, error } = await supabase.functions.invoke("create-donation", {
+        body: {
+          amount: parseFloat(amount),
+          donationType,
+          donationPurpose,
+          email: result.data.email || email,
+          name: result.data.name || name,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Redirect to Stripe Checkout
+        window.open(data.url, '_blank');
+        setIsProcessing(false);
+      } else {
+        throw new Error("No checkout URL received");
+      }
+    } catch (error: any) {
+      console.error('Donation error:', error);
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
+      setIsProcessing(false);
     }
   };
 
@@ -256,9 +288,14 @@ const Donate = () => {
                 className="w-full text-lg py-6 border-glow hover-lift font-black" 
                 size="lg"
                 onClick={handleDonate}
+                disabled={isProcessing}
               >
-                Donate ${customAmount || selectedAmount}
+                {isProcessing ? "Processing..." : `Donate $${customAmount || selectedAmount}`}
               </Button>
+
+              <p className="text-xs text-center text-muted-foreground mt-2">
+                Secure payment powered by Stripe
+              </p>
             </div>
           </motion.div>
 
