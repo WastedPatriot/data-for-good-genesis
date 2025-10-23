@@ -5,3 +5,12 @@ verify_jwt = false
 
 [functions.create-donation]
 verify_jwt = false
+
+[functions.purchase-dataset]
+verify_jwt = true
+
+[functions.verify-purchase]
+verify_jwt = false
+
+[functions.send-purchase-confirmation]
+verify_jwt = false

@@ -115,8 +115,9 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("Error creating donation:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to create donation session";
     return new Response(
-      JSON.stringify({ error: error.message || "Failed to create donation session" }),
+      JSON.stringify({ error: errorMessage }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

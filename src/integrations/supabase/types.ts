@@ -83,6 +83,101 @@ export type Database = {
         }
         Relationships: []
       }
+      datasets: {
+        Row: {
+          active: boolean | null
+          category: string
+          created_at: string
+          description: string
+          featured: boolean | null
+          id: string
+          name: string
+          price: number
+          sample_data: Json | null
+          size_mb: number | null
+          stripe_price_id: string
+          stripe_product_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean | null
+          category: string
+          created_at?: string
+          description: string
+          featured?: boolean | null
+          id?: string
+          name: string
+          price: number
+          sample_data?: Json | null
+          size_mb?: number | null
+          stripe_price_id: string
+          stripe_product_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean | null
+          category?: string
+          created_at?: string
+          description?: string
+          featured?: boolean | null
+          id?: string
+          name?: string
+          price?: number
+          sample_data?: Json | null
+          size_mb?: number | null
+          stripe_price_id?: string
+          stripe_product_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          dataset_id: string
+          download_count: number | null
+          id: string
+          last_downloaded_at: string | null
+          status: string
+          stripe_payment_intent: string | null
+          stripe_session_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          dataset_id: string
+          download_count?: number | null
+          id?: string
+          last_downloaded_at?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          dataset_id?: string
+          download_count?: number | null
+          id?: string
+          last_downloaded_at?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_dataset_id_fkey"
+            columns: ["dataset_id"]
+            isOneToOne: false
+            referencedRelation: "datasets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
