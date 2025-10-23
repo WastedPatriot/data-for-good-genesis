@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Database, Leaf, TrendingUp } from "lucide-react";
-import EarthLogo from "@/components/EarthLogo";
+import DoomsdayCountdown from "@/components/DoomsdayCountdown";
 
 const Home = () => {
   return (
@@ -16,19 +16,9 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <motion.div
-              className="inline-block mb-8 p-4 rounded-full bg-background/30 backdrop-blur-sm"
-              animate={{ rotate: 360 }}
-              transition={{ 
-                duration: 30, 
-                repeat: Infinity, 
-                ease: "linear",
-              }}
-            >
-              <div className="w-24 h-24 mx-auto">
-                <EarthLogo size={96} />
-              </div>
-            </motion.div>
+            <div className="mb-12">
+              <DoomsdayCountdown />
+            </div>
             
             <h1 className="text-5xl md:text-7xl font-black mb-6 text-gradient glow-text leading-tight tracking-tight">
               Your data already gets taken.
