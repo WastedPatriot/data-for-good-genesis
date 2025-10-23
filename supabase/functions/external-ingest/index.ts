@@ -106,7 +106,7 @@ serve(async (req) => {
 
       if (insertError) {
         console.error("[EXTERNAL-INGEST] Insert error:", insertError);
-        insertResults.push({ success: false, error: insertError.message });
+        insertResults.push({ success: false, error: "INSERT_FAILED" });
         continue;
       }
 
@@ -166,9 +166,11 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("[EXTERNAL-INGEST] Error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Failed to ingest external data";
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: "Failed to ingest data. Please verify your request and try again.",
+        code: "INGEST_FAILED"
+      }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

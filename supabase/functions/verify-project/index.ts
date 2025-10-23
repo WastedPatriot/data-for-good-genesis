@@ -224,7 +224,10 @@ Provide a fraud risk assessment and verification recommendation.
     if (updateError) {
       console.error("Update error:", updateError);
       return new Response(
-        JSON.stringify({ error: "Failed to update project" }),
+        JSON.stringify({ 
+          error: "Failed to update project status. Please try again.",
+          code: "UPDATE_FAILED"
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
@@ -286,7 +289,10 @@ Provide a fraud risk assessment and verification recommendation.
   } catch (error: any) {
     console.error("verify-project error:", error);
     return new Response(
-      JSON.stringify({ error: error?.message || "Unexpected error" }),
+      JSON.stringify({ 
+        error: "Unable to process verification. Please try again.",
+        code: "VERIFICATION_FAILED"
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }

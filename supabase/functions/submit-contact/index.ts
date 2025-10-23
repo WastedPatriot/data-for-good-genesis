@@ -150,9 +150,11 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error in submit-contact:", error);
-    const errorMessage = error instanceof Error ? error.message : "Failed to submit contact form";
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: "Unable to process your submission. Please try again later.",
+        code: "SUBMISSION_FAILED"
+      }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

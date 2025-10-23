@@ -206,7 +206,7 @@ serve(async (req) => {
     } catch (stripeError: any) {
       console.error("Stripe error:", stripeError);
       return new Response(
-        JSON.stringify({ success: false, error: "STRIPE_ERROR", message: stripeError.message }),
+        JSON.stringify({ success: false, error: "PAYMENT_SETUP_FAILED" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
@@ -232,7 +232,7 @@ serve(async (req) => {
     if (datasetError) {
       console.error("Dataset insert error:", datasetError);
       return new Response(
-        JSON.stringify({ success: false, error: "VALIDATION_ERROR", message: datasetError.message }),
+        JSON.stringify({ success: false, error: "DATABASE_ERROR" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
@@ -330,7 +330,7 @@ serve(async (req) => {
   } catch (error: any) {
     console.error("ingest-dataset error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: "VALIDATION_ERROR", message: error?.message || "Unexpected error" }),
+      JSON.stringify({ success: false, error: "INGESTION_FAILED" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }

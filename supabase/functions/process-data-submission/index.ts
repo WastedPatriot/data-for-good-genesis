@@ -219,7 +219,7 @@ Provide analysis in this exact JSON structure:
     );
   } catch (error) {
     console.error("Error processing submission:", error);
-    const errorMessage = error instanceof Error ? error.message : "Failed to process submission";
+    const errorDetails = error instanceof Error ? error.message : "Unknown error";
     
     // Log error to audit
     try {
@@ -228,7 +228,7 @@ Provide analysis in this exact JSON structure:
         .insert({
           action: "data_processing_failed",
           resource_type: "data_submission",
-          details: { error: errorMessage },
+          details: { error: errorDetails },
           severity: "error"
         });
     } catch (auditError) {
@@ -236,7 +236,10 @@ Provide analysis in this exact JSON structure:
     }
 
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: "Failed to process submission. Please try again.",
+        code: "PROCESSING_FAILED"
+      }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

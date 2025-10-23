@@ -46,7 +46,10 @@ serve(async (req) => {
     if (error) {
       console.error("submit-data-submission insert error:", error);
       return new Response(
-        JSON.stringify({ error: error.message }),
+        JSON.stringify({ 
+          error: "Unable to save data submission. Please check your input and try again.",
+          code: "INSERT_FAILED"
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
@@ -58,7 +61,10 @@ serve(async (req) => {
   } catch (e: any) {
     console.error("submit-data-submission error:", e);
     return new Response(
-      JSON.stringify({ error: e?.message || "Unexpected error" }),
+      JSON.stringify({ 
+        error: "Unable to process data submission. Please try again.",
+        code: "SUBMISSION_FAILED"
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }

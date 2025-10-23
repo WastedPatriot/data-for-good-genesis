@@ -171,9 +171,11 @@ serve(async (req) => {
     }
   } catch (error) {
     console.error("Error in data-harvest-api:", error);
-    const errorMessage = error instanceof Error ? error.message : "API request failed";
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: "API request failed. Please try again.",
+        code: "API_ERROR"
+      }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
