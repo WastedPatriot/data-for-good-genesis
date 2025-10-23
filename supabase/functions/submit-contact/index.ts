@@ -86,7 +86,7 @@ serve(async (req) => {
     }
 
     // Send notification email to admin
-    const adminEmail = Deno.env.get("ADMIN_EMAIL") || "contact@dataforearth.org";
+    const adminEmail = Deno.env.get("ADMIN_EMAIL") || "hello@dataforearth.org";
     try {
       await resend.emails.send({
         from: "Data for Earth <noreply@dataforearth.org>",
