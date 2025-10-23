@@ -528,8 +528,10 @@ export type Database = {
         Row: {
           active_from: string | null
           active_until: string | null
+          blocked_associations: string[] | null
           category: string
           charity_registration_number: string | null
+          charity_verification_status: string | null
           created_at: string
           description: string
           documentation_url: string | null
@@ -549,6 +551,7 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string
+          verification_flags: Json | null
           verification_notes: string | null
           verified_at: string | null
           verified_by: string | null
@@ -558,8 +561,10 @@ export type Database = {
         Insert: {
           active_from?: string | null
           active_until?: string | null
+          blocked_associations?: string[] | null
           category: string
           charity_registration_number?: string | null
+          charity_verification_status?: string | null
           created_at?: string
           description: string
           documentation_url?: string | null
@@ -579,6 +584,7 @@ export type Database = {
           tags?: string[] | null
           title: string
           updated_at?: string
+          verification_flags?: Json | null
           verification_notes?: string | null
           verified_at?: string | null
           verified_by?: string | null
@@ -588,8 +594,10 @@ export type Database = {
         Update: {
           active_from?: string | null
           active_until?: string | null
+          blocked_associations?: string[] | null
           category?: string
           charity_registration_number?: string | null
+          charity_verification_status?: string | null
           created_at?: string
           description?: string
           documentation_url?: string | null
@@ -609,6 +617,7 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
+          verification_flags?: Json | null
           verification_notes?: string | null
           verified_at?: string | null
           verified_by?: string | null
@@ -698,6 +707,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_blocked_associations: {
+        Args: { charity_name: string; project_data: string; website: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
