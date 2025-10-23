@@ -30,10 +30,10 @@ const Home = () => {
               </div>
             </motion.div>
             
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-7xl font-black mb-6 text-gradient glow-text leading-tight tracking-tight">
               Your data already gets taken.
             </h1>
-            <h2 className="text-3xl md:text-5xl font-bold mb-8 text-foreground">
+            <h2 className="text-3xl md:text-5xl font-bold mb-8 text-foreground leading-tight">
               Let's make it count for good.
             </h2>
             
@@ -44,12 +44,12 @@ const Home = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/contribute">
-                <Button size="lg" className="text-lg px-8 py-6">
+                <Button size="lg" className="text-lg px-8 py-6 border-glow hover-lift font-bold">
                   Contribute My Data
                 </Button>
               </Link>
               <Link to="/marketplace">
-                <Button size="lg" variant="outline" className="text-lg px-8 py-6">
+                <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2 font-bold">
                   Buy Ethical Data
                 </Button>
               </Link>
@@ -65,7 +65,7 @@ const Home = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-center mb-16"
+            className="text-4xl md:text-5xl font-black text-center mb-16 text-gradient"
           >
             How It Works
           </motion.h2>
@@ -94,11 +94,13 @@ const Home = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.2 }}
-                className="bg-card border border-border rounded-lg p-8 hover:border-primary/50 transition-colors"
+                className="bg-card border-2 border-border rounded-xl p-8 hover-lift hover:border-primary backdrop-blur-sm"
               >
-                <item.icon className="w-12 h-12 text-primary mb-4" />
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-6">
+                  <item.icon className="w-8 h-8 text-primary-foreground" />
+                </div>
                 <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
-                <p className="text-muted-foreground">{item.description}</p>
+                <p className="text-muted-foreground leading-relaxed">{item.description}</p>
               </motion.div>
             ))}
           </div>
@@ -112,7 +114,7 @@ const Home = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-center mb-16"
+            className="text-4xl md:text-5xl font-black text-center mb-16 text-gradient"
           >
             Our Impact
           </motion.h2>
@@ -132,10 +134,10 @@ const Home = () => {
                 transition={{ delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
+                <div className="text-4xl md:text-6xl font-black text-gradient glow-text mb-2">
                   {stat.value}
                 </div>
-                <div className="text-muted-foreground">{stat.label}</div>
+                <div className="text-muted-foreground font-medium">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -150,14 +152,14 @@ const Home = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-4xl md:text-5xl font-black mb-6 text-gradient glow-text">
               Join the Movement
             </h2>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
               Be part of the data revolution. Your information can heal the planet.
             </p>
             <Link to="/about">
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6">
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2 font-bold">
                 Learn More About Our Mission
               </Button>
             </Link>
