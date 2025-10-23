@@ -1,30 +1,34 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Users, DollarSign, Factory, Sprout } from "lucide-react";
 
 const DataStoryAnimation: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [currentScene, setCurrentScene] = useState(0);
-  const animationRef = useRef<number>();
 
   const scenes = [
     {
       title: "Your Data",
-      subtitle: "is being collected",
-      duration: 3000,
+      subtitle: "Every click. Every scroll. Every moment.",
+      icon: Users,
+      duration: 4000,
     },
     {
-      title: "Tech Giants",
-      subtitle: "profit billions",
-      duration: 3000,
+      title: "Big Tech Profits",
+      subtitle: "Billions made from your information",
+      icon: DollarSign,
+      duration: 4000,
     },
     {
-      title: "Earth Suffers",
-      subtitle: "from exploitation",
-      duration: 3000,
+      title: "Earth Pays the Price",
+      subtitle: "Exploitation without accountability",
+      icon: Factory,
+      duration: 4000,
     },
     {
-      title: "Now You Choose",
-      subtitle: "data for earth",
-      duration: 3000,
+      title: "You Have the Power",
+      subtitle: "Transform data into environmental action",
+      icon: Sprout,
+      duration: 4000,
     },
   ];
 
@@ -34,154 +38,238 @@ const DataStoryAnimation: React.FC = () => {
     }, scenes[currentScene].duration);
 
     return () => clearInterval(interval);
-  }, [currentScene, scenes]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-
-    let particles: Array<{
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      size: number;
-      color: string;
-    }> = [];
-
-    // Create pixel earth particles
-    const createEarth = () => {
-      particles = [];
-      const centerX = width / 2;
-      const centerY = height / 3;
-      const radius = 60;
-
-      for (let angle = 0; angle < Math.PI * 2; angle += 0.1) {
-        for (let r = 0; r < radius; r += 8) {
-          const x = centerX + Math.cos(angle) * r;
-          const y = centerY + Math.sin(angle) * r;
-          const isLand = Math.random() > 0.6;
-          
-          particles.push({
-            x,
-            y,
-            vx: 0,
-            vy: 0,
-            size: 4,
-            color: isLand ? "#22c55e" : "#3b82f6",
-          });
-        }
-      }
-    };
-
-    // Animation loop
-    const animate = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, width, height);
-
-      // Scene-specific animations
-      if (currentScene === 0) {
-        // Data collection - particles flow from earth
-        particles.forEach((p) => {
-          p.vy = Math.random() * 2 - 1;
-          p.vx = Math.random() * 2 - 1;
-          p.x += p.vx;
-          p.y += p.vy;
-
-          ctx.fillStyle = p.color;
-          ctx.fillRect(p.x, p.y, p.size, p.size);
-        });
-      } else if (currentScene === 1) {
-        // Tech giants profit - particles cluster at top
-        particles.forEach((p) => {
-          const targetY = height * 0.2;
-          p.vy = (targetY - p.y) * 0.02;
-          p.vx = (width / 2 - p.x) * 0.02;
-          p.x += p.vx;
-          p.y += p.vy;
-
-          ctx.fillStyle = "#ef4444";
-          ctx.fillRect(p.x, p.y, p.size, p.size);
-        });
-      } else if (currentScene === 2) {
-        // Earth suffers - particles scatter and fade
-        particles.forEach((p) => {
-          p.vx = (Math.random() - 0.5) * 4;
-          p.vy = Math.random() * 3;
-          p.x += p.vx;
-          p.y += p.vy;
-
-          ctx.fillStyle = "#78716c";
-          ctx.fillRect(p.x, p.y, p.size, p.size);
-        });
-      } else if (currentScene === 3) {
-        // You choose - particles reform earth with glow
-        particles.forEach((p) => {
-          const centerX = width / 2;
-          const centerY = height / 3;
-          p.vx = (centerX - p.x) * 0.05;
-          p.vy = (centerY - p.y) * 0.05;
-          p.x += p.vx;
-          p.y += p.vy;
-
-          // Glow effect
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = p.color;
-          ctx.fillStyle = p.color;
-          ctx.fillRect(p.x, p.y, p.size, p.size);
-          ctx.shadowBlur = 0;
-        });
-      }
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    createEarth();
-    animate();
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
   }, [currentScene]);
 
-  return (
-    <div className="relative w-full h-full bg-background flex flex-col items-center justify-center">
-      {/* Canvas for pixel earth animation */}
-      <canvas
-        ref={canvasRef}
-        width={280}
-        height={400}
-        className="absolute inset-0"
-      />
+  const Scene = ({ sceneIndex }: { sceneIndex: number }) => {
+    const scene = scenes[sceneIndex];
+    const Icon = scene.icon;
 
-      {/* Text overlay */}
-      <div className="absolute bottom-20 left-0 right-0 px-6 text-center z-10">
-        <h3 className="text-2xl font-black text-gradient mb-2">
-          {scenes[currentScene].title}
-        </h3>
-        <p className="text-sm text-muted-foreground font-medium">
-          {scenes[currentScene].subtitle}
-        </p>
-      </div>
+    return (
+      <motion.div
+        key={sceneIndex}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 1.2 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="absolute inset-0 flex flex-col items-center justify-center px-8"
+      >
+        {/* Background gradient effect */}
+        <motion.div
+          className="absolute inset-0 opacity-20"
+          animate={{
+            background: [
+              "radial-gradient(circle at 30% 50%, hsl(145 70% 50% / 0.3) 0%, transparent 50%)",
+              "radial-gradient(circle at 70% 50%, hsl(165 75% 45% / 0.3) 0%, transparent 50%)",
+              "radial-gradient(circle at 50% 30%, hsl(145 70% 50% / 0.3) 0%, transparent 50%)",
+            ],
+          }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        {/* Icon animation */}
+        <motion.div
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
+          className="relative mb-8"
+        >
+          {/* Glow effect */}
+          <motion.div
+            className="absolute inset-0"
+            animate={{
+              scale: [1, 1.3, 1],
+              opacity: [0.5, 0.2, 0.5],
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <div className="w-32 h-32 rounded-full bg-primary/30 blur-2xl" />
+          </motion.div>
+
+          {/* Icon */}
+          <motion.div
+            animate={{ rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="relative z-10"
+          >
+            <Icon className="w-20 h-20 text-primary drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
+          </motion.div>
+        </motion.div>
+
+        {/* Text content */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
+          className="text-center z-10"
+        >
+          <h3 className="text-3xl font-black text-gradient mb-3 leading-tight">
+            {scene.title}
+          </h3>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="text-sm text-muted-foreground font-medium leading-relaxed"
+          >
+            {scene.subtitle}
+          </motion.p>
+        </motion.div>
+
+        {/* Floating particles */}
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 rounded-full bg-primary/40"
+            initial={{
+              x: Math.random() * 260 - 130,
+              y: Math.random() * 400 - 200,
+              opacity: 0,
+            }}
+            animate={{
+              y: [null, Math.random() * -100 - 50],
+              opacity: [0, 0.6, 0],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+              ease: "easeOut",
+            }}
+          />
+        ))}
+
+        {/* Scene-specific animations */}
+        {sceneIndex === 0 && (
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 bg-blue-400 rounded-full"
+                animate={{
+                  x: [0, Math.cos((i * Math.PI * 2) / 8) * 80],
+                  y: [0, Math.sin((i * Math.PI * 2) / 8) * 80],
+                  opacity: [1, 0],
+                  scale: [1, 0.5],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  delay: i * 0.2,
+                  ease: "easeOut",
+                }}
+              />
+            ))}
+          </motion.div>
+        )}
+
+        {sceneIndex === 1 && (
+          <>
+            {[...Array(12)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute text-2xl"
+                initial={{
+                  x: Math.random() * 200 - 100,
+                  y: 300,
+                  opacity: 0,
+                }}
+                animate={{
+                  y: -50,
+                  opacity: [0, 1, 0],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  delay: i * 0.3,
+                  ease: "linear",
+                }}
+              >
+                💰
+              </motion.div>
+            ))}
+          </>
+        )}
+
+        {sceneIndex === 2 && (
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center opacity-30"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          >
+            {[...Array(6)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-32 h-1 bg-red-500/50"
+                style={{
+                  transform: `rotate(${(i * 360) / 6}deg)`,
+                }}
+              />
+            ))}
+          </motion.div>
+        )}
+
+        {sceneIndex === 3 && (
+          <>
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute text-3xl"
+                initial={{
+                  x: Math.cos((i * Math.PI * 2) / 8) * 120,
+                  y: Math.sin((i * Math.PI * 2) / 8) * 120,
+                  scale: 0,
+                  opacity: 0,
+                }}
+                animate={{
+                  x: Math.cos((i * Math.PI * 2) / 8) * 60,
+                  y: Math.sin((i * Math.PI * 2) / 8) * 60,
+                  scale: 1,
+                  opacity: 1,
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  delay: i * 0.1,
+                  ease: "easeInOut",
+                }}
+              >
+                🌱
+              </motion.div>
+            ))}
+          </>
+        )}
+      </motion.div>
+    );
+  };
+
+  return (
+    <div className="relative w-full h-full bg-gradient-to-b from-background via-background to-background/95 overflow-hidden">
+      {/* Animated scenes */}
+      <AnimatePresence mode="wait">
+        <Scene key={currentScene} sceneIndex={currentScene} />
+      </AnimatePresence>
 
       {/* Progress dots */}
-      <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-2 z-10">
+      <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-2 z-20">
         {scenes.map((_, index) => (
-          <div
+          <motion.div
             key={index}
-            className={`w-2 h-2 rounded-full transition-all ${
+            className={`h-2 rounded-full transition-all ${
               index === currentScene
-                ? "bg-primary w-6"
-                : "bg-muted-foreground/30"
+                ? "bg-primary w-8"
+                : "bg-muted-foreground/30 w-2"
             }`}
+            animate={{
+              scale: index === currentScene ? [1, 1.2, 1] : 1,
+            }}
+            transition={{
+              duration: 0.3,
+            }}
           />
         ))}
       </div>
