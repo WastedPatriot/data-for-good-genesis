@@ -45,106 +45,112 @@ import { CookieConsent } from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
-const App = () => {
+const AppContent = () => {
   useVisitorTracking();
   useLeadScoring();
   
   return (
+    <>
+      <Earth3DBackground />
+      <div
+        className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,_hsl(var(--background)/0.35)_0%,_hsl(var(--background)/0.6)_60%,_hsl(var(--background)/0.75)_100%)]"
+        aria-hidden="true"
+      />
+      <Navigation />
+      <CookieConsent />
+      <div className="pt-16 relative z-10">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/contribute" element={<Contribute />} />
+          <Route path="/why-contribute" element={<WhyContribute />} />
+          <Route path="/impact-dashboard" element={<ImpactDashboard />} />
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/claim-badge" element={<ClaimBadge />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/submit-project" element={<SubmitProject />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/donate" element={<Donate />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/data-collection" element={<DataCollection />} />
+          <Route path="/organization-signup" element={<OrganizationSignup />} />
+          <Route path="/organization-profile" element={<OrganizationProfile />} />
+          <Route path="/admin" element={
+            <ProtectedRoute requireAdmin={true}>
+              <Admin />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/review" element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminReview />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/release-policy" element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminReleasePolicy />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/users" element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminUsers />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/datasets" element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminDatasets />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/purchases" element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminPurchases />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/logs" element={
+            <ProtectedRoute requireAdmin={true}>
+              <SystemLogs />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/contacts" element={
+            <ProtectedRoute requireAdmin={true}>
+              <ContactManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/analytics" element={
+            <ProtectedRoute requireAdmin={true}>
+              <LiveAnalytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/visitor-insights" element={
+            <ProtectedRoute requireAdmin={true}>
+              <VisitorInsights />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/warm-leads" element={
+            <ProtectedRoute requireAdmin={true}>
+              <WarmLeads />
+            </ProtectedRoute>
+          } />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+    </>
+  );
+};
+
+const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Earth3DBackground />
-        <div
-          className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,_hsl(var(--background)/0.35)_0%,_hsl(var(--background)/0.6)_60%,_hsl(var(--background)/0.75)_100%)]"
-          aria-hidden="true"
-        />
-        <Navigation />
-        <CookieConsent />
-        <div className="pt-16 relative z-10">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/contribute" element={<Contribute />} />
-            <Route path="/why-contribute" element={<WhyContribute />} />
-            <Route path="/impact-dashboard" element={<ImpactDashboard />} />
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/claim-badge" element={<ClaimBadge />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/submit-project" element={<SubmitProject />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/donate" element={<Donate />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/help" element={<Help />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/data-collection" element={<DataCollection />} />
-            <Route path="/organization-signup" element={<OrganizationSignup />} />
-            <Route path="/organization-profile" element={<OrganizationProfile />} />
-            <Route path="/admin" element={
-              <ProtectedRoute requireAdmin={true}>
-                <Admin />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/review" element={
-              <ProtectedRoute requireAdmin={true}>
-                <AdminReview />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/release-policy" element={
-              <ProtectedRoute requireAdmin={true}>
-                <AdminReleasePolicy />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/users" element={
-              <ProtectedRoute requireAdmin={true}>
-                <AdminUsers />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/datasets" element={
-              <ProtectedRoute requireAdmin={true}>
-                <AdminDatasets />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/purchases" element={
-              <ProtectedRoute requireAdmin={true}>
-                <AdminPurchases />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/logs" element={
-              <ProtectedRoute requireAdmin={true}>
-                <SystemLogs />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/contacts" element={
-              <ProtectedRoute requireAdmin={true}>
-                <ContactManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/analytics" element={
-              <ProtectedRoute requireAdmin={true}>
-                <LiveAnalytics />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/visitor-insights" element={
-              <ProtectedRoute requireAdmin={true}>
-                <VisitorInsights />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/warm-leads" element={
-              <ProtectedRoute requireAdmin={true}>
-                <WarmLeads />
-              </ProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
+        <AppContent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-  );
-};
+);
 
 export default App;
