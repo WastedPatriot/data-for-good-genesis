@@ -27,6 +27,7 @@ const Marketplace = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<"newest" | "trending" | "recommended">("newest");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -78,12 +79,23 @@ const Marketplace = () => {
 
   const fetchDatasets = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("datasets")
         .select("*")
-        .eq("active", true)
-        .order("featured", { ascending: false })
-        .order("created_at", { ascending: false });
+        .eq("active", true);
+
+      // Apply sorting
+      if (sortBy === "newest") {
+        query = query.order("created_at", { ascending: false });
+      } else if (sortBy === "trending") {
+        // For trending: order by purchases count (would need a join in production)
+        query = query.order("featured", { ascending: false }).order("created_at", { ascending: false });
+      } else if (sortBy === "recommended") {
+        // For recommended: order by featured first, then newest
+        query = query.order("featured", { ascending: false }).order("created_at", { ascending: false });
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setDatasets(data || []);
@@ -188,6 +200,26 @@ const Marketplace = () => {
             Every purchase comes with an Ethical Data Badge.
           </p>
 
+          {/* Sorting Controls */}
+          <div className="flex justify-center gap-2 mb-8">
+            {[
+              { value: "newest" as const, label: "Newest" },
+              { value: "trending" as const, label: "Trending" },
+              { value: "recommended" as const, label: "Recommended" },
+            ].map((option) => (
+              <Button
+                key={option.value}
+                variant={sortBy === option.value ? "default" : "outline"}
+                onClick={() => {
+                  setSortBy(option.value);
+                  fetchDatasets();
+                }}
+                className="font-bold"
+              >
+                {option.label}
+              </Button>
+            ))}
+
           {datasets.length === 0 ? (
             <div className="col-span-full text-center py-16">
               <Database className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
@@ -289,6 +321,7 @@ const Marketplace = () => {
                 </Button>
               ))}
             </div>
+          </div>
           </div>
         </motion.div>
       </div>

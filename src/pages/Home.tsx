@@ -134,6 +134,85 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Top Eco Projects Section */}
+      <section className="py-24 px-4">
+        <div className="container mx-auto">
+          <motion.h2
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-black text-center mb-16 text-gradient"
+          >
+            Top Eco Projects
+          </motion.h2>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {[
+              {
+                title: "Ocean Cleanup Initiative",
+                description: "Removing plastic waste from oceans using AI-powered collection systems",
+                funded: 42,
+                goal: 50000,
+                icon: "🌊"
+              },
+              {
+                title: "Urban Reforestation",
+                description: "Planting native trees in urban areas to improve air quality and biodiversity",
+                funded: 67,
+                goal: 100000,
+                icon: "🌳"
+              },
+              {
+                title: "Solar for Schools",
+                description: "Installing solar panels on schools in underserved communities",
+                funded: 28,
+                goal: 75000,
+                icon: "☀️"
+              }
+            ].map((project, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.2 }}
+                className="bg-card border-2 border-border rounded-xl p-6 hover-lift hover:border-primary"
+              >
+                <div className="text-4xl mb-4">{project.icon}</div>
+                <h3 className="text-xl font-bold mb-2">{project.title}</h3>
+                <p className="text-muted-foreground mb-4 text-sm">{project.description}</p>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Funded</span>
+                    <span className="font-semibold">{project.funded}%</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${project.funded}%` }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1, delay: index * 0.2 }}
+                      className="h-full bg-gradient-to-r from-primary to-accent"
+                    />
+                  </div>
+                  <div className="text-xs text-muted-foreground text-right">
+                    Goal: ${project.goal.toLocaleString()}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Link to="/projects">
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2 font-bold">
+                View All Projects
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-24 px-4">
         <div className="container mx-auto text-center">

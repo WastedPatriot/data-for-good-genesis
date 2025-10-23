@@ -19,6 +19,8 @@ import Terms from "./pages/Terms";
 import OrganizationSignup from "./pages/OrganizationSignup";
 import OrganizationProfile from "./pages/OrganizationProfile";
 import Admin from "./pages/Admin";
+import WhyContribute from "./pages/WhyContribute";
+import ImpactDashboard from "./pages/ImpactDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
@@ -42,6 +44,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/contribute" element={<Contribute />} />
+            <Route path="/why-contribute" element={<WhyContribute />} />
+            <Route path="/impact-dashboard" element={<ImpactDashboard />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/claim-badge" element={<ClaimBadge />} />
             <Route path="/projects" element={<Projects />} />

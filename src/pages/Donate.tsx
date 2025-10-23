@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Heart, Leaf, Droplet, Sun, Wind, Server, Code, CheckCircle, XCircle } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { DonationTierBadge } from "@/components/DonationTierBadge";
 
 const donationSchema = z.object({
   amount: z.string().refine((val) => {
@@ -28,6 +29,8 @@ const Donate = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showBadge, setShowBadge] = useState(false);
+  const [donationTier, setDonationTier] = useState<"sapling" | "young-tree" | "forest-guardian">("sapling");
   const { toast } = useToast();
 
   // Check for success/cancel in URL params
@@ -39,6 +42,16 @@ const Donate = () => {
     const purpose = params.get("purpose");
 
     if (success === "true") {
+      const amountNum = parseFloat(amount || "0");
+      
+      // Determine tier
+      let tier: "sapling" | "young-tree" | "forest-guardian" = "sapling";
+      if (amountNum >= 100) tier = "forest-guardian";
+      else if (amountNum >= 20) tier = "young-tree";
+      
+      setDonationTier(tier);
+      setShowBadge(true);
+      
       toast({
         title: "Thank You! 💚",
         description: `Your donation of $${amount} for ${purpose === "platform" ? "platform operations" : "environmental projects"} was successful!`,
@@ -149,6 +162,25 @@ const Donate = () => {
 
   const impact = getImpact();
   const ImpactIcon = impact.icon;
+
+  // Show badge modal after successful donation
+  if (showBadge) {
+    const amountNum = parseFloat(customAmount || selectedAmount);
+    return (
+      <div className="min-h-screen bg-transparent py-12 px-4 flex items-center justify-center">
+        <div className="container mx-auto max-w-md">
+          <DonationTierBadge tier={donationTier} amount={amountNum} />
+          <Button
+            onClick={() => setShowBadge(false)}
+            variant="outline"
+            className="w-full mt-6"
+          >
+            Continue
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-transparent py-12 px-4">
