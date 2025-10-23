@@ -115,7 +115,11 @@ const About = () => {
               <p className="text-muted-foreground">
                 Have questions? Want to partner with us?
               </p>
-              <Button variant="outline" className="gap-2">
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => window.location.href = 'mailto:hello@dataforearth.org'}
+              >
                 <Mail className="w-4 h-4" />
                 hello@dataforearth.org
               </Button>

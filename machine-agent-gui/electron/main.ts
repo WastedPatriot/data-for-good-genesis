@@ -11,6 +11,7 @@ let automationInterval: NodeJS.Timeout | null = null;
 
 interface Config {
   SUPABASE_URL: string;
+  SUPABASE_ANON_KEY: string;
   INGEST_SECRET: string;
   DATA_PRICE: number;
   BADGE_CODE_COUNT: number;
@@ -228,17 +229,22 @@ ipcMain.handle('check-dataset-status', async (_, datasetId: string) => {
   }
 });
 
-// Query Supabase directly
+// Query Supabase directly using SUPABASE_ANON_KEY
 ipcMain.handle('query-supabase', async (_, query: string) => {
   try {
     const config = await loadConfigSync();
     if (!config) throw new Error('Config not loaded');
 
+    if (!config.SUPABASE_ANON_KEY) {
+      throw new Error('SUPABASE_ANON_KEY not configured');
+    }
+
     const response = await fetch(
       `${config.SUPABASE_URL}/rest/v1/${query}`,
       {
         headers: {
-          'apikey': config.INGEST_SECRET,
+          'apikey': config.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${config.SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json'
         }
       }
@@ -388,17 +394,22 @@ ipcMain.handle('build-dataset', async (_, mode: string, filters: any) => {
   }
 });
 
-// Release Policy Management
+// Release Policy Management - now uses edge function
 ipcMain.handle('get-release-policy', async () => {
   try {
     const config = await loadConfigSync();
     if (!config) throw new Error('Config not loaded');
 
+    if (!config.SUPABASE_ANON_KEY) {
+      throw new Error('SUPABASE_ANON_KEY not configured');
+    }
+
     const response = await fetch(
       `${config.SUPABASE_URL}/rest/v1/release_policy?select=*`,
       {
         headers: {
-          'apikey': config.INGEST_SECRET,
+          'apikey': config.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${config.SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json'
         }
       }
@@ -421,13 +432,14 @@ ipcMain.handle('update-release-policy', async (_, payload: any) => {
     const config = await loadConfigSync();
     if (!config) throw new Error('Config not loaded');
 
+    // Use new edge function instead of direct PostgREST
     const response = await fetch(
-      `${config.SUPABASE_URL}/rest/v1/release_policy?id=eq.${payload.id}`,
+      `${config.SUPABASE_URL}/functions/v1/release-policy-update`,
       {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
-          'apikey': config.INGEST_SECRET,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Ingest-Secret': config.INGEST_SECRET
         },
         body: JSON.stringify(payload)
       }
@@ -450,15 +462,17 @@ ipcMain.handle('trigger-burst-mode', async (_, reason: string) => {
     const config = await loadConfigSync();
     if (!config) throw new Error('Config not loaded');
 
+    // Use edge function for burst mode too
     const response = await fetch(
-      `${config.SUPABASE_URL}/rest/v1/release_policy?channel=eq.on_site`,
+      `${config.SUPABASE_URL}/functions/v1/release-policy-update`,
       {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
-          'apikey': config.INGEST_SECRET,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Ingest-Secret': config.INGEST_SECRET
         },
         body: JSON.stringify({
+          channel: 'on_site',
           burst_mode_enabled: true,
           burst_reason: reason,
           burst_activated_at: new Date().toISOString()
@@ -483,12 +497,17 @@ ipcMain.handle('get-trending-signals', async () => {
     const config = await loadConfigSync();
     if (!config) throw new Error('Config not loaded');
 
+    if (!config.SUPABASE_ANON_KEY) {
+      throw new Error('SUPABASE_ANON_KEY not configured');
+    }
+
     // Query curated_pool for trending tags and categories
     const response = await fetch(
       `${config.SUPABASE_URL}/rest/v1/curated_pool?select=tags,category,confidence_score&order=created_at.desc&limit=100`,
       {
         headers: {
-          'apikey': config.INGEST_SECRET,
+          'apikey': config.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${config.SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json'
         }
       }

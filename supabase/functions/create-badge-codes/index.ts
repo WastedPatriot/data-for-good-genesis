@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-ingest-sign",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-ingest-secret",
 };
 
 // Rate limiting (in-memory, resets on function cold start)
@@ -72,35 +72,33 @@ serve(async (req) => {
 
   try {
     const payload = await req.json();
-    const { dataset_id, count, prefix, timestamp } = payload;
-    const signature = req.headers.get("x-ingest-sign");
+    const { dataset_id, count, prefix } = payload;
+    const ingestSecretHeader = req.headers.get("x-ingest-secret");
     const authHeader = req.headers.get("Authorization");
     const ingestSecret = Deno.env.get("INGEST_SECRET");
 
     let isAdmin = false;
-    let isValidHMAC = false;
+    let isAuthorized = false;
 
-    // Check HMAC authentication
-    if (signature && ingestSecret && timestamp) {
-      isValidHMAC = await validateHMAC({ dataset_id, count, prefix }, timestamp, signature, ingestSecret);
+    // Check x-ingest-secret authentication (machine agent)
+    if (ingestSecretHeader && ingestSecret && ingestSecretHeader === ingestSecret) {
+      isAuthorized = true;
       
-      if (isValidHMAC) {
-        // Rate limiting for HMAC requests
-        if (!checkRateLimit("create-badge-codes")) {
-          return new Response(
-            JSON.stringify({ success: false, error: "RATE_LIMIT" }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 429 }
-          );
-        }
+      // Rate limiting for machine agent requests
+      if (!checkRateLimit("create-badge-codes")) {
+        return new Response(
+          JSON.stringify({ success: false, error: "RATE_LIMIT" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 429 }
+        );
       }
     }
 
     // Check admin JWT authentication
-    if (!isValidHMAC && authHeader) {
+    if (!isAuthorized && authHeader) {
       const token = authHeader.replace("Bearer ", "");
       const supabaseAnon = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+        Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? ""
       );
       
       const { data: userData, error: userError } = await supabaseAnon.auth.getUser(token);
@@ -114,13 +112,14 @@ serve(async (req) => {
           .maybeSingle();
 
         isAdmin = !!roleData;
+        isAuthorized = isAdmin;
       }
     }
 
-    // Must be authenticated via HMAC or admin JWT
-    if (!isValidHMAC && !isAdmin) {
+    // Must be authenticated
+    if (!isAuthorized) {
       return new Response(
-        JSON.stringify({ success: false, error: "INVALID_SIGNATURE" }),
+        JSON.stringify({ success: false, error: "UNAUTHORIZED" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
       );
     }
@@ -199,7 +198,7 @@ serve(async (req) => {
         details: {
           count,
           prefix: badgePrefix,
-          automated: isValidHMAC,
+          automated: !isAdmin,
         },
       }]);
 
