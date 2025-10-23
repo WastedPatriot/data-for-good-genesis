@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Database, Leaf, TrendingUp } from "lucide-react";
-import DoomsdayCountdown from "@/components/DoomsdayCountdown";
+import { Database, Leaf, TrendingUp, Heart, Shield, Zap } from "lucide-react";
+import DataImpactCounter from "@/components/DataImpactCounter";
 
 const Home = () => {
   return (
@@ -17,30 +17,35 @@ const Home = () => {
             transition={{ duration: 0.8 }}
           >
             <div className="mb-12">
-              <DoomsdayCountdown />
+              <DataImpactCounter />
             </div>
             
             <h1 className="text-5xl md:text-7xl font-black mb-6 text-gradient glow-text leading-tight tracking-tight">
-              Your data already gets taken.
+              Your Data. Your Choice.
+              <br />
+              Real Impact.
             </h1>
             <h2 className="text-3xl md:text-5xl font-bold mb-8 text-foreground leading-tight">
-              Let's make it count for good.
+              Turn what you share into meaningful change.
             </h2>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto">
-              We turn volunteered data into environmental funding. Every dataset purchase 
-              supports green projects voted on by the community.
+            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
+              Every day, your data generates billions in profit for big tech. 
+              <span className="text-primary font-semibold"> We're changing that.</span> Contribute voluntarily, 
+              fund causes you care about, and see the direct impact of your participation.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/contribute">
                 <Button size="lg" className="text-lg px-8 py-6 border-glow hover-lift font-bold">
-                  Contribute My Data
+                  <Heart className="w-5 h-5 mr-2" />
+                  Start Contributing
                 </Button>
               </Link>
               <Link to="/marketplace">
                 <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2 font-bold">
-                  Buy Ethical Data
+                  <Database className="w-5 h-5 mr-2" />
+                  Explore Datasets
                 </Button>
               </Link>
             </div>
@@ -55,27 +60,35 @@ const Home = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-black text-center mb-16 text-gradient"
+            className="text-4xl md:text-5xl font-black text-center mb-4 text-gradient"
           >
-            How It Works
+            Be a Data Hero
           </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center text-muted-foreground text-lg mb-16 max-w-2xl mx-auto"
+          >
+            Three simple steps to turn your voluntary data contribution into real-world impact
+          </motion.p>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
+                icon: Shield,
+                title: "You're in Control",
+                description: "Choose exactly what you share through our transparent, easy process. No tricks, no hidden terms. Your data, your decision.",
+              },
+              {
                 icon: Database,
-                title: "Share Your Data",
-                description: "Choose what data you're comfortable sharing through our simple, transparent quiz.",
+                title: "Your Data Creates Value",
+                description: "We package anonymized data into valuable datasets for researchers, businesses, and innovators solving real problems.",
               },
               {
-                icon: TrendingUp,
-                title: "Fund Green Projects",
-                description: "Your data is ethically sold to verified companies, generating funds for environmental initiatives.",
-              },
-              {
-                icon: Leaf,
-                title: "Vote & Impact",
-                description: "The community votes on which green projects get funded. Track your direct impact.",
+                icon: Heart,
+                title: "Fund What Matters",
+                description: "100% of profits fund causes you vote on - from environmental projects to medical research to community programs.",
               },
             ].map((item, index) => (
               <motion.div
@@ -104,17 +117,25 @@ const Home = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-black text-center mb-16 text-gradient"
+            className="text-4xl md:text-5xl font-black text-center mb-4 text-gradient"
           >
-            Our Impact
+            The Power of Collective Action
           </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center text-muted-foreground text-lg mb-16"
+          >
+            When we participate together, we create unstoppable momentum
+          </motion.p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { value: "—", label: "Datasets Contributed" },
-              { value: "—", label: "Funds Raised" },
-              { value: "—", label: "Projects Funded" },
-              { value: "—", label: "Trees Planted" },
+              { value: "—", label: "Datasets Shared", icon: Database },
+              { value: "—", label: "Impact Generated", icon: Zap },
+              { value: "—", label: "Projects Funded", icon: Heart },
+              { value: "—", label: "Lives Improved", icon: TrendingUp },
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -124,6 +145,9 @@ const Home = () => {
                 transition={{ delay: index * 0.1 }}
                 className="text-center"
               >
+                <div className="flex justify-center mb-3">
+                  <stat.icon className="w-8 h-8 text-primary" />
+                </div>
                 <div className="text-4xl md:text-6xl font-black text-gradient glow-text mb-2">
                   {stat.value}
                 </div>
@@ -134,17 +158,25 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Top Eco Projects Section */}
+      {/* Top Projects Section */}
       <section className="py-24 px-4">
         <div className="container mx-auto">
           <motion.h2
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-black text-center mb-16 text-gradient"
+            className="text-4xl md:text-5xl font-black text-center mb-4 text-gradient"
           >
-            Top Eco Projects
+            Causes Making a Difference
           </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center text-muted-foreground text-lg mb-16"
+          >
+            From environment to education, your contributions fund real solutions
+          </motion.p>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             {[
@@ -153,21 +185,24 @@ const Home = () => {
                 description: "Removing plastic waste from oceans using AI-powered collection systems",
                 funded: 42,
                 goal: 50000,
-                icon: "🌊"
+                icon: "🌊",
+                category: "Environment"
               },
               {
-                title: "Urban Reforestation",
-                description: "Planting native trees in urban areas to improve air quality and biodiversity",
+                title: "Rural Education Access",
+                description: "Building digital learning centers in underserved communities worldwide",
                 funded: 67,
                 goal: 100000,
-                icon: "🌳"
+                icon: "📚",
+                category: "Education"
               },
               {
-                title: "Solar for Schools",
-                description: "Installing solar panels on schools in underserved communities",
+                title: "Medical Research Fund",
+                description: "Supporting breakthrough research in cancer treatment and prevention",
                 funded: 28,
                 goal: 75000,
-                icon: "☀️"
+                icon: "🔬",
+                category: "Health"
               }
             ].map((project, index) => (
               <motion.div
@@ -178,7 +213,10 @@ const Home = () => {
                 transition={{ delay: index * 0.2 }}
                 className="bg-card border-2 border-border rounded-xl p-6 hover-lift hover:border-primary"
               >
-                <div className="text-4xl mb-4">{project.icon}</div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="text-4xl">{project.icon}</div>
+                  <span className="text-xs font-semibold text-primary">{project.category}</span>
+                </div>
                 <h3 className="text-xl font-bold mb-2">{project.title}</h3>
                 <p className="text-muted-foreground mb-4 text-sm">{project.description}</p>
                 <div className="space-y-2">
@@ -206,6 +244,7 @@ const Home = () => {
           <div className="text-center">
             <Link to="/projects">
               <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2 font-bold">
+                <Leaf className="w-5 h-5 mr-2" />
                 View All Projects
               </Button>
             </Link>
@@ -222,16 +261,25 @@ const Home = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-black mb-6 text-gradient glow-text">
-              Join the Movement
+              Ready to Make Your Data Matter?
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-              Be part of the data revolution. Your information can heal the planet.
+              Join thousands of people choosing to share their data consciously, 
+              funding causes they believe in, and creating measurable impact.
             </p>
-            <Link to="/about">
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2 font-bold">
-                Learn More About Our Mission
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/contribute">
+                <Button size="lg" className="text-lg px-8 py-6 border-glow hover-lift font-bold">
+                  <Heart className="w-5 h-5 mr-2" />
+                  Start Your Impact Journey
+                </Button>
+              </Link>
+              <Link to="/about">
+                <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2 font-bold">
+                  Learn More About Us
+                </Button>
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>

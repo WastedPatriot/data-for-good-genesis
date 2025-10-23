@@ -41,9 +41,9 @@ export function CookieConsent() {
             <div className="flex items-center gap-3">
               <Cookie className="w-6 h-6 text-primary" />
               <div>
-                <CardTitle className="text-lg">We Value Your Privacy</CardTitle>
+                <CardTitle className="text-lg">Be Part of Something Bigger</CardTitle>
                 <CardDescription>
-                  Transparency in data collection for environmental impact
+                  Your anonymous data helps fund meaningful causes
                 </CardDescription>
               </div>
             </div>
@@ -60,27 +60,27 @@ export function CookieConsent() {
         <CardContent className="space-y-4">
           <div className="text-sm text-muted-foreground space-y-2">
             <p>
-              We collect anonymized visitor data to improve our platform and create valuable climate tech datasets. 
-              Your data helps fund environmental projects and research.
+              We collect anonymous visitor data to improve our platform and create valuable datasets. 
+              <span className="text-primary font-semibold"> Your participation directly funds projects you care about.</span>
             </p>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="outline">📊 Analytics</Badge>
-              <Badge variant="outline">🌍 Geographic insights</Badge>
-              <Badge variant="outline">🔒 Anonymized</Badge>
-              <Badge variant="outline">♻️ Supports climate action</Badge>
+              <Badge variant="outline">✓ 100% Anonymous</Badge>
+              <Badge variant="outline">✓ You Choose</Badge>
+              <Badge variant="outline">✓ Real Impact</Badge>
+              <Badge variant="outline">✓ Full Transparency</Badge>
             </div>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3">
             <Button onClick={handleAccept} className="flex-1">
-              Accept & Support Climate Tech
+              ✨ Count Me In
             </Button>
             <Button onClick={handleDecline} variant="outline" className="flex-1">
-              Decline Tracking
+              No Thanks
             </Button>
             <Button 
               variant="ghost" 
-              onClick={() => window.open('/privacy#data-collection', '_blank')}
+              onClick={() => window.open('/data-collection', '_blank')}
               className="flex-1"
             >
               Learn More
@@ -88,8 +88,8 @@ export function CookieConsent() {
           </div>
           
           <p className="text-xs text-muted-foreground">
-            By accepting, you agree to anonymous data collection for platform analytics and dataset creation. 
-            We never sell personal data. <a href="/privacy" className="underline">Privacy Policy</a>
+            We collect anonymous browsing data to improve our platform and fund causes through ethical data sales. 
+            No personal info. <a href="/data-collection" className="underline">Full details</a>
           </p>
         </CardContent>
       </Card>

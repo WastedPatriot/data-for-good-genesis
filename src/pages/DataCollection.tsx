@@ -22,9 +22,9 @@ export default function DataCollection() {
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="container mx-auto max-w-4xl space-y-8">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">Data Collection & Privacy</h1>
+          <h1 className="text-4xl font-bold">Your Data, Your Choice, Real Impact</h1>
           <p className="text-xl text-muted-foreground">
-            Transparent data practices that fund environmental action
+            Complete transparency about how your participation creates meaningful change
           </p>
         </div>
 
@@ -52,19 +52,19 @@ export default function DataCollection() {
             <div className="flex items-center justify-between">
               <div>
                 <Badge variant={currentStatus === 'opted-out' ? 'secondary' : 'default'} className="mb-2">
-                  {currentStatus === 'opted-out' ? 'Opted Out' : 'Opted In'}
+                  {currentStatus === 'opted-out' ? 'Not Participating' : 'Contributing'}
                 </Badge>
                 <p className="text-sm text-muted-foreground">
                   {currentStatus === 'opted-out' 
-                    ? 'We are not collecting any visitor data from your browsing session.'
-                    : 'We are collecting anonymized visitor data to improve our platform and create datasets.'}
+                    ? "You're not participating in data collection. You can opt in anytime to start making an impact."
+                    : "You're part of a movement turning data into positive change. Thank you for participating!"}
                 </p>
               </div>
               <Button 
                 onClick={currentStatus === 'opted-out' ? handleOptIn : handleOptOut}
                 variant={currentStatus === 'opted-out' ? 'default' : 'outline'}
               >
-                {currentStatus === 'opted-out' ? 'Opt In' : 'Opt Out'}
+                {currentStatus === 'opted-out' ? '✨ Join the Movement' : 'Opt Out'}
               </Button>
             </div>
           </CardContent>
@@ -138,15 +138,15 @@ export default function DataCollection() {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-3">
-                <DollarSign className="w-5 h-5 text-primary mt-1" />
-                <div>
-                  <h3 className="font-semibold">Revenue Generation</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Visitor datasets are sold to organizations interested in climate tech market insights. 100% of profits fund environmental projects and research.
-                  </p>
+                <div className="flex gap-3">
+                  <DollarSign className="w-5 h-5 text-primary mt-1" />
+                  <div>
+                    <h3 className="font-semibold">Generate Value for Good</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Anonymized visitor data becomes valuable datasets that help researchers, businesses, and innovators across ALL industries - from environmental science to medical research to urban planning.
+                    </p>
+                  </div>
                 </div>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -223,26 +223,33 @@ export default function DataCollection() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="w-5 h-5" />
-              How This Funds Climate Action
+              How Your Participation Creates Impact
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              We believe in radical transparency about our business model:
+              We believe in complete transparency about how this works:
             </p>
             <div className="space-y-2 text-sm">
-              <p><strong>1. Data Collection:</strong> Anonymous visitor behavior is tracked (with your consent)</p>
-              <p><strong>2. Dataset Creation:</strong> Data is aggregated, anonymized, and packaged into tiered datasets</p>
-              <p><strong>3. Marketplace Sales:</strong> Organizations purchase datasets for climate tech market insights</p>
-              <p><strong>4. Impact Funding:</strong> 100% of dataset profits fund verified environmental projects</p>
+              <p><strong>1. You Participate:</strong> Share anonymous behavior data voluntarily (always your choice)</p>
+              <p><strong>2. We Create Value:</strong> Aggregate and anonymize data into insights useful for researchers, businesses, innovators across all industries</p>
+              <p><strong>3. Ethical Marketplace:</strong> Organizations purchase datasets to solve real problems - from climate science to medical research to urban planning</p>
+              <p><strong>4. You Vote & Fund:</strong> 100% of profits go to causes the community votes on - environment, education, health, community programs</p>
             </div>
             <div className="bg-primary/10 p-4 rounded-lg mt-4">
-              <p className="text-sm font-semibold">Revenue Allocation:</p>
-              <ul className="text-sm space-y-1 mt-2">
-                <li>• 60% → Direct funding of environmental projects</li>
-                <li>• 25% → Platform development & maintenance</li>
-                <li>• 15% → Data infrastructure & security</li>
+              <p className="text-sm font-semibold mb-2">Where the Money Goes:</p>
+              <ul className="text-sm space-y-1">
+                <li>• <strong>60%</strong> → Direct funding of community-voted projects</li>
+                <li>• <strong>25%</strong> → Platform development & security</li>
+                <li>• <strong>15%</strong> → Data infrastructure & privacy protection</li>
               </ul>
+            </div>
+            <div className="mt-4 p-3 bg-card border rounded-lg">
+              <p className="text-sm font-semibold text-primary mb-1">The Difference:</p>
+              <p className="text-sm text-muted-foreground">
+                Big tech takes your data and profits billions. We let you <strong>choose</strong> to participate, 
+                show you <strong>exactly</strong> how it's used, and direct 100% of profits to causes <strong>you</strong> vote on.
+              </p>
             </div>
           </CardContent>
         </Card>
