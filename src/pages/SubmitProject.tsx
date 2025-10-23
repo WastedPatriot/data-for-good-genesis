@@ -53,17 +53,18 @@ export default function SubmitProject() {
       // Check if user is logged in
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Insert project (will be in pending status by default)
+      // Insert project (will be in proposed status by default)
       const { error: insertError } = await supabase
         .from("projects")
         .insert([{
+          title: formData.title,
           description: formData.description,
           organization_name: formData.organization_name,
           category: formData.category,
           funding_goal: parseFloat(formData.funding_goal),
           website_url: formData.website_url || null,
           charity_registration_number: formData.charity_registration_number || null,
-          status: "pending",
+          status: "proposed",
           submitted_by: user?.id || null,
           icon: "Leaf",
           votes_count: 0,
