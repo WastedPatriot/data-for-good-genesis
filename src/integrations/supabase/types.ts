@@ -190,6 +190,59 @@ export type Database = {
           },
         ]
       }
+      complaint_resolutions: {
+        Row: {
+          admin_reviewed_at: string | null
+          admin_reviewed_by: string | null
+          ai_analysis: Json
+          ai_response: string | null
+          confidence_score: number | null
+          contact_submission_id: string | null
+          created_at: string | null
+          escalated_to_admin: boolean | null
+          escalation_reason: string | null
+          id: string
+          resolution_status: string
+          updated_at: string | null
+        }
+        Insert: {
+          admin_reviewed_at?: string | null
+          admin_reviewed_by?: string | null
+          ai_analysis: Json
+          ai_response?: string | null
+          confidence_score?: number | null
+          contact_submission_id?: string | null
+          created_at?: string | null
+          escalated_to_admin?: boolean | null
+          escalation_reason?: string | null
+          id?: string
+          resolution_status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          admin_reviewed_at?: string | null
+          admin_reviewed_by?: string | null
+          ai_analysis?: Json
+          ai_response?: string | null
+          confidence_score?: number | null
+          contact_submission_id?: string | null
+          created_at?: string | null
+          escalated_to_admin?: boolean | null
+          escalation_reason?: string | null
+          id?: string
+          resolution_status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaint_resolutions_contact_submission_id_fkey"
+            columns: ["contact_submission_id"]
+            isOneToOne: false
+            referencedRelation: "contact_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_submissions: {
         Row: {
           admin_notes: string | null
@@ -779,6 +832,27 @@ export type Database = {
           },
         ]
       }
+      provenance_collisions: {
+        Row: {
+          created_at: string | null
+          existing_id: string | null
+          id: string
+          incoming_payload: Json
+        }
+        Insert: {
+          created_at?: string | null
+          existing_id?: string | null
+          id?: string
+          incoming_payload: Json
+        }
+        Update: {
+          created_at?: string | null
+          existing_id?: string | null
+          id?: string
+          incoming_payload?: Json
+        }
+        Relationships: []
+      }
       purchases: {
         Row: {
           amount_paid: number
@@ -836,6 +910,7 @@ export type Database = {
           id: string
           last_release_at: string | null
           max_datasets_per_week: number
+          max_external_releases_per_month: number | null
           min_confidence: number
           min_days_between_releases: number
           min_quality_tier: string
@@ -850,6 +925,7 @@ export type Database = {
           id?: string
           last_release_at?: string | null
           max_datasets_per_week?: number
+          max_external_releases_per_month?: number | null
           min_confidence?: number
           min_days_between_releases?: number
           min_quality_tier?: string
@@ -864,6 +940,7 @@ export type Database = {
           id?: string
           last_release_at?: string | null
           max_datasets_per_week?: number
+          max_external_releases_per_month?: number | null
           min_confidence?: number
           min_days_between_releases?: number
           min_quality_tier?: string
@@ -966,6 +1043,54 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      visitor_analytics: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string | null
+          device_type: string | null
+          id: string
+          ip_address: string | null
+          os: string | null
+          page_path: string
+          referrer: string | null
+          session_id: string
+          user_agent: string | null
+          visited_at: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          os?: string | null
+          page_path: string
+          referrer?: string | null
+          session_id: string
+          user_agent?: string | null
+          visited_at?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          os?: string | null
+          page_path?: string
+          referrer?: string | null
+          session_id?: string
+          user_agent?: string | null
+          visited_at?: string | null
         }
         Relationships: []
       }

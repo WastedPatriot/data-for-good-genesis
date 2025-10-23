@@ -54,6 +54,24 @@ serve(async (req) => {
       throw recentError;
     }
 
+    // Check monthly external releases if channel is external
+    let monthlyCount = 0;
+    if (channel === "external") {
+      const monthAgo = new Date();
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
+
+      const { count: externalCount, error: monthlyError } = await supabaseAdmin
+        .from("datasets")
+        .select("*", { count: "exact", head: true })
+        .eq("source_channel", "external")
+        .gte("created_at", monthAgo.toISOString());
+
+      if (monthlyError) {
+        throw monthlyError;
+      }
+      monthlyCount = externalCount || 0;
+    }
+
     // Calculate next available publish date
     let nextAvailableDate = new Date();
     if (policy.last_release_at) {
@@ -66,6 +84,7 @@ serve(async (req) => {
     const canPublish = 
       (curatedCount || 0) >= 100 &&
       (recentCount || 0) < policy.max_datasets_per_week &&
+      (channel !== "external" || monthlyCount < policy.max_external_releases_per_month) &&
       (new Date() >= nextAvailableDate || policy.burst_mode_enabled);
 
     return new Response(

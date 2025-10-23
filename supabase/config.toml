@@ -65,3 +65,15 @@ verify_jwt = false
 
 [functions.send-admin-reply]
 verify_jwt = true
+
+[functions.release-policy-update]
+verify_jwt = false
+
+[functions.upload-dataset-file]
+verify_jwt = false
+
+[functions.track-visitor]
+verify_jwt = false
+
+[functions.ai-complaint-resolver]
+verify_jwt = false

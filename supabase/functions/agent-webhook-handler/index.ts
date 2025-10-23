@@ -90,7 +90,11 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, event_id: event.id }),
+      JSON.stringify({ 
+        status: "received",
+        timestamp: new Date().toISOString(),
+        event_id: event.id 
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error: any) {

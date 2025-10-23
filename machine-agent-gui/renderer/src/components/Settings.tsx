@@ -8,6 +8,7 @@ interface SettingsProps {
 export default function Settings({ config, onConfigUpdate }: SettingsProps) {
   const [formData, setFormData] = useState({
     SUPABASE_URL: '',
+    SUPABASE_ANON_KEY: '',
     INGEST_SECRET: '',
     DATA_PRICE: 99.99,
     BADGE_CODE_COUNT: 50,
@@ -83,6 +84,15 @@ export default function Settings({ config, onConfigUpdate }: SettingsProps) {
             value={formData.SUPABASE_URL}
             onChange={e => handleChange('SUPABASE_URL', e.target.value)}
             placeholder="https://your-project.supabase.co"
+          />
+        </div>
+        <div className="form-group">
+          <label>Supabase Anon Key</label>
+          <input 
+            type="password"
+            value={formData.SUPABASE_ANON_KEY}
+            onChange={e => handleChange('SUPABASE_ANON_KEY', e.target.value)}
+            placeholder="Anon/Publishable key"
           />
         </div>
         <div className="form-group">
