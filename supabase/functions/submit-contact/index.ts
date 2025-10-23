@@ -53,7 +53,7 @@ serve(async (req) => {
     // Send confirmation email to user
     try {
       await resend.emails.send({
-        from: "Data for Earth <onboarding@resend.dev>",
+        from: "Data for Earth <noreply@dataforearth.org>",
         to: [email],
         subject: "We received your message - Data for Earth",
         html: `
@@ -89,7 +89,7 @@ serve(async (req) => {
     const adminEmail = Deno.env.get("ADMIN_EMAIL") || "contact@dataforearth.org";
     try {
       await resend.emails.send({
-        from: "Data for Earth <onboarding@resend.dev>",
+        from: "Data for Earth <noreply@dataforearth.org>",
         to: [adminEmail],
         replyTo: [email],
         subject: `New ${submissionType} inquiry from ${name}`,
