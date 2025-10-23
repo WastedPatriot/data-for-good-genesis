@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
+import PhoneMockup from "@/components/PhoneMockup";
+import DataStoryAnimation from "@/components/DataStoryAnimation";
 
 const About = () => {
   return (
@@ -10,7 +12,22 @@ const About = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-5xl font-bold mb-12 text-center">Our Mission</h1>
+          <h1 className="text-5xl font-black mb-6 text-center text-gradient">Our Mission</h1>
+          <p className="text-center text-muted-foreground mb-16 max-w-2xl mx-auto text-lg">
+            Watch how we're transforming data exploitation into environmental action
+          </p>
+
+          {/* TikTok-style Video Preview */}
+          <motion.section
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="mb-24 flex justify-center"
+          >
+            <PhoneMockup>
+              <DataStoryAnimation />
+            </PhoneMockup>
+          </motion.section>
 
           <div className="space-y-16">
             {/* The Problem */}
@@ -20,7 +37,7 @@ const About = () => {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-3xl font-bold mb-4 text-primary">
+                <h2 className="text-3xl font-black mb-4 text-gradient">
                   The Problem
                 </h2>
                 <p className="text-xl text-muted-foreground leading-relaxed">
@@ -40,7 +57,7 @@ const About = () => {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-3xl font-bold mb-4 text-primary">
+                <h2 className="text-3xl font-black mb-4 text-gradient">
                   The Solution
                 </h2>
                 <p className="text-xl text-muted-foreground leading-relaxed">
@@ -60,7 +77,7 @@ const About = () => {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-3xl font-bold mb-4 text-primary">
+                <h2 className="text-3xl font-black mb-4 text-gradient">
                   Our Promise
                 </h2>
                 <p className="text-xl text-muted-foreground leading-relaxed">
@@ -78,16 +95,16 @@ const About = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-card border border-border rounded-lg p-12 text-center"
+              className="bg-card border-2 border-border rounded-xl p-12 text-center hover-lift"
             >
-              <h2 className="text-3xl font-bold mb-6">
+              <h2 className="text-3xl font-black mb-6 text-gradient">
                 Be Part of the Data Revolution
               </h2>
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
                 Join thousands of people who've chosen to make their data count 
                 for something bigger than profits. Let's heal the planet together.
               </p>
-              <Button size="lg" className="text-lg px-8 py-6">
+              <Button size="lg" className="text-lg px-8 py-6 border-glow hover-lift font-bold">
                 Start Contributing
               </Button>
             </motion.section>
