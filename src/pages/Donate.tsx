@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Heart, Leaf, Droplet, Sun, Wind } from "lucide-react";
+import { Heart, Leaf, Droplet, Sun, Wind, Server, Code } from "lucide-react";
 import { z } from "zod";
 
 const donationSchema = z.object({
@@ -20,6 +20,7 @@ const donationSchema = z.object({
 
 const Donate = () => {
   const [donationType, setDonationType] = useState<"one-time" | "monthly">("one-time");
+  const [donationPurpose, setDonationPurpose] = useState<"platform" | "environment">("platform");
   const [selectedAmount, setSelectedAmount] = useState("25");
   const [customAmount, setCustomAmount] = useState("");
   const [name, setName] = useState("");
@@ -29,7 +30,16 @@ const Donate = () => {
 
   const predefinedAmounts = ["10", "25", "50", "100", "250", "500"];
 
-  const impactMessages: Record<string, { icon: any; text: string }> = {
+  const platformImpactMessages: Record<string, { icon: any; text: string }> = {
+    "10": { icon: Server, text: "Covers 1 day of hosting" },
+    "25": { icon: Code, text: "Supports platform development" },
+    "50": { icon: Server, text: "Powers the platform for a week" },
+    "100": { icon: Code, text: "Funds new features & improvements" },
+    "250": { icon: Server, text: "Covers monthly infrastructure costs" },
+    "500": { icon: Code, text: "Enables major platform upgrades" },
+  };
+
+  const environmentImpactMessages: Record<string, { icon: any; text: string }> = {
     "10": { icon: Leaf, text: "Plants 5 trees" },
     "25": { icon: Droplet, text: "Cleans 100L of ocean water" },
     "50": { icon: Sun, text: "Powers 10 homes with solar for a day" },
@@ -39,6 +49,7 @@ const Donate = () => {
   };
 
   const getImpact = () => {
+    const impactMessages = donationPurpose === "platform" ? platformImpactMessages : environmentImpactMessages;
     const amount = customAmount || selectedAmount;
     const numAmount = parseInt(amount);
     if (numAmount >= 500) return impactMessages["500"];
@@ -73,15 +84,20 @@ const Donate = () => {
       // TODO: Integrate with Stripe
       console.log("Donation:", {
         type: donationType,
+        purpose: donationPurpose,
         amount: parseFloat(amount),
         name,
         email,
         message,
       });
 
+      const purposeText = donationPurpose === "platform" 
+        ? "supporting the platform" 
+        : "environmental projects";
+
       toast({
         title: "Thank You! 💚",
-        description: `Your ${donationType === "monthly" ? "monthly" : ""} donation of $${amount} will make a real impact.`,
+        description: `Your ${donationType === "monthly" ? "monthly" : ""} donation of $${amount} for ${purposeText} will make a real impact.`,
       });
 
       // Reset form
@@ -113,10 +129,16 @@ const Donate = () => {
           <h1 className="text-5xl font-black mb-4 text-gradient">
             Support Our Mission
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Your donation directly funds environmental projects chosen by the community. 
-            Every dollar makes a measurable impact.
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
+            Your donation keeps the platform running or directly funds environmental projects. 
+            Data sales revenue goes 100% to environmental initiatives — platform donations help us operate.
           </p>
+          <div className="inline-block bg-primary/10 border-2 border-primary/30 rounded-xl px-6 py-3">
+            <p className="text-sm font-medium">
+              💡 <span className="text-primary font-bold">Remember:</span> Data sales fund the environment automatically. 
+              Donate here to support our operations or give directly to green projects.
+            </p>
+          </div>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -128,6 +150,35 @@ const Donate = () => {
             className="bg-card border-2 border-border rounded-xl p-8 hover-lift"
           >
             <div className="space-y-6">
+              {/* Donation Purpose */}
+              <div>
+                <Label className="text-lg font-bold mb-4 block">What Would You Like to Support?</Label>
+                <RadioGroup value={donationPurpose} onValueChange={(value: any) => setDonationPurpose(value)}>
+                  <div className="flex items-start space-x-3 p-4 border-2 border-border rounded-lg hover:border-primary transition-colors">
+                    <RadioGroupItem value="platform" id="platform" className="mt-1" />
+                    <div className="flex-1 cursor-pointer" onClick={() => setDonationPurpose("platform")}>
+                      <Label htmlFor="platform" className="cursor-pointer font-bold text-base block mb-1">
+                        Platform Operations
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Support creators, hosting, development, and website maintenance
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3 p-4 border-2 border-border rounded-lg hover:border-primary transition-colors">
+                    <RadioGroupItem value="environment" id="environment" className="mt-1" />
+                    <div className="flex-1 cursor-pointer" onClick={() => setDonationPurpose("environment")}>
+                      <Label htmlFor="environment" className="cursor-pointer font-bold text-base block mb-1">
+                        Environmental Projects
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Directly fund green initiatives and climate action
+                      </p>
+                    </div>
+                  </div>
+                </RadioGroup>
+              </div>
+
               {/* Donation Type */}
               <div>
                 <Label className="text-lg font-bold mb-4 block">Donation Type</Label>
@@ -253,25 +304,48 @@ const Donate = () => {
 
             {/* Why Donate */}
             <div className="bg-card border-2 border-border rounded-xl p-8">
-              <h3 className="text-xl font-black mb-4">Why Donate?</h3>
-              <ul className="space-y-3 text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <span className="text-primary font-bold">✓</span>
-                  <span>100% of funds go to verified environmental projects</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary font-bold">✓</span>
-                  <span>Community votes on which projects get funded</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary font-bold">✓</span>
-                  <span>Track your impact with transparent reporting</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary font-bold">✓</span>
-                  <span>Tax-deductible in most countries</span>
-                </li>
-              </ul>
+              <h3 className="text-xl font-black mb-4">
+                {donationPurpose === "platform" ? "Why Support the Platform?" : "Why Donate to Environment?"}
+              </h3>
+              {donationPurpose === "platform" ? (
+                <ul className="space-y-3 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Keeps the platform free for data contributors</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Funds ongoing development and new features</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Covers hosting, infrastructure, and security costs</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Supports the creators building this mission</span>
+                  </li>
+                </ul>
+              ) : (
+                <ul className="space-y-3 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>100% goes to verified environmental projects</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Community votes on which projects get funded</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Track your impact with transparent reporting</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Direct action on climate change</span>
+                  </li>
+                </ul>
+              )}
             </div>
 
             {/* Stats */}
