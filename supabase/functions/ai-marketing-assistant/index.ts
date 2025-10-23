@@ -1,0 +1,258 @@
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { Resend } from "npm:resend@4.0.0";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const supabaseClient = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+  );
+
+  try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "No authorization header" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    
+    if (userError || !userData.user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
+
+    // Verify admin role
+    const { data: roleData } = await supabaseClient
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userData.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!roleData) {
+      return new Response(
+        JSON.stringify({ error: "Admin access required" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+      );
+    }
+
+    const body = await req.json();
+    const { action, messages, test_email, campaign_id } = body;
+
+    // Handle different actions
+    if (action === "send_test_email") {
+      console.log("Sending test email to:", test_email);
+      
+      const emailResult = await resend.emails.send({
+        from: "DataForEarth <hello@dataforearth.org>",
+        to: [test_email],
+        subject: "Test Email from DataForEarth AI Marketing Assistant",
+        html: `
+          <h1>Test Email Successful!</h1>
+          <p>This is a test email from your DataForEarth AI Marketing Assistant.</p>
+          <p>If you're seeing this, the email system is working correctly.</p>
+          <br/>
+          <p>System Status:</p>
+          <ul>
+            <li>✓ Email configuration: Working</li>
+            <li>✓ Authentication: Verified</li>
+            <li>✓ Sender address: hello@dataforearth.org</li>
+            <li>✓ Security: Active</li>
+          </ul>
+          <br/>
+          <p>Best regards,<br/>DataForEarth Team</p>
+        `,
+      });
+
+      if (emailResult.error) {
+        throw new Error(`Email error: ${emailResult.error.message}`);
+      }
+
+      console.log("Test email sent successfully:", emailResult);
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Test email sent successfully" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
+    if (action === "approve_campaign") {
+      console.log("Approving campaign:", campaign_id);
+      
+      // Get campaign details
+      const { data: campaign, error: fetchError } = await supabaseClient
+        .from("marketing_campaigns")
+        .select("*")
+        .eq("id", campaign_id)
+        .single();
+
+      if (fetchError || !campaign) {
+        throw new Error("Campaign not found");
+      }
+
+      // Send the email
+      const emailResult = await resend.emails.send({
+        from: "DataForEarth <hello@dataforearth.org>",
+        to: [campaign.email],
+        subject: `Partnership Opportunity with DataForEarth`,
+        html: campaign.email_content,
+      });
+
+      if (emailResult.error) {
+        // Update campaign status to failed
+        await supabaseClient
+          .from("marketing_campaigns")
+          .update({ status: "failed" })
+          .eq("id", campaign_id);
+
+        throw new Error(`Email error: ${emailResult.error.message}`);
+      }
+
+      // Update campaign status to sent
+      await supabaseClient
+        .from("marketing_campaigns")
+        .update({ 
+          status: "sent",
+          sent_at: new Date().toISOString(),
+          approved_by: userData.user.id
+        })
+        .eq("id", campaign_id);
+
+      // Log to audit
+      await supabaseClient
+        .from("audit_logs")
+        .insert({
+          user_id: userData.user.id,
+          action: "marketing_email_sent",
+          resource_type: "marketing_campaign",
+          resource_id: campaign_id,
+          details: {
+            company_name: campaign.company_name,
+            email: campaign.email
+          },
+          severity: "info"
+        });
+
+      console.log("Campaign approved and email sent:", emailResult);
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Campaign approved and email sent" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
+    if (action === "chat") {
+      console.log("Processing AI chat request");
+      
+      // Call Lovable AI for chat response
+      const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            {
+              role: "system",
+              content: `You are DataForEarth's AI Marketing Assistant. Your job is to:
+1. Research companies that might be interested in environmental data or partnerships
+2. Draft personalized outreach emails
+3. Help identify potential partners and customers
+
+IMPORTANT SECURITY RULES:
+- Never send emails without admin approval
+- All drafts go to "pending_approval" status
+- Never share sensitive DataForEarth internal data
+- Always verify company legitimacy before outreach
+
+When the admin asks you to research a company or draft an email:
+1. Acknowledge the request
+2. Explain what you're doing
+3. If creating a campaign, return: "CAMPAIGN_CREATED" in your response
+
+Keep responses concise and actionable.`
+            },
+            ...messages
+          ],
+        }),
+      });
+
+      if (!aiResponse.ok) {
+        throw new Error("AI API error");
+      }
+
+      const aiData = await aiResponse.json();
+      const response = aiData.choices[0].message.content;
+
+      // Check if AI wants to create a campaign (simple keyword detection)
+      let campaign_created = false;
+      if (response.includes("CAMPAIGN_CREATED") || 
+          (response.toLowerCase().includes("draft") && response.toLowerCase().includes("email"))) {
+        // For demo purposes, create a sample campaign
+        // In production, you'd parse the AI response to extract company details
+        
+        campaign_created = true;
+        
+        // This is a placeholder - in production the AI would provide structured data
+        const sampleCompany = {
+          name: "Example Corporation",
+          email: "contact@example.com",
+          content: `Dear Team,\n\nI hope this email finds you well. I'm reaching out from DataForEarth, a platform that connects environmental organizations with valuable climate and sustainability data.\n\nBest regards,\nDataForEarth Team`
+        };
+
+        await supabaseClient
+          .from("marketing_campaigns")
+          .insert({
+            company_name: sampleCompany.name,
+            email: sampleCompany.email,
+            email_content: sampleCompany.content,
+            status: "pending_approval",
+            created_by: userData.user.id,
+            research_data: {
+              note: "AI-generated campaign - review before sending"
+            }
+          });
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          response: response.replace("CAMPAIGN_CREATED", "").trim(),
+          campaign_created
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ error: "Invalid action" }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+    );
+
+  } catch (error: any) {
+    console.error("AI Marketing Assistant error:", error);
+    return new Response(
+      JSON.stringify({ error: error.message || "Unexpected error" }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+    );
+  }
+});

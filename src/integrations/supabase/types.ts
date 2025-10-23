@@ -349,6 +349,45 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_campaigns: {
+        Row: {
+          approved_by: string | null
+          company_name: string
+          created_at: string
+          created_by: string | null
+          email: string
+          email_content: string
+          id: string
+          research_data: Json | null
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          approved_by?: string | null
+          company_name: string
+          created_at?: string
+          created_by?: string | null
+          email: string
+          email_content: string
+          id?: string
+          research_data?: Json | null
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          approved_by?: string | null
+          company_name?: string
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          email_content?: string
+          id?: string
+          research_data?: Json | null
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       organization_profiles: {
         Row: {
           compliance_accepted: boolean

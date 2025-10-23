@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +9,8 @@ import Contribute from "./pages/Contribute";
 import Marketplace from "./pages/Marketplace";
 import ClaimBadge from "./pages/ClaimBadge";
 import Projects from "./pages/Projects";
+import SubmitProject from "./pages/SubmitProject";
+import { LoadingScreen } from "./components/LoadingScreen";
 import About from "./pages/About";
 import Donate from "./pages/Donate";
 import Login from "./pages/Login";
@@ -48,7 +50,8 @@ const App = () => (
             <Route path="/impact-dashboard" element={<ImpactDashboard />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/claim-badge" element={<ClaimBadge />} />
-            <Route path="/projects" element={<Projects />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/submit-project" element={<SubmitProject />} />
             <Route path="/about" element={<About />} />
             <Route path="/donate" element={<Donate />} />
             <Route path="/login" element={<Login />} />

@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Shield, Users, Database, FileText, Mail, TrendingUp, Activity } from "lucide-react";
+import { AIMarketingAssistant } from "@/components/admin/AIMarketingAssistant";
 
 export default function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -195,10 +196,15 @@ export default function Admin() {
         <Tabs defaultValue="activity" className="space-y-6">
           <TabsList>
             <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+            <TabsTrigger value="marketing">AI Marketing</TabsTrigger>
             <TabsTrigger value="submissions">Data Submissions</TabsTrigger>
             <TabsTrigger value="organizations">Organizations</TabsTrigger>
             <TabsTrigger value="contacts">Contact Forms</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="marketing">
+            <AIMarketingAssistant />
+          </TabsContent>
 
           <TabsContent value="activity">
             <Card>

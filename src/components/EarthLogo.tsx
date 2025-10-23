@@ -26,7 +26,7 @@ const EarthLogo: React.FC<EarthLogoProps> = ({ size = 64 }) => {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     rendererRef.current = renderer;
     renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(size, size);
 
     container.innerHTML = ""; // clear if re-rendered
@@ -50,24 +50,24 @@ const EarthLogo: React.FC<EarthLogoProps> = ({ size = 64 }) => {
     ].map((url) => loader.load(url));
 
     // Earth
-    const earthGeo = new THREE.SphereGeometry(1, 48, 48);
+    const earthGeo = new THREE.SphereGeometry(1, 64, 64);
     const earthMat = new THREE.MeshPhongMaterial({
       map,
       bumpMap: bump,
-      bumpScale: 0.25,
+      bumpScale: 0.3,
       specularMap: spec,
-      specular: new THREE.Color(0x222222),
-      shininess: 12,
+      specular: new THREE.Color(0x333333),
+      shininess: 15,
     });
     const earthMesh = new THREE.Mesh(earthGeo, earthMat);
     scene.add(earthMesh);
 
     // Clouds
-    const cloudsGeo = new THREE.SphereGeometry(1.01, 48, 48);
+    const cloudsGeo = new THREE.SphereGeometry(1.01, 64, 64);
     const cloudsMat = new THREE.MeshPhongMaterial({
       map: clouds,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.85,
       depthWrite: false,
     });
     const cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);

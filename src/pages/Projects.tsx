@@ -180,8 +180,8 @@ const Projects = () => {
                 <p className="text-muted-foreground mb-6">
                   Check back soon for community-voted environmental initiatives.
                 </p>
-                <Button onClick={() => navigate("/contact")}>
-                  Suggest a Project
+                <Button onClick={() => navigate("/submit-project")}>
+                  Submit a Project
                 </Button>
               </div>
             ) : (
@@ -322,7 +322,7 @@ const Projects = () => {
             </p>
             <Button 
               size="lg" 
-              onClick={() => navigate("/contact")}
+              onClick={() => navigate("/submit-project")}
               className="border-glow hover-lift font-black"
             >
               Submit Your Project for Review
