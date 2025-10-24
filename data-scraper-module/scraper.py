@@ -25,6 +25,9 @@ from sites.regulatory_violations import RegulatoryViolationsScraper
 from sites.supply_chain_signals import SupplyChainSignalsScraper
 from sites.climate_risk import ClimateRiskScraper
 from sites.esg_litigation import ESGLitigationScraper
+from sites.real_climate_data import RealClimateDataScraper
+from sites.real_esg_data import RealESGDataScraper
+from sites.real_policy_tracker import RealPolicyTrackerScraper
 
 # Import utilities
 from utils.user_agents import get_random_user_agent
@@ -43,6 +46,9 @@ SCRAPERS = {
     "supply_chain_signals": SupplyChainSignalsScraper,
     "climate_risk": ClimateRiskScraper,
     "esg_litigation": ESGLitigationScraper,
+    "real_climate": RealClimateDataScraper,
+    "real_esg": RealESGDataScraper,
+    "real_policy": RealPolicyTrackerScraper,
 }
 
 

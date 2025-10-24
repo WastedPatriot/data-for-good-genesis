@@ -108,9 +108,14 @@ export default function AdminDatasets() {
               <p className="text-muted-foreground">Manage marketplace datasets</p>
             </div>
           </div>
-          <Button onClick={() => navigate("/admin/release-policy")}>
-            Release Policy
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate("/admin/dataset-builder")} variant="default">
+              Build from Curated
+            </Button>
+            <Button onClick={() => navigate("/admin/release-policy")} variant="outline">
+              Release Policy
+            </Button>
+          </div>
         </div>
 
         <Card>

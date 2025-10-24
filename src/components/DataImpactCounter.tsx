@@ -13,19 +13,22 @@ export default function DataImpactCounter() {
   useEffect(() => {
     const fetchRealStats = async () => {
       try {
+        // Create anonymous client (no auth required)
+        const anonSupabase = supabase;
+
         // Get actual data contributors (people who submitted data)
-        const { count: contributorsCount } = await supabase
+        const { count: contributorsCount } = await anonSupabase
           .from('data_submissions')
           .select('*', { count: 'exact', head: true });
 
         // Get active datasets
-        const { count: datasetsCount } = await supabase
+        const { count: datasetsCount } = await anonSupabase
           .from('datasets')
           .select('*', { count: 'exact', head: true })
           .eq('active', true);
 
         // Get total revenue from completed purchases
-        const { data: purchases } = await supabase
+        const { data: purchases } = await anonSupabase
           .from('purchases')
           .select('amount_paid')
           .eq('status', 'completed');
@@ -39,6 +42,8 @@ export default function DataImpactCounter() {
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
+        // Set default values on error
+        setStats({ contributors: 0, datasets: 0, revenue: 0 });
       }
     };
 
