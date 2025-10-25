@@ -49,6 +49,7 @@ export type Database = {
           action: string
           created_at: string
           details: Json | null
+          domain: string | null
           id: string
           ip_address: string | null
           resource_id: string | null
@@ -61,6 +62,7 @@ export type Database = {
           action: string
           created_at?: string
           details?: Json | null
+          domain?: string | null
           id?: string
           ip_address?: string | null
           resource_id?: string | null
@@ -73,6 +75,7 @@ export type Database = {
           action?: string
           created_at?: string
           details?: Json | null
+          domain?: string | null
           id?: string
           ip_address?: string | null
           resource_id?: string | null
@@ -289,12 +292,15 @@ export type Database = {
           confidence_score: number
           created_at: string
           curated_payload: Json
+          domain: string | null
           enterprise_grade: boolean | null
           id: string
           last_used_at: string | null
           limited_supply: number | null
           quality_tier: string
+          region: string | null
           review_queue_id: string
+          sector: string | null
           tags: string[] | null
           usage_count: number
           used_in_datasets: string[] | null
@@ -305,12 +311,15 @@ export type Database = {
           confidence_score: number
           created_at?: string
           curated_payload: Json
+          domain?: string | null
           enterprise_grade?: boolean | null
           id?: string
           last_used_at?: string | null
           limited_supply?: number | null
           quality_tier: string
+          region?: string | null
           review_queue_id: string
+          sector?: string | null
           tags?: string[] | null
           usage_count?: number
           used_in_datasets?: string[] | null
@@ -321,12 +330,15 @@ export type Database = {
           confidence_score?: number
           created_at?: string
           curated_payload?: Json
+          domain?: string | null
           enterprise_grade?: boolean | null
           id?: string
           last_used_at?: string | null
           limited_supply?: number | null
           quality_tier?: string
+          region?: string | null
           review_queue_id?: string
+          sector?: string | null
           tags?: string[] | null
           usage_count?: number
           used_in_datasets?: string[] | null
@@ -443,6 +455,47 @@ export type Database = {
         }
         Relationships: []
       }
+      dataset_export_metadata: {
+        Row: {
+          checksum_sha256: string | null
+          created_at: string | null
+          created_by: string | null
+          dataset_id: string | null
+          export_metadata: Json | null
+          file_size_bytes: number | null
+          format: string
+          id: string
+        }
+        Insert: {
+          checksum_sha256?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          dataset_id?: string | null
+          export_metadata?: Json | null
+          file_size_bytes?: number | null
+          format: string
+          id?: string
+        }
+        Update: {
+          checksum_sha256?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          dataset_id?: string | null
+          export_metadata?: Json | null
+          file_size_bytes?: number | null
+          format?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dataset_export_metadata_dataset_id_fkey"
+            columns: ["dataset_id"]
+            isOneToOne: false
+            referencedRelation: "datasets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dataset_files: {
         Row: {
           checksum_sha256: string | null
@@ -494,13 +547,16 @@ export type Database = {
           category: string
           created_at: string
           description: string
+          domain: string | null
           enterprise_grade: boolean | null
           featured: boolean | null
           id: string
           limited_supply: number | null
           name: string
           price: number
+          region: string | null
           sample_data: Json | null
+          sector: string | null
           size_mb: number | null
           source_channel: string | null
           stripe_price_id: string
@@ -513,13 +569,16 @@ export type Database = {
           category: string
           created_at?: string
           description: string
+          domain?: string | null
           enterprise_grade?: boolean | null
           featured?: boolean | null
           id?: string
           limited_supply?: number | null
           name: string
           price: number
+          region?: string | null
           sample_data?: Json | null
+          sector?: string | null
           size_mb?: number | null
           source_channel?: string | null
           stripe_price_id: string
@@ -532,13 +591,16 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string
+          domain?: string | null
           enterprise_grade?: boolean | null
           featured?: boolean | null
           id?: string
           limited_supply?: number | null
           name?: string
           price?: number
+          region?: string | null
           sample_data?: Json | null
+          sector?: string | null
           size_mb?: number | null
           source_channel?: string | null
           stripe_price_id?: string
@@ -907,10 +969,13 @@ export type Database = {
           burst_reason: string | null
           channel: string
           created_at: string
+          domain: string | null
           id: string
           last_release_at: string | null
           max_datasets_per_week: number
           max_external_releases_per_month: number | null
+          max_external_releases_per_month_per_domain: number | null
+          max_releases_per_week_per_domain: number | null
           min_confidence: number
           min_days_between_releases: number
           min_quality_tier: string
@@ -922,10 +987,13 @@ export type Database = {
           burst_reason?: string | null
           channel: string
           created_at?: string
+          domain?: string | null
           id?: string
           last_release_at?: string | null
           max_datasets_per_week?: number
           max_external_releases_per_month?: number | null
+          max_external_releases_per_month_per_domain?: number | null
+          max_releases_per_week_per_domain?: number | null
           min_confidence?: number
           min_days_between_releases?: number
           min_quality_tier?: string
@@ -937,10 +1005,13 @@ export type Database = {
           burst_reason?: string | null
           channel?: string
           created_at?: string
+          domain?: string | null
           id?: string
           last_release_at?: string | null
           max_datasets_per_week?: number
           max_external_releases_per_month?: number | null
+          max_external_releases_per_month_per_domain?: number | null
+          max_releases_per_week_per_domain?: number | null
           min_confidence?: number
           min_days_between_releases?: number
           min_quality_tier?: string
@@ -1096,7 +1167,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_public_impact: {
+        Row: {
+          active_domains: number | null
+          high_quality_records: number | null
+          total_contributors: number | null
+          total_datasets: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_blocked_associations: {

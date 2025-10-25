@@ -20,6 +20,9 @@ export default function DatasetBuilder() {
     name: "",
     description: "",
     category: "climate",
+    domain: "climate",
+    region: "",
+    sector: "",
     price: 99,
     channel: "on_site",
     burstMode: false,
@@ -27,6 +30,9 @@ export default function DatasetBuilder() {
       minQuality: "silver",
       enterpriseOnly: false,
       limit: 1000,
+      domains: [] as string[],
+      regions: [] as string[],
+      sectors: [] as string[],
     },
   });
 
@@ -212,20 +218,50 @@ export default function DatasetBuilder() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
+              <Label htmlFor="domain">Domain</Label>
+              <Select value={formData.domain} onValueChange={(v) => setFormData({ ...formData, domain: v })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="climate">Climate</SelectItem>
-                  <SelectItem value="energy">Energy</SelectItem>
                   <SelectItem value="esg">ESG</SelectItem>
-                  <SelectItem value="sustainability">Sustainability</SelectItem>
                   <SelectItem value="policy">Policy</SelectItem>
+                  <SelectItem value="energy">Energy</SelectItem>
+                  <SelectItem value="mobility">Mobility</SelectItem>
+                  <SelectItem value="consumer">Consumer</SelectItem>
+                  <SelectItem value="market">Market</SelectItem>
+                  <SelectItem value="housing">Housing</SelectItem>
+                  <SelectItem value="agriculture">Agriculture</SelectItem>
+                  <SelectItem value="health">Health</SelectItem>
+                  <SelectItem value="supply_chain">Supply Chain</SelectItem>
+                  <SelectItem value="macro">Macro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="region">Region (optional)</Label>
+              <Input
+                id="region"
+                value={formData.region}
+                onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                placeholder="e.g., US, EU, Global"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="sector">Sector (optional)</Label>
+              <Input
+                id="sector"
+                value={formData.sector}
+                onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
+                placeholder="e.g., Transportation, Energy"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             <div className="space-y-2">
               <Label htmlFor="price">Price ($)</Label>

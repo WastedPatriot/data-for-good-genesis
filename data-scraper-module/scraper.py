@@ -28,6 +28,11 @@ from sites.esg_litigation import ESGLitigationScraper
 from sites.real_climate_data import RealClimateDataScraper
 from sites.real_esg_data import RealESGDataScraper
 from sites.real_policy_tracker import RealPolicyTrackerScraper
+from sites.consumer_trends import ConsumerTrendsScraper
+from sites.market_indicators import MarketIndicatorsScraper
+from sites.mobility_ev import MobilityEVScraper
+from sites.agriculture_data import AgricultureDataScraper
+from sites.housing_trends import HousingTrendsScraper
 
 # Import utilities
 from utils.user_agents import get_random_user_agent
@@ -49,6 +54,11 @@ SCRAPERS = {
     "real_climate": RealClimateDataScraper,
     "real_esg": RealESGDataScraper,
     "real_policy": RealPolicyTrackerScraper,
+    "consumer_trends": ConsumerTrendsScraper,
+    "market_indicators": MarketIndicatorsScraper,
+    "mobility_ev": MobilityEVScraper,
+    "agriculture": AgricultureDataScraper,
+    "housing": HousingTrendsScraper,
 }
 
 

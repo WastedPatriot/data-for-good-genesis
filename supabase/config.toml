@@ -89,3 +89,6 @@ verify_jwt = false
 
 [functions.auto-curate-approved]
 verify_jwt = false
+
+[functions.export-dataset]
+verify_jwt = true
