@@ -116,6 +116,50 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_emails: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          lead_id: string
+          replied_at: string | null
+          reply_body: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          replied_at?: string | null
+          reply_body?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          replied_at?: string | null
+          reply_body?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_emails_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       charity_partnerships: {
         Row: {
           agreement_url: string | null
@@ -609,6 +653,117 @@ export type Database = {
         }
         Relationships: []
       }
+      enterprise_badges: {
+        Row: {
+          badge_code: string
+          badge_image_url: string | null
+          badge_tier: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          user_id: string
+          verified: boolean
+        }
+        Insert: {
+          badge_code: string
+          badge_image_url?: string | null
+          badge_tier: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          user_id: string
+          verified?: boolean
+        }
+        Update: {
+          badge_code?: string
+          badge_image_url?: string | null
+          badge_tier?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          user_id?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
+      impact_allocation_history: {
+        Row: {
+          allocation_month: string
+          amount: number
+          created_at: string
+          id: string
+          project_id: string
+          source_purchase_id: string | null
+        }
+        Insert: {
+          allocation_month: string
+          amount: number
+          created_at?: string
+          id?: string
+          project_id: string
+          source_purchase_id?: string | null
+        }
+        Update: {
+          allocation_month?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          project_id?: string
+          source_purchase_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "impact_allocation_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "impact_allocation_history_source_purchase_id_fkey"
+            columns: ["source_purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          company: string
+          confidence_score: number | null
+          contact_name: string
+          created_at: string
+          data_interests: string[] | null
+          email: string
+          id: string
+          last_reply_at: string | null
+          status: string
+        }
+        Insert: {
+          company: string
+          confidence_score?: number | null
+          contact_name: string
+          created_at?: string
+          data_interests?: string[] | null
+          email: string
+          id?: string
+          last_reply_at?: string | null
+          status?: string
+        }
+        Update: {
+          company?: string
+          confidence_score?: number | null
+          contact_name?: string
+          created_at?: string
+          data_interests?: string[] | null
+          email?: string
+          id?: string
+          last_reply_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       marketing_campaigns: {
         Row: {
           approved_by: string | null
@@ -704,6 +859,41 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      project_comments: {
+        Row: {
+          comment: string
+          created_at: string
+          flagged: boolean | null
+          id: string
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          flagged?: boolean | null
+          id?: string
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          flagged?: boolean | null
+          id?: string
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_comments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_milestones: {
         Row: {
