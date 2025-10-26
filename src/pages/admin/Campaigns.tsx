@@ -54,12 +54,12 @@ export default function Campaigns() {
       setLoading(true);
       
       const [leadsResponse, campaignsResponse] = await Promise.all([
-        supabase.from("leads").select("*").order("created_at", { ascending: false }),
-        supabase.from("campaign_emails").select("*, leads(*)").order("created_at", { ascending: false })
+        (supabase as any).from("leads").select("*").order("created_at", { ascending: false }),
+        (supabase as any).from("campaign_emails").select("*").order("created_at", { ascending: false })
       ]);
 
-      if (leadsResponse.data) setLeads(leadsResponse.data);
-      if (campaignsResponse.data) setCampaigns(campaignsResponse.data);
+      if (leadsResponse.data) setLeads(leadsResponse.data as unknown as Lead[]);
+      if (campaignsResponse.data) setCampaigns(campaignsResponse.data as unknown as CampaignEmail[]);
     } catch (error) {
       console.error("Error loading campaign data:", error);
       toast.error("Failed to load campaigns");
@@ -113,7 +113,7 @@ export default function Campaigns() {
     }
 
     try {
-      const { error } = await supabase.from("campaign_emails").insert({
+      const { error } = await (supabase as any).from("campaign_emails").insert({
         lead_id: selectedLead,
         subject,
         body,
@@ -281,7 +281,7 @@ export default function Campaigns() {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    To: {(campaign.leads as any)?.company}
+                    To: {leads.find((l) => l.id === campaign.lead_id)?.company || "Unknown"}
                   </p>
                   {campaign.reply_body && (
                     <div className="mt-2 p-2 bg-muted rounded text-sm">

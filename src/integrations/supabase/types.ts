@@ -657,32 +657,41 @@ export type Database = {
         Row: {
           badge_code: string
           badge_image_url: string | null
+          badge_seed: string | null
           badge_tier: string
           created_at: string
+          eco_funding_contributed: number | null
           expires_at: string | null
           id: string
           user_id: string
           verified: boolean
+          volume_purchased: number | null
         }
         Insert: {
           badge_code: string
           badge_image_url?: string | null
+          badge_seed?: string | null
           badge_tier: string
           created_at?: string
+          eco_funding_contributed?: number | null
           expires_at?: string | null
           id?: string
           user_id: string
           verified?: boolean
+          volume_purchased?: number | null
         }
         Update: {
           badge_code?: string
           badge_image_url?: string | null
+          badge_seed?: string | null
           badge_tier?: string
           created_at?: string
+          eco_funding_contributed?: number | null
           expires_at?: string | null
           id?: string
           user_id?: string
           verified?: boolean
+          volume_purchased?: number | null
         }
         Relationships: []
       }

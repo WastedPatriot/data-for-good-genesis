@@ -113,9 +113,10 @@ serve(async (req) => {
       .limit(filters.limit || 1000);
 
     if (filters.minQuality) {
-      const qualityOrder = { bronze: 0, silver: 1, gold: 2, platinum: 3 };
-      const minQualityLevel = qualityOrder[filters.minQuality as keyof typeof qualityOrder] || 0;
-      query = query.gte("quality_tier", minQualityLevel);
+      const tiers = ["bronze", "silver", "gold", "platinum"];
+      const idx = tiers.indexOf(String(filters.minQuality));
+      const allowed = idx >= 0 ? tiers.slice(idx) : tiers;
+      query = query.in("quality_tier", allowed);
     }
 
     if (filters.enterpriseOnly) {

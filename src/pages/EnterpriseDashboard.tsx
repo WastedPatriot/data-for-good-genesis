@@ -30,7 +30,7 @@ export default function EnterpriseDashboard() {
       if (!user) return;
 
       // Load purchases
-      const { data: purchaseData } = await supabase
+      const { data: purchaseData } = await (supabase as any)
         .from("purchases")
         .select("*, datasets(*)")
         .eq("user_id", user.id)
@@ -52,7 +52,7 @@ export default function EnterpriseDashboard() {
       }
 
       // Load enterprise badge
-      const { data: badgeData } = await supabase
+      const { data: badgeData } = await (supabase as any)
         .from("enterprise_badges")
         .select("*")
         .eq("user_id", user.id)
