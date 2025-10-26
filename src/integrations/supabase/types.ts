@@ -1505,6 +1505,57 @@ export type Database = {
       }
     }
     Views: {
+      charity_partnerships_public: {
+        Row: {
+          charity_registration_number: string | null
+          contact_email_masked: string | null
+          contact_name_masked: string | null
+          country: string | null
+          created_at: string | null
+          ends_at: string | null
+          id: string | null
+          impact_areas: string[] | null
+          organization_name: string | null
+          starts_at: string | null
+          status: Database["public"]["Enums"]["partnership_status"] | null
+          updated_at: string | null
+          verified_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          charity_registration_number?: string | null
+          contact_email_masked?: never
+          contact_name_masked?: never
+          country?: string | null
+          created_at?: string | null
+          ends_at?: string | null
+          id?: string | null
+          impact_areas?: string[] | null
+          organization_name?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["partnership_status"] | null
+          updated_at?: string | null
+          verified_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          charity_registration_number?: string | null
+          contact_email_masked?: never
+          contact_name_masked?: never
+          country?: string | null
+          created_at?: string | null
+          ends_at?: string | null
+          id?: string | null
+          impact_areas?: string[] | null
+          organization_name?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["partnership_status"] | null
+          updated_at?: string | null
+          verified_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       v_public_impact: {
         Row: {
           active_domains: number | null

@@ -151,11 +151,23 @@ export default function SubmitData() {
           </CardContent>
         </Card>
 
-        {/* Advertising Notice */}
-        <Alert className="border-yellow-500/50 bg-yellow-500/5">
-          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+        {/* Behavioral Tracking Notice */}
+        <Alert className="border-red-500/50 bg-red-500/5">
+          <AlertTriangle className="h-4 w-4 text-red-500" />
           <AlertDescription className="ml-2">
-            <strong>How Companies Use Your Data:</strong> Organizations purchase datasets to understand consumer behavior, run targeted advertising campaigns, conduct market research, and develop new products. By submitting, you acknowledge that anonymized versions of your data may be used for commercial advertising purposes across ALL industries (not just environmental).
+            <strong>⚠️ How Companies Use Your Data for Targeted Advertising:</strong>
+            <div className="mt-2 space-y-2 text-sm">
+              <p>When you submit your data, companies will use it to:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Track Your Behavior:</strong> See what you look at, click on, and spend time viewing</li>
+                <li><strong>Show You Targeted Ads:</strong> Those "creepy" ads that appear right after you think about or search for something</li>
+                <li><strong>Predict Your Purchases:</strong> Algorithms predict what you'll buy and show you discounts/offers at the right time</li>
+                <li><strong>Build Your Profile:</strong> Combine your data with other datasets to understand your habits, interests, and spending patterns</li>
+                <li><strong>Retarget You Everywhere:</strong> Follow you across websites, apps, and devices with personalized ads</li>
+              </ul>
+              <p className="font-semibold mt-2">This happens across ALL industries: retail, finance, healthcare, automotive, tech, food, entertainment, etc.</p>
+              <p className="text-primary font-semibold">The difference: 100% of profits from your data go to causes you vote on, not corporate profits.</p>
+            </div>
           </AlertDescription>
         </Alert>
 
@@ -338,7 +350,15 @@ export default function SubmitData() {
                     onCheckedChange={(checked) => setAdvertisingConsent(checked as boolean)}
                   />
                   <Label htmlFor="advertising" className="text-sm font-normal leading-relaxed cursor-pointer">
-                    <strong>I acknowledge advertising use.</strong> I understand that companies may use anonymized versions of my data to create targeted advertising campaigns across ALL industries (tech, retail, automotive, finance, healthcare, etc.), conduct market research, and develop products. I voluntarily consent to this commercial use knowing 100% of profits fund community-voted causes.
+                    <strong>I acknowledge behavioral tracking & targeted advertising.</strong> I understand that companies will use my data to:
+                    <ul className="list-disc pl-5 mt-1 space-y-0.5">
+                      <li>Track my browsing behavior and predict my interests</li>
+                      <li>Show me personalized ads that follow me across websites and apps</li>
+                      <li>Send me targeted discounts and offers based on my behavior</li>
+                      <li>Build detailed profiles combining my data with other sources</li>
+                      <li>Use algorithms to predict what I'll buy before I even know it</li>
+                    </ul>
+                    <span className="block mt-2">I voluntarily consent to this commercial use across ALL industries, knowing 100% of profits fund community-voted causes.</span>
                   </Label>
                 </div>
               </div>
