@@ -13,36 +13,21 @@ export default function DataImpactCounter() {
   useEffect(() => {
     const fetchRealStats = async () => {
       try {
-        // Create anonymous client (no auth required)
-        const anonSupabase = supabase;
+        // Use the public view designed for anonymous access
+        const { data, error } = await supabase
+          .from('v_public_impact')
+          .select('*')
+          .single();
 
-        // Get actual data contributors (people who submitted data)
-        const { count: contributorsCount } = await anonSupabase
-          .from('data_submissions')
-          .select('*', { count: 'exact', head: true });
-
-        // Get active datasets
-        const { count: datasetsCount } = await anonSupabase
-          .from('datasets')
-          .select('*', { count: 'exact', head: true })
-          .eq('active', true);
-
-        // Get total revenue from completed purchases
-        const { data: purchases } = await anonSupabase
-          .from('purchases')
-          .select('amount_paid')
-          .eq('status', 'completed');
-
-        const totalRevenue = purchases?.reduce((sum, p) => sum + Number(p.amount_paid), 0) || 0;
+        if (error) throw error;
 
         setStats({
-          contributors: contributorsCount || 0,
-          datasets: datasetsCount || 0,
-          revenue: Math.floor(totalRevenue),
+          contributors: Number(data?.total_contributors || 0),
+          datasets: Number(data?.total_datasets || 0),
+          revenue: Math.floor(Number(data?.total_revenue || 0)),
         });
       } catch (error) {
-        console.error('Error fetching stats:', error);
-        // Set default values on error
+        console.error('Error fetching public impact stats:', error);
         setStats({ contributors: 0, datasets: 0, revenue: 0 });
       }
     };
