@@ -88,6 +88,30 @@ serve(async (req) => {
 
     console.log("Email sent successfully:", emailResponse);
 
+    // Get the contact submission ID from the request
+    const { contactSubmissionId } = await req.json();
+
+    // Log to conversation_threads for inbox/outbox tracking
+    if (contactSubmissionId) {
+      await supabaseClient
+        .from("conversation_threads")
+        .insert({
+          contact_submission_id: contactSubmissionId,
+          direction: "outbound",
+          from_email: fromAddress,
+          to_email: to,
+          subject: subject || "Re: Your inquiry",
+          message: message,
+          status: "sent",
+        });
+
+      // Update last_response_at on the contact submission
+      await supabaseClient
+        .from("contact_submissions")
+        .update({ last_response_at: new Date().toISOString() })
+        .eq("id", contactSubmissionId);
+    }
+
     // Log the action
     await supabaseClient
       .from("audit_logs")
@@ -95,7 +119,8 @@ serve(async (req) => {
         user_id: user.id,
         action: "admin_reply_sent",
         resource_type: "contact_submission",
-        details: { to, subject },
+        resource_id: contactSubmissionId,
+        details: { to, subject, from: fromAddress },
         severity: "info"
       });
 

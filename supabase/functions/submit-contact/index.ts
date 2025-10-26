@@ -98,6 +98,34 @@ serve(async (req) => {
 
     console.log("Contact submission saved:", data.id);
 
+    // Log inbound message to conversation_threads
+    await supabaseClient
+      .from("conversation_threads")
+      .insert({
+        contact_submission_id: data.id,
+        direction: "inbound",
+        from_email: email,
+        to_email: "hello@dataforearth.org",
+        subject: subject,
+        message: message,
+        status: "sent",
+      });
+
+    // Trigger AI severity analysis (fire and forget)
+    supabaseClient.functions.invoke("analyze-contact-severity", {
+      body: {
+        contactId: data.id,
+        name,
+        email,
+        subject,
+        message,
+        submission_type: submissionType,
+        organization,
+      },
+    }).catch((err) => {
+      console.error("Failed to trigger AI analysis (non-critical):", err);
+    });
+
     // Send confirmation email to user
     try {
       await resend.emails.send({

@@ -293,41 +293,103 @@ export type Database = {
       contact_submissions: {
         Row: {
           admin_notes: string | null
+          ai_analysis: Json | null
           created_at: string
           email: string
           id: string
+          last_response_at: string | null
           message: string
           name: string
           organization: string | null
+          priority_level: string | null
+          response_time_minutes: number | null
+          severity_score: number | null
           status: string | null
           subject: string
           submission_type: string
         }
         Insert: {
           admin_notes?: string | null
+          ai_analysis?: Json | null
           created_at?: string
           email: string
           id?: string
+          last_response_at?: string | null
           message: string
           name: string
           organization?: string | null
+          priority_level?: string | null
+          response_time_minutes?: number | null
+          severity_score?: number | null
           status?: string | null
           subject: string
           submission_type: string
         }
         Update: {
           admin_notes?: string | null
+          ai_analysis?: Json | null
           created_at?: string
           email?: string
           id?: string
+          last_response_at?: string | null
           message?: string
           name?: string
           organization?: string | null
+          priority_level?: string | null
+          response_time_minutes?: number | null
+          severity_score?: number | null
           status?: string | null
           subject?: string
           submission_type?: string
         }
         Relationships: []
+      }
+      conversation_threads: {
+        Row: {
+          contact_submission_id: string | null
+          created_at: string | null
+          direction: string
+          from_email: string
+          id: string
+          message: string
+          sent_at: string | null
+          status: string | null
+          subject: string
+          to_email: string
+        }
+        Insert: {
+          contact_submission_id?: string | null
+          created_at?: string | null
+          direction: string
+          from_email: string
+          id?: string
+          message: string
+          sent_at?: string | null
+          status?: string | null
+          subject: string
+          to_email: string
+        }
+        Update: {
+          contact_submission_id?: string | null
+          created_at?: string | null
+          direction?: string
+          from_email?: string
+          id?: string
+          message?: string
+          sent_at?: string | null
+          status?: string | null
+          subject?: string
+          to_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_threads_contact_submission_id_fkey"
+            columns: ["contact_submission_id"]
+            isOneToOne: false
+            referencedRelation: "contact_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       curated_pool: {
         Row: {
