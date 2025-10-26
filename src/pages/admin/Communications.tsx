@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import {
   ArrowLeft, Mail, Send, CheckCircle, Clock, AlertCircle,
   Inbox, TrendingUp, Zap, AlertTriangle, FileText
@@ -52,6 +54,24 @@ export default function Communications() {
   const [isSending, setIsSending] = useState(false);
   const [filter, setFilter] = useState<string>("all");
   const [showThreads, setShowThreads] = useState(false);
+  
+  // Inbox tabs state
+  const [activeTab, setActiveTab] = useState<string>("inbox");
+  const [accountFilter, setAccountFilter] = useState<string>("all");
+  const [mailboxFilter, setMailboxFilter] = useState<string>("all");
+
+  // Aggregated data for tabs
+  const [threadsAll, setThreadsAll] = useState<ConversationThread[]>([]);
+  const [campaignEmails, setCampaignEmails] = useState<any[]>([]);
+  const [reviewItems, setReviewItems] = useState<any[]>([]);
+  const [purchases, setPurchases] = useState<any[]>([]);
+
+  // Manual compose
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [composeTo, setComposeTo] = useState("");
+  const [composeFrom, setComposeFrom] = useState<string>("hello");
+  const [composeSubject, setComposeSubject] = useState("");
+  const [composeBody, setComposeBody] = useState("");
 
   useEffect(() => {
     checkAuth();
@@ -121,6 +141,125 @@ export default function Communications() {
       toast.error("Failed to load communications");
     }
   };
+  
+  // Loaders for embedded tabs
+  const loadThreadsAll = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("conversation_threads")
+        .select("*")
+        .order("sent_at", { ascending: false });
+      if (error) throw error;
+      setThreadsAll((data || []) as ConversationThread[]);
+    } catch (e) {
+      console.error("Error loading threads inbox:", e);
+      toast.error("Failed to load inbox threads");
+    }
+  };
+
+  const loadCampaignEmails = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("campaign_emails")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      setCampaignEmails(data || []);
+    } catch (e) {
+      console.error("Error loading campaign emails:", e);
+      toast.error("Failed to load campaign emails");
+    }
+  };
+
+  const loadReviewItems = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("review_queue")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      setReviewItems(data || []);
+    } catch (e) {
+      console.error("Error loading review queue:", e);
+      toast.error("Failed to load review queue");
+    }
+  };
+
+  const loadPurchases = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("purchases")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      setPurchases(data || []);
+    } catch (e) {
+      console.error("Error loading purchases:", e);
+      toast.error("Failed to load sales data");
+    }
+  };
+
+  const sendManualEmail = async () => {
+    if (!composeTo || !composeSubject || !composeBody) {
+      toast.error("Please complete all fields");
+      return;
+    }
+    setIsSending(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-admin-reply", {
+        body: {
+          to: composeTo,
+          from: getEmailFromAddress(composeFrom),
+          subject: composeSubject,
+          message: composeBody,
+          originalMessage: "",
+          contactName: "",
+          contactSubmissionId: null,
+        },
+      });
+      if (error) throw error;
+      toast.success("Email sent");
+      setComposeOpen(false);
+      setComposeTo("");
+      setComposeSubject("");
+      setComposeBody("");
+      loadThreadsAll();
+    } catch (e: any) {
+      console.error("Send manual email error:", e);
+      toast.error(e.message || "Failed to send email");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const updateReviewStatus = async (id: string, status: string) => {
+    try {
+      const { error } = await supabase
+        .from("review_queue")
+        .update({ status })
+        .eq("id", id);
+      if (error) throw error;
+      toast.success(`Review item ${status}`);
+      loadReviewItems();
+    } catch (e) {
+      console.error("Update review status error:", e);
+      toast.error("Failed to update review status");
+    }
+  };
+  useEffect(() => {
+    // Load tab-specific data
+    if (activeTab === "inbox") {
+      loadThreadsAll();
+    } else if (activeTab === "campaigns") {
+      loadCampaignEmails();
+    } else if (activeTab === "review") {
+      loadReviewItems();
+    } else if (activeTab === "sales") {
+      loadPurchases();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const loadConversationThreads = async (contactId: string) => {
     try {
@@ -338,238 +477,410 @@ export default function Communications() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filter Communications</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            <Button
-              variant={filter === "all" ? "default" : "outline"}
-              onClick={() => setFilter("all")}
-            >
-              All ({contacts.length})
-            </Button>
-            <Button
-              variant={filter === "pending" ? "default" : "outline"}
-              onClick={() => setFilter("pending")}
-            >
-              Pending ({stats.pending})
-            </Button>
-            <Button
-              variant={filter === "responded" ? "default" : "outline"}
-              onClick={() => setFilter("responded")}
-            >
-              Responded ({stats.responded})
-            </Button>
-            <Button
-              variant={filter === "resolved" ? "default" : "outline"}
-              onClick={() => setFilter("resolved")}
-            >
-              Resolved ({stats.resolved})
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+        <TabsList>
+          <TabsTrigger value="inbox">Inbox</TabsTrigger>
+          <TabsTrigger value="tickets">Tickets</TabsTrigger>
+          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+          <TabsTrigger value="review">Review Queue</TabsTrigger>
+          <TabsTrigger value="sales">Sales</TabsTrigger>
+        </TabsList>
 
-      {/* Communications List */}
-      <div className="space-y-4">
-        {contacts.map((contact) => (
-          <Card key={contact.id} className={contact.priority_level === "urgent" ? "border-2 border-red-500" : ""}>
-            <CardContent className="pt-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {getStatusIcon(contact.status)}
-                    {contact.priority_level && (
-                      <Badge className={getPriorityColor(contact.priority_level)} variant="outline">
-                        {getPriorityIcon(contact.priority_level)}
-                        <span className="ml-1">{contact.priority_level.toUpperCase()}</span>
-                      </Badge>
-                    )}
-                    <Badge className={getTypeColor(contact.submission_type)}>
-                      {contact.submission_type}
-                    </Badge>
-                    <Badge variant="outline">{contact.status}</Badge>
-                    {contact.organization && (
-                      <Badge variant="secondary">{contact.organization}</Badge>
-                    )}
-                    {contact.severity_score && (
-                      <Badge variant="outline" className="font-mono">
-                        Score: {(contact.severity_score * 100).toFixed(0)}%
-                      </Badge>
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">{contact.subject}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      From: {contact.name} ({contact.email})
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(contact.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                  <p className="text-sm mt-2">{contact.message}</p>
-                  
-                  {/* AI Insights */}
-                  {contact.ai_analysis && (
-                    <div className="mt-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                      <p className="text-xs font-semibold text-blue-500 mb-2">🤖 AI Analysis</p>
-                      <p className="text-xs">{contact.ai_analysis.key_insights}</p>
-                      {contact.ai_analysis.sentiment && (
-                        <p className="text-xs mt-1">
-                          Sentiment: <span className="font-semibold">{contact.ai_analysis.sentiment}</span>
-                        </p>
-                      )}
-                      {contact.ai_analysis.suggested_response_time && (
-                        <p className="text-xs mt-1">
-                          Respond: <span className="font-semibold">{contact.ai_analysis.suggested_response_time}</span>
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {contact.admin_notes && (
-                    <div className="mt-2 p-3 bg-green-500/10 rounded-lg">
-                      <p className="text-sm font-semibold mb-1">Admin Response:</p>
-                      <p className="text-sm">{contact.admin_notes}</p>
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => loadConversationThreads(contact.id)}
-                  >
-                    <Inbox className="h-4 w-4 mr-2" />
-                    View Thread
-                  </Button>
-                  {contact.status === "pending" && (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          size="sm"
-                          onClick={() => setSelectedContact(contact)}
-                        >
-                          <Mail className="h-4 w-4 mr-2" />
-                          Reply
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Send Reply</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="text-sm font-medium">Send From:</label>
-                            <Select value={replyFrom} onValueChange={setReplyFrom}>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="hello">hello@dataforearth.org</SelectItem>
-                                <SelectItem value="contact">contact@dataforearth.org</SelectItem>
-                                <SelectItem value="partnerships">partnerships@dataforearth.org</SelectItem>
-                                <SelectItem value="noreply">noreply@dataforearth.org</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <label className="text-sm font-medium">To: {contact.email}</label>
-                          </div>
-                          <div>
-                            <label className="text-sm font-medium">Subject: Re: {contact.subject}</label>
-                          </div>
-                          <Textarea
-                            placeholder="Type your reply..."
-                            value={replyMessage}
-                            onChange={(e) => setReplyMessage(e.target.value)}
-                            rows={8}
-                          />
-                          <Button
-                            onClick={sendReply}
-                            disabled={isSending || !replyMessage.trim()}
-                            className="w-full"
-                          >
-                            {isSending ? "Sending..." : "Send Reply"}
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  )}
-                  {contact.status === "responded" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => markAsResolved(contact.id)}
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Mark Resolved
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        {contacts.length === 0 && (
+        {/* INBOX TAB */}
+        <TabsContent value="inbox" className="space-y-4">
           <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              No communications found
+            <CardHeader>
+              <CardTitle>Inbox Filters & Compose</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3 items-end">
+                <div className="w-40">
+                  <label className="text-sm font-medium">Account</label>
+                  <Select value={accountFilter} onValueChange={setAccountFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="hello">hello@dataforearth.org</SelectItem>
+                      <SelectItem value="contact">contact@dataforearth.org</SelectItem>
+                      <SelectItem value="partnerships">partnerships@dataforearth.org</SelectItem>
+                      <SelectItem value="noreply">noreply@dataforearth.org</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-40">
+                  <label className="text-sm font-medium">Mailbox</label>
+                  <Select value={mailboxFilter} onValueChange={setMailboxFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="inbox">Inbox (Inbound)</SelectItem>
+                      <SelectItem value="sent">Sent (Outbound)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="ml-auto">
+                  <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Mail className="h-4 w-4 mr-2" /> Compose
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Compose Email</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm font-medium">From</label>
+                          <Select value={composeFrom} onValueChange={setComposeFrom}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="hello">hello@dataforearth.org</SelectItem>
+                              <SelectItem value="contact">contact@dataforearth.org</SelectItem>
+                              <SelectItem value="partnerships">partnerships@dataforearth.org</SelectItem>
+                              <SelectItem value="noreply">noreply@dataforearth.org</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">To</label>
+                          <Input value={composeTo} onChange={(e) => setComposeTo(e.target.value)} placeholder="recipient@example.com" />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">Subject</label>
+                          <Input value={composeSubject} onChange={(e) => setComposeSubject(e.target.value)} placeholder="Subject" />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">Message</label>
+                          <Textarea rows={8} value={composeBody} onChange={(e) => setComposeBody(e.target.value)} placeholder="Write your message..." />
+                        </div>
+                        <Button className="w-full" disabled={isSending} onClick={sendManualEmail}>
+                          {isSending ? "Sending..." : "Send"}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        )}
-      </div>
 
-      {/* Conversation Threads Dialog */}
-      <Dialog open={showThreads} onOpenChange={setShowThreads}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Conversation History</DialogTitle>
-          </DialogHeader>
+          {/* Inbox threads list */}
+          <div className="space-y-3">
+            {(() => {
+              const accountEmail = accountFilter === "all" ? null : getEmailFromAddress(accountFilter);
+              const filtered = threadsAll.filter((t) => {
+                const accountMatch = !accountEmail || t.from_email === accountEmail || t.to_email === accountEmail;
+                const dirMatch = mailboxFilter === "all" ? true : mailboxFilter === "inbox" ? t.direction === "inbound" : t.direction === "outbound";
+                return accountMatch && dirMatch;
+              });
+              return filtered.length ? (
+                filtered.map((thread) => (
+                  <Card key={thread.id}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(thread.sent_at).toLocaleString()}
+                          </div>
+                          <div className="text-sm font-medium mt-1">
+                            From: {thread.from_email} → To: {thread.to_email}
+                          </div>
+                          <div className="font-semibold mt-1">{thread.subject}</div>
+                          <p className="text-sm mt-1">{thread.message}</p>
+                        </div>
+                        <Badge variant="outline">{thread.direction === "inbound" ? "Inbox" : "Sent"}</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="py-10 text-center text-muted-foreground">No messages found</CardContent>
+                </Card>
+              );
+            })()}
+          </div>
+        </TabsContent>
+
+        {/* TICKETS TAB (existing UI) */}
+        <TabsContent value="tickets" className="space-y-4">
+          {/* Filters */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Filter Communications</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Button
+                  variant={filter === "all" ? "default" : "outline"}
+                  onClick={() => setFilter("all")}
+                >
+                  All ({contacts.length})
+                </Button>
+                <Button
+                  variant={filter === "pending" ? "default" : "outline"}
+                  onClick={() => setFilter("pending")}
+                >
+                  Pending ({stats.pending})
+                </Button>
+                <Button
+                  variant={filter === "responded" ? "default" : "outline"}
+                  onClick={() => setFilter("responded")}
+                >
+                  Responded ({stats.responded})
+                </Button>
+                <Button
+                  variant={filter === "resolved" ? "default" : "outline"}
+                  onClick={() => setFilter("resolved")}
+                >
+                  Resolved ({stats.resolved})
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Communications List */}
           <div className="space-y-4">
-            {conversationThreads.map((thread) => (
-              <div
-                key={thread.id}
-                className={`p-4 rounded-lg ${
-                  thread.direction === "inbound"
-                    ? "bg-blue-500/10 ml-0 mr-8"
-                    : "bg-green-500/10 ml-8 mr-0"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {thread.direction === "inbound" ? (
-                      <Badge variant="outline" className="bg-blue-500/20">
-                        📥 From Customer
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="bg-green-500/20">
-                        📤 From Admin
-                      </Badge>
-                    )}
+            {contacts.map((contact) => (
+              <Card key={contact.id} className={contact.priority_level === "urgent" ? "border-2 border-red-500" : ""}>
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {getStatusIcon(contact.status)}
+                        {contact.priority_level && (
+                          <Badge className={getPriorityColor(contact.priority_level)} variant="outline">
+                            {getPriorityIcon(contact.priority_level)}
+                            <span className="ml-1">{contact.priority_level.toUpperCase()}</span>
+                          </Badge>
+                        )}
+                        <Badge className={getTypeColor(contact.submission_type)}>
+                          {contact.submission_type}
+                        </Badge>
+                        <Badge variant="outline">{contact.status}</Badge>
+                        {contact.organization && (
+                          <Badge variant="secondary">{contact.organization}</Badge>
+                        )}
+                        {contact.severity_score && (
+                          <Badge variant="outline" className="font-mono">
+                            Score: {(contact.severity_score * 100).toFixed(0)}%
+                          </Badge>
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg">{contact.subject}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          From: {contact.name} ({contact.email})
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(contact.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      <p className="text-sm mt-2">{contact.message}</p>
+                      {contact.ai_analysis && (
+                        <div className="mt-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                          <p className="text-xs font-semibold text-blue-500 mb-2">🤖 AI Analysis</p>
+                          <p className="text-xs">{contact.ai_analysis.key_insights}</p>
+                        </div>
+                      )}
+                      {contact.admin_notes && (
+                        <div className="mt-2 p-3 bg-green-500/10 rounded-lg">
+                          <p className="text-sm font-semibold mb-1">Admin Response:</p>
+                          <p className="text-sm">{contact.admin_notes}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Button size="sm" variant="outline" onClick={() => loadConversationThreads(contact.id)}>
+                        <Inbox className="h-4 w-4 mr-2" /> View Thread
+                      </Button>
+                      {contact.status === "pending" && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" onClick={() => setSelectedContact(contact)}>
+                              <Mail className="h-4 w-4 mr-2" /> Reply
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                              <DialogTitle>Send Reply</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="text-sm font-medium">Send From:</label>
+                                <Select value={replyFrom} onValueChange={setReplyFrom}>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="hello">hello@dataforearth.org</SelectItem>
+                                    <SelectItem value="contact">contact@dataforearth.org</SelectItem>
+                                    <SelectItem value="partnerships">partnerships@dataforearth.org</SelectItem>
+                                    <SelectItem value="noreply">noreply@dataforearth.org</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">To: {contact.email}</label>
+                              </div>
+                              <div>
+                                <label className="text-sm font-medium">Subject: Re: {contact.subject}</label>
+                              </div>
+                              <Textarea placeholder="Type your reply..." value={replyMessage} onChange={(e) => setReplyMessage(e.target.value)} rows={8} />
+                              <Button onClick={sendReply} disabled={isSending || !replyMessage.trim()} className="w-full">
+                                {isSending ? "Sending..." : "Send Reply"}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                      {contact.status === "responded" && (
+                        <Button size="sm" variant="outline" onClick={() => markAsResolved(contact.id)}>
+                          <CheckCircle className="h-4 w-4 mr-2" /> Mark Resolved
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(thread.sent_at).toLocaleString()}
-                  </span>
-                </div>
-                <p className="text-sm font-medium mb-1">
-                  From: {thread.from_email} → To: {thread.to_email}
-                </p>
-                <p className="text-sm font-semibold mb-2">{thread.subject}</p>
-                <p className="text-sm">{thread.message}</p>
-              </div>
+                </CardContent>
+              </Card>
             ))}
-            {conversationThreads.length === 0 && (
-              <div className="text-center text-muted-foreground py-8">
-                No conversation history available
-              </div>
+            {contacts.length === 0 && (
+              <Card>
+                <CardContent className="py-12 text-center text-muted-foreground">No communications found</CardContent>
+              </Card>
             )}
           </div>
-        </DialogContent>
-      </Dialog>
+
+          {/* Conversation Threads Dialog */}
+          <Dialog open={showThreads} onOpenChange={setShowThreads}>
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Conversation History</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                {conversationThreads.map((thread) => (
+                  <div key={thread.id} className={`p-4 rounded-lg ${thread.direction === "inbound" ? "bg-blue-500/10 ml-0 mr-8" : "bg-green-500/10 ml-8 mr-0"}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {thread.direction === "inbound" ? (
+                          <Badge variant="outline" className="bg-blue-500/20">📥 From Customer</Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-green-500/20">📤 From Admin</Badge>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">{new Date(thread.sent_at).toLocaleString()}</span>
+                    </div>
+                    <p className="text-sm font-medium mb-1">From: {thread.from_email} → To: {thread.to_email}</p>
+                    <p className="text-sm font-semibold mb-2">{thread.subject}</p>
+                    <p className="text-sm">{thread.message}</p>
+                  </div>
+                ))}
+                {conversationThreads.length === 0 && (
+                  <div className="text-center text-muted-foreground py-8">No conversation history available</div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </TabsContent>
+
+        {/* CAMPAIGNS TAB */}
+        <TabsContent value="campaigns" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Campaign Emails</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {campaignEmails.length ? (
+                campaignEmails.map((c: any) => (
+                  <Card key={c.id}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="text-sm text-muted-foreground">{new Date(c.created_at).toLocaleString()}</div>
+                          <div className="font-semibold">{c.subject}</div>
+                          <p className="text-sm mt-1 line-clamp-2">{c.body}</p>
+                        </div>
+                        <Badge variant="outline">{c.status}</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center text-muted-foreground py-10">No campaign emails yet</div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* REVIEW QUEUE TAB */}
+        <TabsContent value="review" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Items awaiting review</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {reviewItems.length ? (
+                reviewItems.map((item: any) => (
+                  <Card key={item.id}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1">
+                          <div className="text-sm text-muted-foreground">{new Date(item.created_at).toLocaleString()}</div>
+                          <div className="font-semibold">{item.category || 'Uncategorized'}</div>
+                          <div className="text-sm">Confidence: {item.confidence_score ?? '—'}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{item.status}</Badge>
+                          <Button size="sm" variant="outline" onClick={() => updateReviewStatus(item.id, 'approved')}>Approve</Button>
+                          <Button size="sm" variant="outline" onClick={() => updateReviewStatus(item.id, 'rejected')}>Reject</Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center text-muted-foreground py-10">No items pending review</div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* SALES TAB */}
+        <TabsContent value="sales" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Purchases</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {purchases.length ? (
+                purchases.map((p: any) => (
+                  <Card key={p.id}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="text-sm text-muted-foreground">{new Date(p.created_at).toLocaleString()}</div>
+                          <div className="font-semibold">Dataset: {p.dataset_id}</div>
+                          <div className="text-sm">Amount: £{Number(p.amount_paid).toFixed(2)}</div>
+                        </div>
+                        <Badge variant="outline">{p.status}</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center text-muted-foreground py-10">No purchases yet</div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
