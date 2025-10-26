@@ -8,9 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { 
-  ArrowLeft, Mail, Send, CheckCircle, Clock, AlertCircle, 
-  Inbox, TrendingUp, Zap, AlertTriangle 
+import {
+  ArrowLeft, Mail, Send, CheckCircle, Clock, AlertCircle,
+  Inbox, TrendingUp, Zap, AlertTriangle, FileText
 } from "lucide-react";
 
 interface ContactSubmission {
@@ -274,6 +274,16 @@ export default function Communications() {
             <h1 className="text-3xl font-bold">Communications Center</h1>
             <p className="text-muted-foreground">AI-powered inbox with full conversation threading</p>
           </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate("/admin/email-inbox")}> 
+            <Mail className="h-4 w-4 mr-2" />
+            Open Email Inbox
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/admin/review")}>
+            <FileText className="h-4 w-4 mr-2" />
+            Review Queue
+          </Button>
         </div>
       </div>
 
