@@ -89,6 +89,29 @@ const Projects = () => {
         return;
       }
 
+      // Check vote cooldown
+      const { data: cooldown } = await supabase
+        .from("vote_cooldowns")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      const now = new Date();
+      const lastVote = cooldown ? new Date(cooldown.last_vote_at) : null;
+      const daysSinceVote = lastVote
+        ? Math.floor((now.getTime() - lastVote.getTime()) / (1000 * 60 * 60 * 24))
+        : 999;
+
+      if (daysSinceVote < 30) {
+        toast({
+          title: "Vote Cooldown Active",
+          description: `You can vote again in ${30 - daysSinceVote} days. Badge holders get vote multipliers!`,
+          variant: "destructive",
+        });
+        setVotingId(null);
+        return;
+      }
+
       const isVoted = userVotes.some(v => v.project_id === projectId);
       const action = isVoted ? "unvote" : "vote";
 

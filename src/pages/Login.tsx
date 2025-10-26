@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useDeviceFingerprint } from "@/hooks/useDeviceFingerprint";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,6 +15,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const fingerprint = useDeviceFingerprint();
 
   // Check if already logged in
   useEffect(() => {
@@ -31,9 +33,39 @@ const Login = () => {
     setLoading(true);
 
     try {
+      // Check rate limit
+      const { data: rateLimitCheck } = await supabase.functions.invoke("rate-limit-login", {
+        body: {
+          email,
+          ipAddress: "client-ip",
+          fingerprint,
+          success: false,
+        },
+      });
+
+      if (!rateLimitCheck?.allowed) {
+        toast({
+          title: "Too Many Attempts",
+          description: rateLimitCheck?.message || "Please wait before trying again",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
+      });
+
+      // Log attempt
+      await supabase.functions.invoke("rate-limit-login", {
+        body: {
+          email,
+          ipAddress: "client-ip",
+          fingerprint,
+          success: !error,
+        },
       });
 
       if (error) {

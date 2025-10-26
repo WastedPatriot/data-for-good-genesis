@@ -695,6 +695,44 @@ export type Database = {
         }
         Relationships: []
       }
+      funding_ledger: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          month: string
+          project_id: string | null
+          region_impact: Database["public"]["Enums"]["region_impact"] | null
+          source: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          month: string
+          project_id?: string | null
+          region_impact?: Database["public"]["Enums"]["region_impact"] | null
+          source: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          month?: string
+          project_id?: string | null
+          region_impact?: Database["public"]["Enums"]["region_impact"] | null
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_ledger_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       impact_allocation_history: {
         Row: {
           allocation_month: string
@@ -770,6 +808,36 @@ export type Database = {
           id?: string
           last_reply_at?: string | null
           status?: string
+        }
+        Relationships: []
+      }
+      login_attempts: {
+        Row: {
+          attempted_at: string | null
+          email: string | null
+          fingerprint: string | null
+          id: string
+          ip_address: string
+          success: boolean | null
+          user_agent: string | null
+        }
+        Insert: {
+          attempted_at?: string | null
+          email?: string | null
+          fingerprint?: string | null
+          id?: string
+          ip_address: string
+          success?: boolean | null
+          user_agent?: string | null
+        }
+        Update: {
+          attempted_at?: string | null
+          email?: string | null
+          fingerprint?: string | null
+          id?: string
+          ip_address?: string
+          success?: boolean | null
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -1005,11 +1073,14 @@ export type Database = {
           organization_id: string | null
           organization_name: string
           proof_of_work_url: string | null
+          recommended_funding_sources: Json | null
+          region_impact: Database["public"]["Enums"]["region_impact"] | null
           status: Database["public"]["Enums"]["project_status"]
           submitted_by: string | null
           tags: string[] | null
           title: string
           updated_at: string
+          urgency_level: string | null
           verification_flags: Json | null
           verification_notes: string | null
           verified_at: string | null
@@ -1038,11 +1109,14 @@ export type Database = {
           organization_id?: string | null
           organization_name: string
           proof_of_work_url?: string | null
+          recommended_funding_sources?: Json | null
+          region_impact?: Database["public"]["Enums"]["region_impact"] | null
           status?: Database["public"]["Enums"]["project_status"]
           submitted_by?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string
+          urgency_level?: string | null
           verification_flags?: Json | null
           verification_notes?: string | null
           verified_at?: string | null
@@ -1071,11 +1145,14 @@ export type Database = {
           organization_id?: string | null
           organization_name?: string
           proof_of_work_url?: string | null
+          recommended_funding_sources?: Json | null
+          region_impact?: Database["public"]["Enums"]["region_impact"] | null
           status?: Database["public"]["Enums"]["project_status"]
           submitted_by?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string
+          urgency_level?: string | null
           verification_flags?: Json | null
           verification_notes?: string | null
           verified_at?: string | null
@@ -1295,6 +1372,44 @@ export type Database = {
           },
         ]
       }
+      sharecards: {
+        Row: {
+          badge_level: string | null
+          created_at: string | null
+          id: string
+          image_url: string | null
+          project_id: string | null
+          seed: string
+          user_id: string | null
+        }
+        Insert: {
+          badge_level?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          project_id?: string | null
+          seed: string
+          user_id?: string | null
+        }
+        Update: {
+          badge_level?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          project_id?: string | null
+          seed?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sharecards_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -1364,6 +1479,30 @@ export type Database = {
         }
         Relationships: []
       }
+      vote_cooldowns: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_vote_at: string
+          user_id: string
+          vote_count_this_month: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_vote_at?: string
+          user_id: string
+          vote_count_this_month?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_vote_at?: string
+          user_id?: string
+          vote_count_this_month?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       v_public_impact: {
@@ -1401,6 +1540,17 @@ export type Database = {
         | "funded"
         | "completed"
         | "rejected"
+      region_impact:
+        | "palestine"
+        | "sudan"
+        | "congo"
+        | "refugee"
+        | "housing"
+        | "reforestation"
+        | "river_cleanup"
+        | "soil_restoration"
+        | "medical"
+        | "global"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1538,6 +1688,18 @@ export const Constants = {
         "funded",
         "completed",
         "rejected",
+      ],
+      region_impact: [
+        "palestine",
+        "sudan",
+        "congo",
+        "refugee",
+        "housing",
+        "reforestation",
+        "river_cleanup",
+        "soil_restoration",
+        "medical",
+        "global",
       ],
     },
   },

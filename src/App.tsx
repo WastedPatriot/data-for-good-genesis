@@ -36,7 +36,8 @@ import WarmLeads from "./pages/admin/WarmLeads";
 import DataPipeline from "./pages/admin/DataPipeline";
 import Communications from "./pages/admin/Communications";
 import Campaigns from "./pages/admin/Campaigns";
-import DatasetBuilder from "./pages/admin/DatasetBuilder";
+import AdminDatasetBuilder from "./pages/admin/DatasetBuilder";
+import ImpactTransparency from "./pages/ImpactTransparency";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
 import EnterpriseDashboard from "./pages/EnterpriseDashboard";
@@ -157,9 +158,10 @@ const AppContent = () => {
           } />
           <Route path="/admin/dataset-builder" element={
             <ProtectedRoute requireAdmin={true}>
-              <DatasetBuilder />
+              <AdminDatasetBuilder />
             </ProtectedRoute>
           } />
+          <Route path="/impact-transparency" element={<ImpactTransparency />} />
           <Route path="/enterprise/dashboard" element={
             <ProtectedRoute requireAdmin={false}>
               <EnterpriseDashboard />
