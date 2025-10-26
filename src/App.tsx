@@ -94,6 +94,7 @@ import Navigation from "./components/Navigation";
 import Earth3DBackground from "./components/Earth3DBackground";
 import { useVisitorTracking } from "./hooks/useVisitorTracking";
 import { useLeadScoring } from "./hooks/useLeadScoring";
+import { useAutomationHeartbeat } from "./hooks/useAutomationHeartbeat";
 import { CookieConsent } from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
@@ -101,6 +102,7 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   useVisitorTracking();
   useLeadScoring();
+  useAutomationHeartbeat();
   
   return (
     <>

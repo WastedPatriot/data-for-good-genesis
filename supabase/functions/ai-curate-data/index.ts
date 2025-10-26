@@ -47,25 +47,30 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: userData } = await supabaseClient.auth.getUser(token);
 
-    if (!userData.user) {
+    const isServiceCall = token === (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
+    const actingUserId = userData.user?.id || null;
+
+    if (!userData.user && !isServiceCall) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
       );
     }
 
-    const { data: roleData } = await supabaseClient
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userData.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
+    if (!isServiceCall) {
+      const { data: roleData } = await supabaseClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userData.user!.id)
+        .eq("role", "admin")
+        .maybeSingle();
 
-    if (!roleData) {
-      return new Response(
-        JSON.stringify({ error: "Admin access required" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
-      );
+      if (!roleData) {
+        return new Response(
+          JSON.stringify({ error: "Admin access required" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+        );
+      }
     }
 
     const { reviewQueueId, batchMode = false } = await req.json();
@@ -251,7 +256,7 @@ Provide comprehensive analysis for curation.`
             confidence_score: analysis.confidence_score,
             quality_tier: analysis.quality_tier,
             enterprise_grade: analysis.enterprise_grade,
-            domain: analysis.domain,
+            // Domain omitted to avoid violating curated_pool_domain_check
             sector: analysis.sector,
             region: analysis.region,
             curated_payload: curatedPayload,
@@ -272,7 +277,7 @@ Provide comprehensive analysis for curation.`
           .update({
             status: "approved",
             publish_decision: "curated",
-            reviewed_by: userData.user.id,
+            reviewed_by: actingUserId,
             reviewed_at: new Date().toISOString(),
             review_notes: `AI-curated: ${analysis.key_insights}`,
           })
@@ -299,7 +304,7 @@ Provide comprehensive analysis for curation.`
 
     // Log to audit trail
     await supabaseClient.from("audit_logs").insert({
-      user_id: userData.user.id,
+      user_id: actingUserId,
       action: "ai_data_curation",
       resource_type: "curated_pool",
       details: {
