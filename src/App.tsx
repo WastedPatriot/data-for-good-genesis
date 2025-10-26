@@ -1,3 +1,45 @@
+/**
+ * App.tsx - Main Application Entry Point
+ * 
+ * ARCHITECTURE OVERVIEW:
+ * DataForEarth is a full-stack data marketplace platform built on:
+ * - Frontend: React + TypeScript + Vite
+ * - UI: Tailwind CSS + shadcn/ui components + Framer Motion
+ * - Backend: Supabase (PostgreSQL + Edge Functions)
+ * - Payments: Stripe
+ * - Auth: Supabase Auth
+ * 
+ * CORE FEATURES:
+ * 1. Data Marketplace - Buy/sell anonymized datasets
+ * 2. Eco Project Funding - Community-voted project funding
+ * 3. Enterprise Badges - Tiered certification system
+ * 4. Visitor Analytics - Track & package user behavior
+ * 5. Admin Dashboard - Full platform management
+ * 
+ * ROUTING STRUCTURE:
+ * - Public Routes: Home, Marketplace, Projects, About, etc.
+ * - Auth Routes: Login, Profile, Organization Signup
+ * - Protected Routes: Admin pages (role-based access)
+ * - Data Routes: Contribute, Submit Data (anonymous OK)
+ * 
+ * SECURITY MODEL:
+ * - Row-Level Security (RLS) on all Supabase tables
+ * - Admin role verification via user_roles table
+ * - Protected routes enforce authentication
+ * - Visitor tracking respects opt-out preferences
+ * 
+ * DATA FLOW:
+ * 1. Visitors browse site → tracked anonymously (if consented)
+ * 2. Users submit data → stored in data_submissions
+ * 3. AI analyzes submissions → curated_pool
+ * 4. Admin builds datasets → datasets table + Stripe products
+ * 5. Customers purchase → purchases table + badge generation
+ * 6. Revenue allocated → community-voted projects
+ * 
+ * @module App
+ * @requires react, react-router-dom
+ */
+
 import React, { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
