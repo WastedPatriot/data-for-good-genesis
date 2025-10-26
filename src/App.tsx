@@ -20,6 +20,7 @@ import Help from "./pages/Help";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import DataCollection from "./pages/DataCollection";
+import SubmitData from "./pages/SubmitData";
 import OrganizationSignup from "./pages/OrganizationSignup";
 import OrganizationProfile from "./pages/OrganizationProfile";
 import Admin from "./pages/Admin";
@@ -84,6 +85,7 @@ const AppContent = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/data-collection" element={<DataCollection />} />
+          <Route path="/submit-data" element={<SubmitData />} />
           <Route path="/organization-signup" element={<OrganizationSignup />} />
           <Route path="/organization-profile" element={<OrganizationProfile />} />
           <Route path="/admin" element={

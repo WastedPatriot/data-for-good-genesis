@@ -36,10 +36,10 @@ const Home = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contribute">
+              <Link to="/submit-data">
                 <Button size="lg" className="text-lg px-8 py-6 border-glow hover-lift font-bold">
                   <Heart className="w-5 h-5 mr-2" />
-                  Start Contributing
+                  Submit Your Data
                 </Button>
               </Link>
               <Link to="/marketplace">
@@ -268,7 +268,7 @@ const Home = () => {
               funding causes they believe in, and creating measurable impact.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contribute">
+              <Link to="/submit-data">
                 <Button size="lg" className="text-lg px-8 py-6 border-glow hover-lift font-bold">
                   <Heart className="w-5 h-5 mr-2" />
                   Start Your Impact Journey
