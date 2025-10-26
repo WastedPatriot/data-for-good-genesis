@@ -44,7 +44,8 @@ serve(async (req) => {
       throw new Error("Admin access required");
     }
 
-    const { to, from, subject, message, contactName, originalMessage } = await req.json();
+    const body = await req.json();
+    const { to, from, subject, message, contactName, originalMessage, contactSubmissionId } = body;
 
     console.log("Sending admin reply:", { to, from, subject });
 
@@ -88,28 +89,33 @@ serve(async (req) => {
 
     console.log("Email sent successfully:", emailResponse);
 
-    // Get the contact submission ID from the request
-    const { contactSubmissionId } = await req.json();
-
     // Log to conversation_threads for inbox/outbox tracking
-    if (contactSubmissionId) {
-      await supabaseClient
-        .from("conversation_threads")
-        .insert({
-          contact_submission_id: contactSubmissionId,
-          direction: "outbound",
-          from_email: fromAddress,
-          to_email: to,
-          subject: subject || "Re: Your inquiry",
-          message: message,
-          status: "sent",
-        });
+    try {
+      const insertPayload: Record<string, any> = {
+        direction: "outbound",
+        from_email: fromAddress,
+        to_email: to,
+        subject: subject || "Re: Your inquiry",
+        message: message,
+        status: "sent",
+      };
 
-      // Update last_response_at on the contact submission
-      await supabaseClient
-        .from("contact_submissions")
-        .update({ last_response_at: new Date().toISOString() })
-        .eq("id", contactSubmissionId);
+      if (contactSubmissionId) {
+        insertPayload.contact_submission_id = contactSubmissionId;
+      }
+
+      await supabaseClient.from("conversation_threads").insert(insertPayload);
+
+      if (contactSubmissionId) {
+        // Update last_response_at on the contact submission
+        await supabaseClient
+          .from("contact_submissions")
+          .update({ last_response_at: new Date().toISOString() })
+          .eq("id", contactSubmissionId);
+      }
+    } catch (logErr) {
+      console.error("Failed to log conversation thread:", logErr);
+      // Do not fail the entire request if logging fails
     }
 
     // Log the action
@@ -119,7 +125,7 @@ serve(async (req) => {
         user_id: user.id,
         action: "admin_reply_sent",
         resource_type: "contact_submission",
-        resource_id: contactSubmissionId,
+        resource_id: contactSubmissionId || null,
         details: { to, subject, from: fromAddress },
         severity: "info"
       });

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   ArrowLeft, Mail, Send, CheckCircle, Clock, AlertCircle,
   Inbox, TrendingUp, Zap, AlertTriangle, FileText
@@ -63,6 +64,7 @@ export default function Communications() {
   // Aggregated data for tabs
   const [threadsAll, setThreadsAll] = useState<ConversationThread[]>([]);
   const [campaignEmails, setCampaignEmails] = useState<any[]>([]);
+  const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
   const [reviewItems, setReviewItems] = useState<any[]>([]);
   const [purchases, setPurchases] = useState<any[]>([]);
 
@@ -160,11 +162,13 @@ export default function Communications() {
   const loadCampaignEmails = async () => {
     try {
       const { data, error } = await supabase
-        .from("campaign_emails")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .from("marketing_campaigns")
+        .select("id, company_name, email, status, subject, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100);
       if (error) throw error;
       setCampaignEmails(data || []);
+      setSelectedCampaigns([]);
     } catch (e) {
       console.error("Error loading campaign emails:", e);
       toast.error("Failed to load campaign emails");
