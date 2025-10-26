@@ -45,6 +45,9 @@ verify_jwt = false
 [functions.contrib-handoff-for-review]
 verify_jwt = false
 
+[functions.run-automation]
+verify_jwt = false
+
 [functions.scrape-batch-handoff-for-review]
 verify_jwt = false
 

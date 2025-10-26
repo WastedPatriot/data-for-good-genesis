@@ -86,6 +86,27 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_config: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string | null
+          value: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       badge_codes: {
         Row: {
           claimed: boolean
@@ -1641,6 +1662,9 @@ export type Database = {
         }
         Returns: boolean
       }
+      run_automation_cycle: { Args: never; Returns: Json }
+      trigger_ai_curation: { Args: never; Returns: undefined }
+      trigger_dataset_builder: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"

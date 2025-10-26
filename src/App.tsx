@@ -68,6 +68,7 @@ import OrganizationProfile from "./pages/OrganizationProfile";
 import Admin from "./pages/Admin";
 import AdminReview from "./pages/AdminReview";
 import AdminReleasePolicy from "./pages/AdminReleasePolicy";
+import AutomationControl from "./pages/admin/AutomationControl";
 import AdminUsers from "./pages/admin/Users";
 import AdminDatasets from "./pages/admin/Datasets";
 import AdminPurchases from "./pages/admin/Purchases";
@@ -200,6 +201,11 @@ const AppContent = () => {
           <Route path="/admin/email-inbox" element={
             <ProtectedRoute requireAdmin={true}>
               <EmailInbox />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/automation" element={
+            <ProtectedRoute requireAdmin={true}>
+              <AutomationControl />
             </ProtectedRoute>
           } />
           <Route path="/admin/campaigns" element={
