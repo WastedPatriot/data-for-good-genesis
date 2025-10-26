@@ -19,7 +19,8 @@ import {
   Clock,
   Sparkles,
   Shield,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from "lucide-react";
 
 interface Message {
@@ -47,6 +48,15 @@ export function AIMarketingAssistant() {
   const [testEmail, setTestEmail] = useState("askewdominic86@gmail.com");
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  
+  // Batch campaign generation
+  const [generatingBatch, setGeneratingBatch] = useState(false);
+  const [batchIndustry, setBatchIndustry] = useState("technology");
+  const [batchCount, setBatchCount] = useState(5);
+  
+  // Batch sending
+  const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
+  const [sendingBatch, setSendingBatch] = useState(false);
 
   useEffect(() => {
     loadCampaigns();
@@ -209,6 +219,97 @@ export function AIMarketingAssistant() {
     }
   };
 
+  const generateBatchCampaigns = async () => {
+    setGeneratingBatch(true);
+    try {
+      toast({
+        title: "Generating Campaigns",
+        description: `Researching ${batchCount} companies in ${batchIndustry} industry...`,
+      });
+
+      const { data, error } = await supabase.functions.invoke("generate-marketing-campaigns", {
+        body: {
+          industry: batchIndustry,
+          count: batchCount,
+          keywords: ["sustainability", "ESG", "climate data"]
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Campaigns Generated!",
+        description: `${data.campaigns_created} personalized campaigns ready for review`,
+      });
+
+      await loadCampaigns();
+    } catch (error: any) {
+      console.error("Batch generation error:", error);
+      toast({
+        title: "Generation Failed",
+        description: error.message || "Failed to generate campaigns",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingBatch(false);
+    }
+  };
+
+  const sendBatchCampaigns = async () => {
+    if (selectedCampaigns.length === 0) {
+      toast({
+        title: "No Campaigns Selected",
+        description: "Please select campaigns to send",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSendingBatch(true);
+    try {
+      toast({
+        title: "Sending Campaigns",
+        description: `Sending ${selectedCampaigns.length} emails...`,
+      });
+
+      const { data, error } = await supabase.functions.invoke("send-marketing-batch", {
+        body: { campaign_ids: selectedCampaigns }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Batch Send Complete",
+        description: `Sent ${data.sent} emails successfully. ${data.failed} failed.`,
+      });
+
+      setSelectedCampaigns([]);
+      await loadCampaigns();
+    } catch (error: any) {
+      console.error("Batch send error:", error);
+      toast({
+        title: "Batch Send Failed",
+        description: error.message || "Failed to send campaigns",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingBatch(false);
+    }
+  };
+
+  const toggleCampaignSelection = (id: string) => {
+    setSelectedCampaigns(prev => 
+      prev.includes(id) ? prev.filter(cid => cid !== id) : [...prev, id]
+    );
+  };
+
+  const selectAllPending = () => {
+    const pendingIds = campaigns
+      .filter(c => c.status === "pending_approval")
+      .map(c => c.id);
+    setSelectedCampaigns(pendingIds);
+  };
+
   const getStatusBadge = (status: string) => {
     const variants = {
       draft: { variant: "secondary" as const, icon: Clock },
@@ -253,9 +354,10 @@ export function AIMarketingAssistant() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="chat" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="chat">AI Chat</TabsTrigger>
-              <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+              <TabsTrigger value="batch">Batch Generate</TabsTrigger>
+              <TabsTrigger value="campaigns">Campaigns ({campaigns.length})</TabsTrigger>
               <TabsTrigger value="test">Test Email</TabsTrigger>
             </TabsList>
 
@@ -333,7 +435,105 @@ export function AIMarketingAssistant() {
               </div>
             </TabsContent>
 
+            <TabsContent value="batch" className="space-y-4">
+              <Card className="border-dashed border-2 border-primary/30">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Automated Campaign Generation
+                  </CardTitle>
+                  <CardDescription>
+                    AI researches companies and generates personalized outreach emails
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="industry">Target Industry</Label>
+                      <Input
+                        id="industry"
+                        value={batchIndustry}
+                        onChange={(e) => setBatchIndustry(e.target.value)}
+                        placeholder="e.g., renewable energy"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="count">Number of Campaigns</Label>
+                      <Input
+                        id="count"
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={batchCount}
+                        onChange={(e) => setBatchCount(parseInt(e.target.value))}
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={generateBatchCampaigns}
+                    disabled={generatingBatch}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {generatingBatch ? (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                        Researching & Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="w-4 h-4 mr-2" />
+                        Generate {batchCount} Campaigns
+                      </>
+                    )}
+                  </Button>
+
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                    <h4 className="font-semibold text-sm">What happens:</h4>
+                    <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                      <li>AI researches {batchCount} companies in {batchIndustry}</li>
+                      <li>Analyzes each company's sustainability initiatives</li>
+                      <li>Generates personalized emails referencing their work</li>
+                      <li>Saves all campaigns for your review & approval</li>
+                    </ol>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             <TabsContent value="campaigns" className="space-y-4">
+              {campaigns.filter(c => c.status === "pending_approval").length > 0 && (
+                <div className="flex gap-2 items-center">
+                  <Button
+                    onClick={selectAllPending}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Select All Pending ({campaigns.filter(c => c.status === "pending_approval").length})
+                  </Button>
+                  {selectedCampaigns.length > 0 && (
+                    <Button
+                      onClick={sendBatchCampaigns}
+                      disabled={sendingBatch}
+                      size="sm"
+                    >
+                      {sendingBatch ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 mr-2" />
+                          Send {selectedCampaigns.length} Selected
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              )}
+
               <ScrollArea className="h-[500px]">
                 {campaigns.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12">
@@ -347,9 +547,19 @@ export function AIMarketingAssistant() {
                       <Card key={campaign.id} className="border">
                         <CardHeader>
                           <div className="flex items-start justify-between">
-                            <div>
-                              <CardTitle className="text-lg">{campaign.company_name}</CardTitle>
-                              <CardDescription className="mt-1">{campaign.email}</CardDescription>
+                            <div className="flex items-start gap-3">
+                              {campaign.status === "pending_approval" && (
+                                <input
+                                  type="checkbox"
+                                  checked={selectedCampaigns.includes(campaign.id)}
+                                  onChange={() => toggleCampaignSelection(campaign.id)}
+                                  className="mt-1"
+                                />
+                              )}
+                              <div>
+                                <CardTitle className="text-lg">{campaign.company_name}</CardTitle>
+                                <CardDescription className="mt-1">{campaign.email}</CardDescription>
+                              </div>
                             </div>
                             {getStatusBadge(campaign.status)}
                           </div>
