@@ -92,3 +92,15 @@ verify_jwt = false
 
 [functions.export-dataset]
 verify_jwt = true
+
+[functions.ai-marketing-assistant]
+verify_jwt = true
+
+[functions.ai-curate-data]
+verify_jwt = true
+
+[functions.ai-dynamic-pricing]
+verify_jwt = true
+
+[functions.analyze-contact-severity]
+verify_jwt = false

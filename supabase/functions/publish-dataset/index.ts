@@ -18,9 +18,12 @@ serve(async (req) => {
   );
 
   try {
+    console.log("[PUBLISH-DATASET] Starting manual dataset publication");
+
     // Verify admin authentication
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
+      console.error("[PUBLISH-DATASET] No authorization header");
       return new Response(
         JSON.stringify({ error: "No authorization header" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
@@ -31,6 +34,7 @@ serve(async (req) => {
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     
     if (userError || !userData.user) {
+      console.error("[PUBLISH-DATASET] User authentication failed:", userError);
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
@@ -46,6 +50,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (!roleData) {
+      console.error("[PUBLISH-DATASET] User is not admin:", userData.user.id);
       return new Response(
         JSON.stringify({ error: "Admin access required" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
@@ -55,8 +60,11 @@ serve(async (req) => {
     const payload = await req.json();
     const { name, description, category, price, size_mb, sample_data, download_url } = payload;
 
+    console.log("[PUBLISH-DATASET] Publishing dataset:", { name, category, price });
+
     // Validate required fields
     if (!name || !description || !category || price === undefined) {
+      console.error("[PUBLISH-DATASET] Missing required fields");
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
@@ -71,11 +79,14 @@ serve(async (req) => {
       .maybeSingle();
 
     if (existingDataset) {
+      console.error("[PUBLISH-DATASET] Dataset name already exists:", name);
       return new Response(
         JSON.stringify({ error: "Dataset name already exists" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 409 }
       );
     }
+
+    console.log("[PUBLISH-DATASET] Creating Stripe product:", name);
 
     // Create Stripe product and price
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -85,6 +96,11 @@ serve(async (req) => {
     const product = await stripe.products.create({
       name,
       description,
+      metadata: {
+        category,
+        manual_publish: "true",
+        published_by: userData.user.id
+      }
     });
 
     const stripePrice = await stripe.prices.create({
@@ -92,6 +108,8 @@ serve(async (req) => {
       unit_amount: Math.round(price * 100),
       currency: "usd",
     });
+
+    console.log("[PUBLISH-DATASET] Stripe product created:", product.id);
 
     // Use service role to insert
     const supabaseAdmin = createClient(
@@ -119,12 +137,14 @@ serve(async (req) => {
       .single();
 
     if (datasetError) {
-      console.error("Dataset insert error:", datasetError);
+      console.error("[PUBLISH-DATASET] Dataset insert error:", datasetError);
       return new Response(
         JSON.stringify({ error: datasetError.message }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
+
+    console.log("[PUBLISH-DATASET] Dataset created successfully:", newDataset.id);
 
     // Insert audit log
     await supabaseAdmin
@@ -139,8 +159,12 @@ serve(async (req) => {
           name,
           price,
           manual: true,
+          stripe_product_id: product.id,
+          stripe_price_id: stripePrice.id
         },
       }]);
+
+    console.log("[PUBLISH-DATASET] Successfully published dataset:", name);
 
     return new Response(
       JSON.stringify({
@@ -150,7 +174,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error: any) {
-    console.error("publish-dataset error:", error);
+    console.error("[PUBLISH-DATASET] Unexpected error:", error);
     return new Response(
       JSON.stringify({ error: error?.message || "Unexpected error" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }

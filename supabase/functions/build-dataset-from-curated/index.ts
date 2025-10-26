@@ -51,18 +51,21 @@ serve(async (req) => {
     }
 
     const { 
-      name, 
-      description, 
       category, 
-      price, 
       channel = "on_site",
       burstMode = false,
-      filters = {}
+      filters = {},
+      useAI = true,
+      manualName = null,
+      manualDescription = null,
+      manualPrice = null
     } = await req.json();
 
-    if (!name || !description || !category || price === undefined) {
+    console.log("[BUILD-DATASET] Starting build process for category:", category);
+
+    if (!category) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
+        JSON.stringify({ error: "Category is required" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
@@ -136,6 +139,146 @@ serve(async (req) => {
       );
     }
 
+    console.log(`[BUILD-DATASET] Found ${curatedData.length} curated records`);
+
+    // Calculate quality metrics
+    const avgConfidence = curatedData.reduce((sum, d) => sum + parseFloat(String(d.confidence_score)), 0) / curatedData.length;
+    const qualityTiers = curatedData.map(d => d.quality_tier);
+    const topTier = qualityTiers.includes("platinum") ? "platinum" : 
+                    qualityTiers.includes("gold") ? "gold" : 
+                    qualityTiers.includes("silver") ? "silver" : "bronze";
+
+    // Get data type and domain info
+    const domains = [...new Set(curatedData.map(d => d.domain).filter(Boolean))];
+    const dataTypes = [...new Set(curatedData.map(d => d.category).filter(Boolean))];
+    
+    let name = manualName;
+    let description = manualDescription;
+    let price = manualPrice;
+
+    // AI-powered title and description generation
+    if (useAI && !name) {
+      console.log("[BUILD-DATASET] Generating AI title and description...");
+      
+      const samplePayloads = curatedData.slice(0, 10).map(d => d.curated_payload);
+      
+      const titlePrompt = `Analyze this curated dataset and generate a professional, compelling dataset title and description.
+
+Dataset Metrics:
+- Category: ${category}
+- Record Count: ${curatedData.length}
+- Quality Tiers: ${JSON.stringify(qualityTiers.slice(0, 5))}
+- Average Confidence: ${avgConfidence.toFixed(2)}
+- Domains: ${domains.join(", ")}
+- Data Types: ${dataTypes.join(", ")}
+
+Sample Data (first 10 records):
+${JSON.stringify(samplePayloads, null, 2)}
+
+Generate a professional title that:
+1. Includes the time period (Q1 2025, etc)
+2. Clearly indicates the data type
+3. Is compelling for B2B buyers
+4. Follows pattern: "[Type] Data: [Specific Focus] [Time Period]"
+
+Example titles:
+- "Climate Risk Signals: Global Weather Impact Data Q1 2025"
+- "ESG Compliance Intelligence: Corporate Sustainability Metrics 2024-2025"
+- "Market Sentiment Tracker: Consumer Sustainability Trends Q4 2024"
+
+Also provide a 2-3 sentence description highlighting:
+- What's included
+- Key use cases
+- Data quality and freshness`;
+
+      const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            {
+              role: "system",
+              content: "You are a data product specialist creating compelling dataset titles and descriptions for B2B customers."
+            },
+            { role: "user", content: titlePrompt }
+          ],
+          tools: [{
+            type: "function",
+            function: {
+              name: "generate_dataset_metadata",
+              description: "Generate title and description for dataset",
+              parameters: {
+                type: "object",
+                properties: {
+                  title: { type: "string", description: "Professional dataset title" },
+                  description: { type: "string", description: "2-3 sentence dataset description" },
+                  suggested_tags: { 
+                    type: "array", 
+                    items: { type: "string" },
+                    description: "3-5 relevant tags" 
+                  }
+                },
+                required: ["title", "description", "suggested_tags"],
+                additionalProperties: false
+              }
+            }
+          }],
+          tool_choice: { type: "function", function: { name: "generate_dataset_metadata" } }
+        }),
+      });
+
+      if (aiResponse.ok) {
+        const result = await aiResponse.json();
+        if (result.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments) {
+          const metadata = JSON.parse(result.choices[0].message.tool_calls[0].function.arguments);
+          name = metadata.title;
+          description = metadata.description;
+          console.log("[BUILD-DATASET] AI generated title:", name);
+        }
+      } else {
+        console.error("[BUILD-DATASET] AI title generation failed, using fallback");
+        name = `${category.charAt(0).toUpperCase() + category.slice(1)} Data Collection ${new Date().toISOString().split('T')[0]}`;
+        description = `Curated ${category} data with ${curatedData.length} records, average confidence ${avgConfidence.toFixed(2)}.`;
+      }
+    }
+
+    // AI-powered dynamic pricing
+    if (useAI && !price) {
+      console.log("[BUILD-DATASET] Calculating AI-powered pricing...");
+      
+      const pricingResponse = await supabaseAdmin.functions.invoke("ai-dynamic-pricing", {
+        body: {
+          datasetInfo: { name, description },
+          qualityScore: avgConfidence,
+          dataType: category,
+          category,
+          recordCount: curatedData.length
+        }
+      });
+
+      if (pricingResponse.data && !pricingResponse.error) {
+        price = pricingResponse.data.recommended_price;
+        console.log("[BUILD-DATASET] AI recommended price: $", price);
+      } else {
+        console.error("[BUILD-DATASET] Pricing AI failed, using fallback");
+        price = 99; // Fallback price
+      }
+    }
+
+    // Ensure we have all required fields
+    if (!name || !description || !price) {
+      return new Response(
+        JSON.stringify({ error: "Failed to generate dataset metadata" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+      );
+    }
+
+    console.log("[BUILD-DATASET] Creating Stripe product:", name);
+
     // Create Stripe product
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -144,6 +287,12 @@ serve(async (req) => {
     const product = await stripe.products.create({
       name,
       description,
+      metadata: {
+        category,
+        quality_tier: topTier,
+        record_count: curatedData.length.toString(),
+        avg_confidence: avgConfidence.toFixed(2)
+      }
     });
 
     const stripePrice = await stripe.prices.create({
@@ -152,13 +301,9 @@ serve(async (req) => {
       currency: "usd",
     });
 
-    // Create dataset
-    const avgConfidence = curatedData.reduce((sum, d) => sum + parseFloat(String(d.confidence_score)), 0) / curatedData.length;
-    const qualityTiers = curatedData.map(d => d.quality_tier);
-    const topTier = qualityTiers.includes("platinum") ? "platinum" : 
-                    qualityTiers.includes("gold") ? "gold" : 
-                    qualityTiers.includes("silver") ? "silver" : "bronze";
+    console.log("[BUILD-DATASET] Stripe product created:", product.id);
 
+    // Create dataset record
     const batchNumber = Math.floor(Date.now() / 1000);
 
     const { data: dataset, error: datasetError } = await supabaseAdmin
