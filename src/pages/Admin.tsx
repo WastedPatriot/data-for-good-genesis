@@ -311,6 +311,19 @@ export default function Admin() {
             </CardContent>
           </Card>
 
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/email-inbox")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="w-5 h-5" />
+                Email Inbox
+              </CardTitle>
+              <CardDescription>Unified inbox - all sent/received emails</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">View All Emails</Button>
+            </CardContent>
+          </Card>
+
           <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/logs")}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

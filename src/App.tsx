@@ -78,6 +78,7 @@ import VisitorInsights from "./pages/admin/VisitorInsights";
 import WarmLeads from "./pages/admin/WarmLeads";
 import DataPipeline from "./pages/admin/DataPipeline";
 import Communications from "./pages/admin/Communications";
+import EmailInbox from "./pages/admin/EmailInbox";
 import Campaigns from "./pages/admin/Campaigns";
 import AdminDatasetBuilder from "./pages/admin/DatasetBuilder";
 import DataCuration from "./pages/admin/DataCuration";
@@ -194,6 +195,11 @@ const AppContent = () => {
           <Route path="/admin/communications" element={
             <ProtectedRoute requireAdmin={true}>
               <Communications />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/email-inbox" element={
+            <ProtectedRoute requireAdmin={true}>
+              <EmailInbox />
             </ProtectedRoute>
           } />
           <Route path="/admin/campaigns" element={
