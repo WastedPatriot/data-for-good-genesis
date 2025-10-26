@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Shield, Users, Database, FileText, Mail, TrendingUp, Activity } from "lucide-react";
+import { Shield, Users, Database, FileText, Mail, TrendingUp, Activity, Brain } from "lucide-react";
 import { AIMarketingAssistant } from "@/components/admin/AIMarketingAssistant";
 
 export default function Admin() {
@@ -285,13 +285,26 @@ export default function Admin() {
             </CardContent>
           </Card>
 
+          <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/data-curation")}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="w-5 h-5" />
+                AI Data Curation
+              </CardTitle>
+              <CardDescription>AI-powered data analysis & scoring</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full">Curate with AI</Button>
+            </CardContent>
+          </Card>
+
           <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/communications")}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
                 Communications Center
               </CardTitle>
-              <CardDescription>All customer communications</CardDescription>
+              <CardDescription>Inbox/Outbox + AI severity scoring</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full">Manage Communications</Button>

@@ -80,6 +80,7 @@ import DataPipeline from "./pages/admin/DataPipeline";
 import Communications from "./pages/admin/Communications";
 import Campaigns from "./pages/admin/Campaigns";
 import AdminDatasetBuilder from "./pages/admin/DatasetBuilder";
+import DataCuration from "./pages/admin/DataCuration";
 import ImpactTransparency from "./pages/ImpactTransparency";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
@@ -203,6 +204,11 @@ const AppContent = () => {
           <Route path="/admin/dataset-builder" element={
             <ProtectedRoute requireAdmin={true}>
               <AdminDatasetBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/data-curation" element={
+            <ProtectedRoute requireAdmin={true}>
+              <DataCuration />
             </ProtectedRoute>
           } />
           <Route path="/impact-transparency" element={<ImpactTransparency />} />

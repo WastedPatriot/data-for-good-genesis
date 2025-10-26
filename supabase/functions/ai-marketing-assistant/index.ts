@@ -190,9 +190,44 @@ serve(async (req) => {
       const validated = chatRequestSchema.parse(body);
       const { messages } = validated;
       
-      console.log("Processing AI chat request");
+      console.log("Processing AI marketing chat request");
+
+      // Extract user intent from the last message
+      const lastUserMessage = messages.filter(m => m.role === "user").pop()?.content || "";
       
-      // Call Lovable AI for chat response
+      // Check if user wants to research a company or draft an email
+      const isResearchRequest = lastUserMessage.toLowerCase().includes("research") || 
+                                lastUserMessage.toLowerCase().includes("find companies");
+      const isDraftRequest = lastUserMessage.toLowerCase().includes("draft") || 
+                             lastUserMessage.toLowerCase().includes("write email");
+
+      let systemPrompt = `You are DataForEarth's AI Marketing Assistant with real-time web research capabilities.
+
+CAPABILITIES:
+- Research companies in specific industries
+- Analyze company websites and public data
+- Draft personalized B2B outreach emails
+- Verify company contact information
+- Assess partnership fit
+
+TONE & STYLE:
+- Professional, data-driven, authentic
+- Focus on mutual value and impact
+- NO generic templates or placeholders
+- Reference specific company initiatives
+- 150-250 word emails maximum
+
+When user asks to:
+1. RESEARCH: Return companies with: name, website, email (best guess), reason for fit
+2. DRAFT EMAIL: Create personalized email referencing their specific work
+3. CREATE CAMPAIGN: Return "CAMPAIGN|CompanyName|email@domain.com|EmailContent"
+
+Format campaigns exactly as: 
+CAMPAIGN|Acme Corp|partnerships@acme.com|[full email content here]
+
+Be concise and actionable.`;
+
+      // Call Lovable AI with enhanced context
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -200,86 +235,79 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "google/gemini-2.5-pro", // Using Pro for better research capabilities
           messages: [
-            {
-              role: "system",
-            content: `You are DataForEarth's Professional Marketing Outreach Assistant. 
-
-Your role: Craft high-quality, personalized B2B outreach emails for environmental data partnerships.
-
-TONE & STYLE:
-- Professional yet warm and authentic
-- Focus on value proposition and mutual benefit
-- NO generic templates or placeholder text like "[Company Name]"
-- Research-driven: reference specific company initiatives when possible
-- Concise: 150-250 words maximum
-
-EMAIL STRUCTURE:
-1. Personalized opening (reference their work/mission)
-2. Brief DataForEarth value proposition
-3. Specific benefit for their organization
-4. Soft call-to-action (meeting/call invitation)
-5. Professional signature
-
-AVOID:
-- Generic greetings "Dear Sir/Madam"
-- Obvious templates "{insert_name_here}"
-- Overly salesy language
-- Long-winded explanations
-- Multiple CTAs
-
-EXAMPLE QUALITY:
-"Hi [FirstName], I noticed [Company]'s commitment to [specific initiative]. At DataForEarth, we provide ethically-sourced environmental datasets that help organizations like yours drive impact through data-driven decisions. Would you be open to a brief call to explore how our marketplace could support your sustainability goals?"
-
-When drafting, return "CAMPAIGN_CREATED" to signal completion.`
-            },
+            { role: "system", content: systemPrompt },
             ...messages
           ],
+          temperature: 0.4,
         }),
       });
 
       if (!aiResponse.ok) {
-        throw new Error("AI API error");
+        if (aiResponse.status === 429) {
+          return new Response(
+            JSON.stringify({ error: "AI rate limit exceeded. Please try again shortly." }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 429 }
+          );
+        }
+        if (aiResponse.status === 402) {
+          return new Response(
+            JSON.stringify({ error: "AI credits exhausted. Please add funds to continue." }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 402 }
+          );
+        }
+        throw new Error(`AI API error: ${aiResponse.statusText}`);
       }
 
       const aiData = await aiResponse.json();
       const response = aiData.choices[0].message.content;
 
-      // Check if AI wants to create a campaign (simple keyword detection)
+      console.log("AI Response:", response);
+
+      // Parse campaign creation commands from AI
       let campaign_created = false;
-      if (response.includes("CAMPAIGN_CREATED") || 
-          (response.toLowerCase().includes("draft") && response.toLowerCase().includes("email"))) {
-        // For demo purposes, create a sample campaign
-        // In production, you'd parse the AI response to extract company details
+      const campaignMatch = response.match(/CAMPAIGN\|([^|]+)\|([^|]+)\|([\s\S]+?)(?=CAMPAIGN\||$)/);
+      
+      if (campaignMatch) {
+        const [, companyName, email, emailContent] = campaignMatch;
         
+        console.log("Creating campaign:", { companyName, email });
+
         campaign_created = true;
         
-        // This is a placeholder - in production the AI would provide structured data
-        const sampleCompany = {
-          name: "Example Corporation",
-          email: "contact@example.com",
-          content: `Dear Team,\n\nI hope this email finds you well. I'm reaching out from DataForEarth, a platform that connects environmental organizations with valuable climate and sustainability data.\n\nBest regards,\nDataForEarth Team`
-        };
-
         await supabaseClient
           .from("marketing_campaigns")
           .insert({
-            company_name: sampleCompany.name,
-            email: sampleCompany.email,
-            email_content: sampleCompany.content,
+            company_name: companyName.trim(),
+            email: email.trim(),
+            email_content: emailContent.trim(),
             status: "pending_approval",
             created_by: userData.user.id,
             research_data: {
-              note: "AI-generated campaign - review before sending"
+              ai_generated: true,
+              source: "lovable-ai",
+              model: "google/gemini-2.5-pro",
+              timestamp: new Date().toISOString()
             }
           });
+
+        // Clean up response to remove campaign command
+        const cleanResponse = response.replace(/CAMPAIGN\|[^|]+\|[^|]+\|[\s\S]+/, '').trim();
+        
+        return new Response(
+          JSON.stringify({ 
+            response: cleanResponse || "Campaign created and ready for your review!",
+            campaign_created: true
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        );
       }
 
       return new Response(
         JSON.stringify({ 
-          response: response.replace("CAMPAIGN_CREATED", "").trim(),
-          campaign_created
+          response,
+          campaign_created: false
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
