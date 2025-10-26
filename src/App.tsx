@@ -35,8 +35,12 @@ import VisitorInsights from "./pages/admin/VisitorInsights";
 import WarmLeads from "./pages/admin/WarmLeads";
 import DataPipeline from "./pages/admin/DataPipeline";
 import Communications from "./pages/admin/Communications";
+import Campaigns from "./pages/admin/Campaigns";
+import DatasetBuilder from "./pages/admin/DatasetBuilder";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
+import EnterpriseDashboard from "./pages/EnterpriseDashboard";
+import Domains from "./pages/Domains";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
@@ -146,6 +150,22 @@ const AppContent = () => {
               <Communications />
             </ProtectedRoute>
           } />
+          <Route path="/admin/campaigns" element={
+            <ProtectedRoute requireAdmin={true}>
+              <Campaigns />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/dataset-builder" element={
+            <ProtectedRoute requireAdmin={true}>
+              <DatasetBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="/enterprise/dashboard" element={
+            <ProtectedRoute requireAdmin={false}>
+              <EnterpriseDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/domains" element={<Domains />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

@@ -53,7 +53,7 @@ export default function Domains() {
           curatedCount: curatedItems.length,
           datasetCount: datasets.length,
           avgConfidence: curatedItems.length > 0
-            ? (curatedItems.reduce((sum, item) => sum + parseFloat(item.confidence_score), 0) / curatedItems.length).toFixed(2)
+            ? (curatedItems.reduce((sum, item) => sum + Number(item.confidence_score), 0) / curatedItems.length).toFixed(2)
             : "0.00",
           highQuality: curatedItems.filter((item) => item.quality_tier === "platinum" || item.quality_tier === "gold").length,
         };
