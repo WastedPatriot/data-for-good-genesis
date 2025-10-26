@@ -90,7 +90,7 @@ serve(async (req) => {
 
     // Create Stripe product and price
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-08-27.basil",
+      apiVersion: "2023-10-16",
     });
 
     const product = await stripe.products.create({
