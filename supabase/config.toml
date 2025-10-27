@@ -100,10 +100,10 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.ai-curate-data]
-verify_jwt = true
+verify_jwt = false
 
 [functions.ai-dynamic-pricing]
-verify_jwt = true
+verify_jwt = false
 
 [functions.analyze-contact-severity]
 verify_jwt = false

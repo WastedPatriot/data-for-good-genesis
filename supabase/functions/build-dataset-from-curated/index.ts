@@ -346,8 +346,8 @@ Also provide a 2-3 sentence description highlighting:
         body: {
           datasetInfo: { name, description },
           qualityScore: avgConfidence,
-          dataType: category,
-          category,
+          dataType: (effectiveCategory || category),
+          category: (effectiveCategory || category),
           recordCount: curatedData.length
         }
       });
@@ -379,12 +379,12 @@ Also provide a 2-3 sentence description highlighting:
     const product = await stripe.products.create({
       name,
       description,
-      metadata: {
-        category,
-        quality_tier: topTier,
-        record_count: curatedData.length.toString(),
-        avg_confidence: avgConfidence.toFixed(2)
-      }
+        metadata: {
+          category: (effectiveCategory || category),
+          quality_tier: topTier,
+          record_count: curatedData.length.toString(),
+          avg_confidence: avgConfidence.toFixed(2)
+        }
     });
 
     const stripePrice = await stripe.prices.create({
@@ -403,7 +403,7 @@ Also provide a 2-3 sentence description highlighting:
       .insert({
         name,
         description,
-        category,
+        category: (effectiveCategory || category),
         price,
         stripe_product_id: product.id,
         stripe_price_id: stripePrice.id,
