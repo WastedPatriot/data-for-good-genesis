@@ -113,6 +113,8 @@ export default function SubmitData() {
   // Consent tracking - must be explicit and informed
   const [dataConsent, setDataConsent] = useState(false);
   const [advertisingConsent, setAdvertisingConsent] = useState(false);
+  const [sensorDataConsent, setSensorDataConsent] = useState(false);
+  const [showSensorData, setShowSensorData] = useState(false);
 
   /**
    * Form data state
@@ -224,11 +226,11 @@ export default function SubmitData() {
     console.log("[SubmitData] Validating consent requirements...");
 
     // Explicit consent required - legal compliance
-    if (!dataConsent || !advertisingConsent) {
+    if (!dataConsent || !advertisingConsent || !sensorDataConsent) {
       console.warn("[SubmitData] Submission blocked - missing required consent");
       toast({
         title: "Consent Required",
-        description: "Please read and accept both consent statements to continue.",
+        description: "Please read and accept all consent statements to continue.",
         variant: "destructive"
       });
       return;
@@ -307,39 +309,85 @@ export default function SubmitData() {
   const progress = calculateProgress();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 py-12 px-4">
-      <div className="container mx-auto max-w-4xl space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 py-12 px-4 relative overflow-hidden">
+      {/* Animated background orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
+
+      <div className="container mx-auto max-w-4xl space-y-6 relative z-10">
         {/* Header with animated value counter */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-4"
         >
-          <div className="flex items-center justify-center gap-2">
-            <Sparkles className="w-8 h-8 text-primary animate-pulse" />
-            <h1 className="text-4xl md:text-5xl font-black text-gradient">
+          <motion.div 
+            className="flex items-center justify-center gap-2"
+            animate={{ scale: [1, 1.02, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+            >
+              <Sparkles className="w-8 h-8 text-primary" />
+            </motion.div>
+            <h1 className="text-4xl md:text-5xl font-black text-gradient glow-text">
               Become a Data Hero
             </h1>
-            <Sparkles className="w-8 h-8 text-primary animate-pulse" />
-          </div>
-          <p className="text-xl text-muted-foreground">
+            <motion.div
+              animate={{ rotate: [0, -360] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+            >
+              <Sparkles className="w-8 h-8 text-accent" />
+            </motion.div>
+          </motion.div>
+          <motion.p 
+            className="text-xl text-muted-foreground"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             Your data. Your choice. Real impact. Let&apos;s make this fun! 🚀
-          </p>
+          </motion.p>
           
           {/* Live value counter - gamification element */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 border-2 border-primary/30 rounded-full"
+            animate={{ 
+              scale: 1, 
+              opacity: 1,
+            }}
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 border-2 border-primary/30 rounded-full backdrop-blur-sm animate-glow"
           >
-            <DollarSign className="w-6 h-6 text-primary" />
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            >
+              <DollarSign className="w-6 h-6 text-primary" />
+            </motion.div>
             <div className="text-left">
-              <div className="text-2xl font-black text-primary tabular-nums">
+              <motion.div 
+                className="text-2xl font-black text-primary tabular-nums"
+                key={estimatedValue}
+                initial={{ scale: 1.5, color: "hsl(142, 86%, 60%)" }}
+                animate={{ scale: 1, color: "hsl(142, 86%, 45%)" }}
+                transition={{ type: "spring", stiffness: 500 }}
+              >
                 ${estimatedValue.toFixed(2)}
-              </div>
+              </motion.div>
               <div className="text-xs text-muted-foreground">Your Impact Value</div>
             </div>
-            <TrendingUp className="w-5 h-5 text-green-500" />
+            <motion.div
+              animate={{ y: [0, -3, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <TrendingUp className="w-5 h-5 text-green-500" />
+            </motion.div>
           </motion.div>
         </motion.div>
 
@@ -740,6 +788,79 @@ export default function SubmitData() {
                         </span>
                       </Label>
                     </div>
+
+                    <motion.div 
+                      className="space-y-3"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <div className="flex items-start space-x-3 p-4 border-2 rounded-lg bg-gradient-to-br from-primary/5 to-accent/5">
+                        <Checkbox
+                          id="consent-sensor"
+                          checked={sensorDataConsent}
+                          onCheckedChange={(checked) => {
+                            setSensorDataConsent(checked as boolean);
+                            if (checked) setShowSensorData(true);
+                          }}
+                        />
+                        <div className="flex-1">
+                          <Label htmlFor="consent-sensor" className="text-sm leading-relaxed cursor-pointer">
+                            <strong className="flex items-center gap-2">
+                              📡 I consent to automated sensor data collection
+                              <Badge variant="outline" className="text-xs">+$1.50 value</Badge>
+                            </strong>
+                            <p className="mt-2 text-muted-foreground">
+                              We&apos;ll automatically collect technical data from your device to enhance our datasets.
+                            </p>
+                          </Label>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="mt-2 text-xs"
+                            onClick={() => setShowSensorData(!showSensorData)}
+                          >
+                            {showSensorData ? "Hide" : "Show"} what we collect
+                          </Button>
+
+                          <AnimatePresence>
+                            {showSensorData && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="mt-3 p-3 bg-card border rounded-lg text-xs space-y-2"
+                              >
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">User Agent:</span>
+                                  <span className="font-mono text-xs max-w-[200px] truncate">{navigator.userAgent}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Screen:</span>
+                                  <span className="font-mono">{window.screen.width}x{window.screen.height}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Timezone:</span>
+                                  <span className="font-mono">{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Language:</span>
+                                  <span className="font-mono">{navigator.language}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Platform:</span>
+                                  <span className="font-mono">{navigator.platform}</span>
+                                </div>
+                                <p className="text-muted-foreground pt-2 border-t">
+                                  This data helps companies understand device usage patterns and is anonymized before sale.
+                                </p>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+                    </motion.div>
                   </CardContent>
                 </Card>
               </div>
@@ -762,33 +883,45 @@ export default function SubmitData() {
           )}
           
           {currentStep < STEPS.length ? (
-            <Button
-              onClick={nextStep}
-              size="lg"
-              className="flex-1 gap-2"
-            >
-              Continue
-              <ArrowRight className="w-4 h-4" />
-            </Button>
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={nextStep}
+                size="lg"
+                className="w-full gap-2 bg-gradient-to-r from-primary to-accent hover:shadow-lg transition-all"
+              >
+                Continue
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </motion.div>
           ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={loading || !dataConsent || !advertisingConsent}
-              size="lg"
-              className="flex-1 gap-2 bg-gradient-to-r from-primary to-accent"
+            <motion.div 
+              className="flex-1" 
+              whileHover={{ scale: 1.02 }} 
+              whileTap={{ scale: 0.98 }}
+              animate={!dataConsent || !advertisingConsent || !sensorDataConsent ? { 
+                boxShadow: ["0 0 0 0 rgba(34, 197, 94, 0)", "0 0 0 4px rgba(34, 197, 94, 0.3)", "0 0 0 0 rgba(34, 197, 94, 0)"] 
+              } : {}}
+              transition={{ duration: 2, repeat: Infinity }}
             >
-              {loading ? (
-                <>
-                  <Zap className="w-5 h-5 animate-pulse" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  Submit & Create Impact
-                </>
-              )}
-            </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={loading || !dataConsent || !advertisingConsent || !sensorDataConsent}
+                size="lg"
+                className="w-full gap-2 bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] animate-[gradient_3s_ease_infinite]"
+              >
+                {loading ? (
+                  <>
+                    <Zap className="w-5 h-5 animate-pulse" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5 animate-pulse" />
+                    Submit & Create Impact 🚀
+                  </>
+                )}
+              </Button>
+            </motion.div>
           )}
         </div>
 

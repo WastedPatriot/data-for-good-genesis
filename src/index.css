@@ -185,4 +185,22 @@ All colors MUST be HSL.
       box-shadow: var(--shadow-glow);
     }
   }
+
+  @keyframes gradient {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.6);
+    }
+  }
 }
