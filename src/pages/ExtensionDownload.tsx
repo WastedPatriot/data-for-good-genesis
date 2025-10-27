@@ -132,9 +132,8 @@ document.getElementById('downloadBtn').onclick = async () => {
 };`);
       
       // Background JS
-      zip.file("background.js", `chrome.runtime.onInstalled.addListener(() => {
-  chrome.tabs.create({ url: 'https://492e7fd1-6e30-483a-bddd-e3199d936946.lovableproject.com/extension' });
-});`);
+      zip.file("background.js", `// Extension installed - no action needed
+console.log('DataForEarth extension installed successfully');`);
       
       // Content JS
       zip.file("content.js", `const domain = window.location.hostname.replace('www.', '');
