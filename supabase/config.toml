@@ -135,3 +135,7 @@ verify_jwt = true
 [functions.customer-portal]
 verify_jwt = true
 
+[functions.download-dataset-subscription]
+verify_jwt = true
+
+

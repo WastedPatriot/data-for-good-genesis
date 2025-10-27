@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Leaf, User } from "lucide-react";
+import { Menu, X, Leaf, User, Building2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -116,6 +116,12 @@ const Navigation = () => {
                     <Button size="sm" variant="secondary">Admin</Button>
                   </Link>
                 )}
+                <Link to="/company-portal">
+                  <Button size="sm" variant="default" className="gap-2">
+                    <Building2 className="w-4 h-4" />
+                    Company Portal
+                  </Button>
+                </Link>
                 <Link to="/profile">
                   <Button size="sm" variant="outline" className="gap-2">
                     <User className="w-4 h-4" />
@@ -197,6 +203,12 @@ const Navigation = () => {
                       <Button size="sm" variant="secondary" className="w-full">Admin</Button>
                     </Link>
                   )}
+                  <Link to="/company-portal" onClick={() => setMobileMenuOpen(false)}>
+                    <Button size="sm" variant="default" className="w-full gap-2">
+                      <Building2 className="w-4 h-4" />
+                      Company Portal
+                    </Button>
+                  </Link>
                   <Link to="/profile" onClick={() => setMobileMenuOpen(false)}>
                     <Button size="sm" variant="outline" className="w-full gap-2">
                       <User className="w-4 h-4" />

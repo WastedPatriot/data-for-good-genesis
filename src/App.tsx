@@ -88,6 +88,7 @@ import ImpactTransparency from "./pages/ImpactTransparency";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
 import EnterpriseDashboard from "./pages/EnterpriseDashboard";
+import CompanyPortal from "./pages/CompanyPortal";
 import Domains from "./pages/Domains";
 import ExtensionDownload from "./pages/ExtensionDownload";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -232,6 +233,11 @@ const AppContent = () => {
           <Route path="/enterprise/dashboard" element={
             <ProtectedRoute requireAdmin={false}>
               <EnterpriseDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/company-portal" element={
+            <ProtectedRoute requireAdmin={false}>
+              <CompanyPortal />
             </ProtectedRoute>
           } />
           <Route path="/domains" element={<Domains />} />
