@@ -1,38 +1,76 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Download, Chrome, Shield, Leaf } from "lucide-react";
+import { Download, Chrome, Shield, Leaf, Database } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import { toast } from "sonner";
 
 const ExtensionDownload = () => {
-  const handleDownload = () => {
-    // Create a text file with GitHub instructions
-    const instructions = `DataForEarth Browser Extension - Installation Instructions
+  const handleDownload = async () => {
+    try {
+      toast.info("Preparing extension files...");
+      
+      // Note: In production, you'd fetch these from your server/GitHub
+      // For now, we'll create a download link to the extension folder
+      const instructions = `DataForEarth Carbon Tracker Extension
+      
+INSTALLATION STEPS:
 
-STEP 1: Download Extension Files
-Visit: https://github.com/your-repo/browser-extension
-Or download the files directly from your project
+1. Download the extension folder from your project at: browser-extension/
 
-STEP 2: Install in Chrome/Edge
-1. Open Chrome and go to: chrome://extensions/
-2. Enable "Developer mode" (toggle in top-right)
-3. Click "Load unpacked"
-4. Select the browser-extension folder
-5. Extension is now installed!
+2. Open Chrome and navigate to: chrome://extensions/
 
-STEP 3: Test It Out
-Visit any company website (e.g., amazon.com, google.com)
-The extension will show carbon data automatically
+3. Enable "Developer mode" (toggle in top-right corner)
 
-Questions? Contact us at support@dataforearth.com
+4. Click "Load unpacked" button
+
+5. Select the downloaded browser-extension folder
+
+6. Extension is now installed! Visit any company website to see it in action.
+
+WHAT IT DOES:
+✓ Shows company carbon emissions in real-time
+✓ Tracks your browsing anonymously (domains + time spent)
+✓ Displays sustainability scores
+✓ Helps build datasets to reduce global emissions
+✓ 100% free forever, no account needed
+
+DATA COLLECTED (Anonymous):
+- Domain names you visit
+- Time spent on each site  
+- Carbon data viewed
+- All stored locally, downloadable anytime
+
+PRIVACY:
+- No personal information collected
+- No tracking cookies
+- No email/name required
+- You control your data
+
+Need help? Visit: ${window.location.origin}/contact
+
+File locations in your project:
+- browser-extension/manifest.json
+- browser-extension/popup.html
+- browser-extension/popup.js
+- browser-extension/background.js
+- browser-extension/content.js
+- browser-extension/content.css
+- browser-extension/icons/ (add your icons here)
 `;
-    
-    const blob = new Blob([instructions], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'extension-installation-guide.txt';
-    a.click();
-    URL.revokeObjectURL(url);
+      
+      const blob = new Blob([instructions], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'DataForEarth-Extension-Install-Guide.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast.success("Installation guide downloaded! Check your Downloads folder.");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download. Please try again.");
+    }
   };
 
   return (
@@ -107,7 +145,15 @@ Questions? Contact us at support@dataforearth.com
               <Shield className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold mb-2">100% Anonymous</h3>
               <p className="text-sm text-muted-foreground">
-                No account required, no tracking
+                No account, no personal info collected
+              </p>
+            </Card>
+
+            <Card className="p-6 text-center">
+              <Database className="w-12 h-12 text-primary mx-auto mb-4" />
+              <h3 className="font-semibold mb-2">Data Collection</h3>
+              <p className="text-sm text-muted-foreground">
+                Tracks domains + time spent anonymously
               </p>
             </Card>
 
@@ -115,26 +161,34 @@ Questions? Contact us at support@dataforearth.com
               <Leaf className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold mb-2">Real Impact</h3>
               <p className="text-sm text-muted-foreground">
-                See how your data helps reduce emissions
-              </p>
-            </Card>
-
-            <Card className="p-6 text-center">
-              <Download className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Always Free</h3>
-              <p className="text-sm text-muted-foreground">
-                No hidden costs, forever
+                Your data helps build carbon datasets
               </p>
             </Card>
           </div>
 
           <div className="bg-muted/50 rounded-lg p-6">
+            <h3 className="font-semibold mb-3">📊 What Data Gets Collected?</h3>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>✓ <strong>Domains visited</strong> - e.g., amazon.com, google.com</p>
+              <p>✓ <strong>Time spent</strong> - Duration on each site</p>
+              <p>✓ <strong>Carbon data viewed</strong> - Which companies you researched</p>
+              <p>✗ <strong>No personal info</strong> - No names, emails, or passwords</p>
+              <p>✗ <strong>No browsing history</strong> - Only domain names, not full URLs</p>
+            </div>
+            <div className="mt-4 p-3 bg-primary/10 rounded-lg">
+              <p className="text-sm font-medium">
+                💾 All data stored locally in your browser. Download anytime via the extension popup!
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-muted/50 rounded-lg p-6 mt-6">
             <h3 className="font-semibold mb-3">Need Help?</h3>
             <p className="text-muted-foreground mb-4">
-              Having trouble installing? The extension files are located in your project's <code className="bg-background px-2 py-1 rounded">browser-extension</code> folder.
+              The extension files are in your project's <code className="bg-background px-2 py-1 rounded">browser-extension</code> folder. Copy that folder to load in Chrome.
             </p>
             <p className="text-sm text-muted-foreground">
-              For Chrome Store publication, you'll need to package the extension and submit it through the Chrome Developer Dashboard.
+              For Chrome Web Store publication, package the extension and submit through the Chrome Developer Dashboard.
             </p>
           </div>
         </div>
