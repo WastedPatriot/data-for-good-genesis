@@ -73,7 +73,7 @@ serve(async (req) => {
 
     console.log("[BUILD-DATASET] Starting build process for category:", category);
 
-    if (!category) {
+    if (!useAI && !category) {
       return new Response(
         JSON.stringify({ success: false, code: "BAD_REQUEST", error: "Category is required" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
@@ -137,35 +137,94 @@ serve(async (req) => {
       }
     }
 
-    // Fetch curated data
-    let query = supabaseAdmin
-      .from("curated_pool")
-      .select("*")
-      .eq("category", category)
-      .gte("confidence_score", policy.min_confidence)
-      .order("confidence_score", { ascending: false })
-      .limit(filters.limit || 1000);
+    // Fetch curated data with AI-friendly fallbacks
+    const tiers = ["bronze", "silver", "gold", "platinum"] as const;
+    const minTierIdx = Math.max(0, tiers.indexOf(String(policy.min_quality_tier || "silver") as any));
+    const policyAllowedQualities = tiers.slice(minTierIdx);
 
-    if (filters.minQuality) {
-      const tiers = ["bronze", "silver", "gold", "platinum"];
-      const idx = tiers.indexOf(String(filters.minQuality));
-      const allowed = idx >= 0 ? tiers.slice(idx) : tiers;
-      query = query.in("quality_tier", allowed);
+    const applyManualFilters = !useAI;
+
+    const loadCurated = async (
+      cat: string | null,
+      options: { onlyUnused: boolean; applyManualFilters: boolean }
+    ): Promise<any[]> => {
+      let q = supabaseAdmin
+        .from("curated_pool")
+        .select("*")
+        .gte("confidence_score", policy.min_confidence as number)
+        .order("confidence_score", { ascending: false })
+        .limit((filters && (filters as any).limit) || 1000);
+
+      if (cat) q = q.eq("category", cat);
+
+      // Quality filtering: use manual minQuality only in manual mode, otherwise use policy
+      if (options.applyManualFilters && (filters as any)?.minQuality) {
+        const idx = tiers.indexOf(String((filters as any).minQuality) as any);
+        const allowed = idx >= 0 ? tiers.slice(idx) : tiers;
+        q = q.in("quality_tier", allowed as any);
+      } else {
+        q = q.in("quality_tier", policyAllowedQualities as any);
+      }
+
+      if (options.onlyUnused) q = q.eq("usage_count", 0);
+
+      if (options.applyManualFilters && (filters as any)?.enterpriseOnly) {
+        q = q.eq("enterprise_grade", true);
+      }
+
+      const { data, error } = await q;
+      if (error) throw error;
+      return data || [];
+    };
+
+    let effectiveCategory: string | null = category || null;
+    let curatedData: any[] = [];
+
+    // Attempt 1: with provided category and current filter strategy
+    curatedData = await loadCurated(effectiveCategory, { onlyUnused: true, applyManualFilters });
+
+    // AI mode fallbacks
+    if (useAI && curatedData.length === 0) {
+      // Allow previously used records
+      curatedData = await loadCurated(effectiveCategory, { onlyUnused: false, applyManualFilters: false });
     }
 
-    if (filters.enterpriseOnly) {
-      query = query.eq("enterprise_grade", true);
+    if (useAI && curatedData.length === 0) {
+      // Discover best available category automatically
+      const all = await loadCurated(null, { onlyUnused: true, applyManualFilters: false });
+      if (all.length > 0) {
+        const counts: Record<string, number> = {};
+        for (const r of all) counts[r.category] = (counts[r.category] || 0) + 1;
+        const topCat = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+        effectiveCategory = topCat;
+        curatedData = all.filter((r) => r.category === topCat);
+      }
     }
 
-    const { data: curatedData, error: fetchError } = await query;
-
-    if (fetchError) {
-      throw fetchError;
+    if (useAI && curatedData.length === 0) {
+      // Final attempt: trigger AI curation of pending items, then retry
+      try {
+        await supabaseAdmin.functions.invoke("ai-curate-data", { body: { batchMode: true } });
+        // Retry with preferred strategy
+        curatedData = await loadCurated(effectiveCategory, { onlyUnused: true, applyManualFilters: false });
+        if (curatedData.length === 0) {
+          const all = await loadCurated(null, { onlyUnused: true, applyManualFilters: false });
+          if (all.length > 0) {
+            const counts: Record<string, number> = {};
+            for (const r of all) counts[r.category] = (counts[r.category] || 0) + 1;
+            const topCat = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+            effectiveCategory = topCat;
+            curatedData = all.filter((r) => r.category === topCat);
+          }
+        }
+      } catch (e) {
+        console.warn("[BUILD-DATASET] AI curation invoke failed", e);
+      }
     }
 
     if (!curatedData || curatedData.length === 0) {
       return new Response(
-        JSON.stringify({ success: false, code: "NO_DATA", error: "No curated data available" }),
+        JSON.stringify({ success: false, code: "NO_DATA", error: "No curated data available after AI fallback" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
@@ -196,7 +255,7 @@ serve(async (req) => {
       const titlePrompt = `Analyze this curated dataset and generate a professional, compelling dataset title and description.
 
 Dataset Metrics:
-- Category: ${category}
+- Category: ${effectiveCategory || category || 'mixed'}
 - Record Count: ${curatedData.length}
 - Quality Tiers: ${JSON.stringify(qualityTiers.slice(0, 5))}
 - Average Confidence: ${avgConfidence.toFixed(2)}
@@ -272,8 +331,10 @@ Also provide a 2-3 sentence description highlighting:
         }
       } else {
         console.error("[BUILD-DATASET] AI title generation failed, using fallback");
-        name = `${category.charAt(0).toUpperCase() + category.slice(1)} Data Collection ${new Date().toISOString().split('T')[0]}`;
-        description = `Curated ${category} data with ${curatedData.length} records, average confidence ${avgConfidence.toFixed(2)}.`;
+        const catLabel = (effectiveCategory || category || "Curated");
+        const catTitle = catLabel.charAt(0).toUpperCase() + catLabel.slice(1);
+        name = `${catTitle} Data Collection ${new Date().toISOString().split('T')[0]}`;
+        description = `Curated ${catLabel} data with ${curatedData.length} records, average confidence ${avgConfidence.toFixed(2)}.`;
       }
     }
 
