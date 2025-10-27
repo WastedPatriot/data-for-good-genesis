@@ -90,6 +90,15 @@ verify_jwt = false
 [functions.auto-curate-approved]
 verify_jwt = true
 
+[functions.extension-company-data]
+verify_jwt = false
+
+[functions.extension-user-stats]
+verify_jwt = false
+
+[functions.extension-track-visit]
+verify_jwt = false
+
 [functions.export-dataset]
 verify_jwt = true
 

@@ -1,0 +1,137 @@
+/* Floating Carbon Badge Styles */
+.dfe-carbon-badge {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 320px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  z-index: 999999;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  animation: dfe-slide-up 0.4s ease-out;
+}
+
+@keyframes dfe-slide-up {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.dfe-badge-header {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 16px 16px 0 0;
+  gap: 10px;
+}
+
+.dfe-badge-icon {
+  font-size: 20px;
+}
+
+.dfe-badge-title {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.dfe-badge-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.dfe-badge-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.dfe-badge-content {
+  padding: 15px;
+}
+
+.dfe-emission-stat {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dfe-emission-label {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-bottom: 5px;
+}
+
+.dfe-emission-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #10b981;
+}
+
+.dfe-score-bar {
+  margin-bottom: 12px;
+}
+
+.dfe-score-label {
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.dfe-score-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dfe-score-fill {
+  height: 100%;
+  transition: width 0.4s ease;
+  border-radius: 3px;
+}
+
+.dfe-badge-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dfe-verified {
+  font-size: 11px;
+  color: #10b981;
+}
+
+.dfe-learn-more {
+  font-size: 12px;
+  color: #10b981;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.dfe-learn-more:hover {
+  opacity: 0.8;
+}

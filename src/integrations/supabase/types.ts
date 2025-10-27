@@ -258,6 +258,54 @@ export type Database = {
           },
         ]
       }
+      company_carbon_data: {
+        Row: {
+          annual_co2_tons: number | null
+          company_name: string
+          created_at: string | null
+          data_sources: Json | null
+          domain: string
+          id: string
+          last_report_date: string | null
+          scope_1_emissions: number | null
+          scope_2_emissions: number | null
+          scope_3_emissions: number | null
+          sustainability_score: number | null
+          updated_at: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          annual_co2_tons?: number | null
+          company_name: string
+          created_at?: string | null
+          data_sources?: Json | null
+          domain: string
+          id?: string
+          last_report_date?: string | null
+          scope_1_emissions?: number | null
+          scope_2_emissions?: number | null
+          scope_3_emissions?: number | null
+          sustainability_score?: number | null
+          updated_at?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          annual_co2_tons?: number | null
+          company_name?: string
+          created_at?: string | null
+          data_sources?: Json | null
+          domain?: string
+          id?: string
+          last_report_date?: string | null
+          scope_1_emissions?: number | null
+          scope_2_emissions?: number | null
+          scope_3_emissions?: number | null
+          sustainability_score?: number | null
+          updated_at?: string | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       complaint_resolutions: {
         Row: {
           admin_reviewed_at: string | null
@@ -778,6 +826,138 @@ export type Database = {
         }
         Relationships: []
       }
+      extension_activity: {
+        Row: {
+          co2_data_shown: boolean | null
+          company_id: string | null
+          duration_seconds: number | null
+          extension_user_id: string | null
+          id: string
+          impact_score: number | null
+          timestamp: string | null
+          visited_domain: string
+        }
+        Insert: {
+          co2_data_shown?: boolean | null
+          company_id?: string | null
+          duration_seconds?: number | null
+          extension_user_id?: string | null
+          id?: string
+          impact_score?: number | null
+          timestamp?: string | null
+          visited_domain: string
+        }
+        Update: {
+          co2_data_shown?: boolean | null
+          company_id?: string | null
+          duration_seconds?: number | null
+          extension_user_id?: string | null
+          id?: string
+          impact_score?: number | null
+          timestamp?: string | null
+          visited_domain?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extension_activity_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_carbon_data"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "extension_activity_extension_user_id_fkey"
+            columns: ["extension_user_id"]
+            isOneToOne: false
+            referencedRelation: "extension_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      extension_challenges: {
+        Row: {
+          active: boolean | null
+          challenge_type: string
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          reward_badge: string | null
+          reward_points: number | null
+          start_date: string | null
+          target_value: number
+          title: string
+        }
+        Insert: {
+          active?: boolean | null
+          challenge_type: string
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          reward_badge?: string | null
+          reward_points?: number | null
+          start_date?: string | null
+          target_value: number
+          title: string
+        }
+        Update: {
+          active?: boolean | null
+          challenge_type?: string
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          reward_badge?: string | null
+          reward_points?: number | null
+          start_date?: string | null
+          target_value?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      extension_users: {
+        Row: {
+          badge_tier: string | null
+          created_at: string | null
+          extension_id: string
+          id: string
+          install_date: string | null
+          last_active: string | null
+          points: number | null
+          settings: Json | null
+          total_co2_awareness: number | null
+          total_sites_tracked: number | null
+          user_id: string | null
+        }
+        Insert: {
+          badge_tier?: string | null
+          created_at?: string | null
+          extension_id: string
+          id?: string
+          install_date?: string | null
+          last_active?: string | null
+          points?: number | null
+          settings?: Json | null
+          total_co2_awareness?: number | null
+          total_sites_tracked?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          badge_tier?: string | null
+          created_at?: string | null
+          extension_id?: string
+          id?: string
+          install_date?: string | null
+          last_active?: string | null
+          points?: number | null
+          settings?: Json | null
+          total_co2_awareness?: number | null
+          total_sites_tracked?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       funding_ledger: {
         Row: {
           amount: number
@@ -962,6 +1142,41 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      marketing_takeovers: {
+        Row: {
+          ai_disabled: boolean | null
+          campaign_id: string | null
+          id: string
+          taken_over_by: string | null
+          takeover_at: string | null
+          takeover_reason: string | null
+        }
+        Insert: {
+          ai_disabled?: boolean | null
+          campaign_id?: string | null
+          id?: string
+          taken_over_by?: string | null
+          takeover_at?: string | null
+          takeover_reason?: string | null
+        }
+        Update: {
+          ai_disabled?: boolean | null
+          campaign_id?: string | null
+          id?: string
+          taken_over_by?: string | null
+          takeover_at?: string | null
+          takeover_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_takeovers_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organization_profiles: {
         Row: {
@@ -1489,6 +1704,51 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_challenge_progress: {
+        Row: {
+          challenge_id: string | null
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          current_value: number | null
+          extension_user_id: string | null
+          id: string
+        }
+        Insert: {
+          challenge_id?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number | null
+          extension_user_id?: string | null
+          id?: string
+        }
+        Update: {
+          challenge_id?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number | null
+          extension_user_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "extension_challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_challenge_progress_extension_user_id_fkey"
+            columns: ["extension_user_id"]
+            isOneToOne: false
+            referencedRelation: "extension_users"
             referencedColumns: ["id"]
           },
         ]
