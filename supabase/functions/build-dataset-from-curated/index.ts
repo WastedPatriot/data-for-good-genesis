@@ -4,7 +4,7 @@ import Stripe from "https://esm.sh/stripe@18.5.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-ingest-secret",
 };
 
 serve(async (req) => {
@@ -19,35 +19,45 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "No authorization header" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
-      );
+    const ingestSecretHeader = req.headers.get("X-Ingest-Secret");
+
+    let token = "";
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.replace("Bearer ", "");
     }
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
-    
-    if (userError || !userData.user) {
+    const isServiceCall = token && token === (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
+    const isAgentCall = ingestSecretHeader && ingestSecretHeader === (Deno.env.get("INGEST_SECRET") ?? "");
+
+    // Try to resolve user if a token was provided
+    const { data: userData } = token
+      ? await supabaseAdmin.auth.getUser(token)
+      : { data: { user: null } } as any;
+
+    const actingUserId = userData?.user?.id || null;
+
+    if (!userData?.user && !isServiceCall && !isAgentCall) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
       );
     }
 
-    const { data: roleData } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userData.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
+    // If this is a real user call (not service/agent), enforce admin role
+    if (userData?.user && !isServiceCall && !isAgentCall) {
+      const { data: roleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userData.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
 
-    if (!roleData) {
-      return new Response(
-        JSON.stringify({ error: "Admin access required" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
-      );
+      if (!roleData) {
+        return new Response(
+          JSON.stringify({ error: "Admin access required" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+        );
+      }
     }
 
     const { 
@@ -70,18 +80,37 @@ serve(async (req) => {
       );
     }
 
-    // Check release policy
-    const { data: policy, error: policyError } = await supabaseAdmin
+    // Check release policy (create default if missing)
+    let { data: policy, error: policyError } = await supabaseAdmin
       .from("release_policy")
       .select("*")
       .eq("channel", channel)
-      .single();
+      .maybeSingle();
 
-    if (policyError) {
-      return new Response(
-        JSON.stringify({ error: "Release policy not found" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
-      );
+    if (policyError || !policy) {
+      console.warn("[BUILD-DATASET] No release policy found for channel", channel, "— creating default");
+      const defaultPolicy = {
+        channel,
+        min_quality_tier: "silver",
+        min_confidence: 0.7,
+        max_datasets_per_week: 2,
+        min_days_between_releases: 7,
+        burst_mode_enabled: false,
+      } as any;
+
+      const { data: inserted, error: insertPolicyError } = await supabaseAdmin
+        .from("release_policy")
+        .insert(defaultPolicy)
+        .select()
+        .single();
+
+      if (insertPolicyError) {
+        return new Response(
+          JSON.stringify({ error: "Failed to initialize release policy" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+        );
+      }
+      policy = inserted;
     }
 
     // Check throttles (unless burst mode)
