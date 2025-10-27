@@ -19,6 +19,50 @@ serve(async (req) => {
 
     console.log("🤖 Starting automated curation and dataset building cycle...");
 
+    // Step 0: Build visitor dataset if we have enough data
+    const { count: visitorCount } = await supabaseAdmin
+      .from("visitor_analytics")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+
+    if ((visitorCount || 0) >= 100) {
+      console.log(`Building visitor dataset from ${visitorCount} visits...`);
+      await supabaseAdmin.functions.invoke("build-visitor-dataset", {
+        body: { tier: "silver", daysBack: 7 }
+      });
+    }
+
+    // Step 0.5: Move approved review_queue items to curated_pool
+    const { data: approvedItems } = await supabaseAdmin
+      .from("review_queue")
+      .select("*")
+      .eq("status", "approved")
+      .is("reviewed_at", null)
+      .limit(50);
+
+    if (approvedItems && approvedItems.length > 0) {
+      console.log(`Moving ${approvedItems.length} approved items to curated pool...`);
+      for (const item of approvedItems) {
+        const qualityTier = item.quality_tier || "silver";
+        await supabaseAdmin.from("curated_pool").insert({
+          review_queue_id: item.id,
+          category: item.category || "visitor_behavior",
+          tags: item.tags || [],
+          quality_tier: qualityTier,
+          confidence_score: item.confidence_score || 0.9,
+          curated_payload: item.normalized_payload || item.raw_payload,
+          enterprise_grade: qualityTier === "platinum",
+          domain: item.category === "visitor_behavior" ? "market" : null,
+          batch_number: Math.floor(Date.now() / 1000),
+        });
+
+        await supabaseAdmin
+          .from("review_queue")
+          .update({ reviewed_at: new Date().toISOString() })
+          .eq("id", item.id);
+      }
+    }
+
     // Step 1: Trigger AI curation for pending items
     const { data: pendingItems } = await supabaseAdmin
       .from("review_queue")

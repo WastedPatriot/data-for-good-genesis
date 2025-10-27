@@ -60,6 +60,9 @@ verify_jwt = true
 [functions.build-dataset-from-curated]
 verify_jwt = true
 
+[functions.build-visitor-dataset]
+verify_jwt = false
+
 [functions.inventory-throttle]
 verify_jwt = false
 
@@ -79,12 +82,6 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.ai-complaint-resolver]
-verify_jwt = false
-
-[functions.process-visitor-insights]
-verify_jwt = false
-
-[functions.build-visitor-dataset]
 verify_jwt = false
 
 [functions.identify-warm-leads]
