@@ -8,44 +8,54 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 200 15% 10%;
+    --background: 222 47% 4%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 200 15% 10%;
+    --card: 222 47% 6%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 200 15% 10%;
+    --popover: 222 47% 6%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 145 70% 45%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 142 86% 45%;
+    --primary-foreground: 0 0% 0%;
     
-    --primary-glow: 145 80% 60%;
+    --primary-glow: 142 90% 60%;
 
-    --secondary: 200 15% 90%;
-    --secondary-foreground: 200 15% 10%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 200 15% 92%;
-    --muted-foreground: 200 10% 40%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 165 75% 40%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 191 92% 50%;
+    --accent-foreground: 0 0% 0%;
+    --accent-glow: 191 95% 65%;
 
-    --destructive: 0 85% 60%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 15% 85%;
-    --input: 200 15% 85%;
-    --ring: 145 70% 45%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 142 86% 45%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
     
-    /* GenZ Revolutionary Design Tokens */
-    --gradient-revolutionary: linear-gradient(135deg, hsl(145 70% 45%) 0%, hsl(165 75% 40%) 50%, hsl(180 70% 45%) 100%);
-    --gradient-cyber: linear-gradient(to right, hsl(145 70% 45% / 0.1), hsl(165 75% 40% / 0.1));
-    --shadow-glow: 0 0 30px hsl(145 80% 60% / 0.3), 0 0 60px hsl(145 80% 60% / 0.1);
-    --shadow-neon: 0 0 20px hsl(165 75% 40% / 0.5);
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Rich Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(142 86% 45%) 0%, hsl(191 92% 50%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(142 86% 45%) 0%, hsl(191 92% 50%) 50%, hsl(270 80% 60%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(222 47% 8%) 0%, hsl(222 47% 6%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(222 47% 4%) 0%, hsl(222 47% 6%) 100%);
+    
+    /* Shadows with color */
+    --shadow-elegant: 0 20px 60px -15px hsl(142 86% 45% / 0.3);
+    --shadow-glow: 0 0 60px hsl(142 90% 60% / 0.5), 0 0 100px hsl(191 92% 50% / 0.2);
+    --shadow-accent: 0 10px 40px -10px hsl(191 92% 50% / 0.4);
+    --shadow-card: 0 8px 32px -8px hsl(0 0% 0% / 0.6);
+    
+    /* Transitions */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 200 15% 20%;
@@ -58,42 +68,48 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 200 30% 2%;
-    --foreground: 0 0% 98%;
+    --background: 222 47% 4%;
+    --foreground: 0 0% 100%;
 
-    --card: 200 25% 5%;
-    --card-foreground: 0 0% 98%;
+    --card: 222 47% 6%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 200 22% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 222 47% 6%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 145 70% 50%;
-    --primary-foreground: 200 25% 5%;
+    --primary: 142 86% 45%;
+    --primary-foreground: 0 0% 0%;
     
-    --primary-glow: 145 85% 65%;
+    --primary-glow: 142 90% 60%;
 
-    --secondary: 200 20% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 200 20% 14%;
-    --muted-foreground: 200 10% 60%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 165 75% 45%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 191 92% 50%;
+    --accent-foreground: 0 0% 0%;
+    --accent-glow: 191 95% 65%;
 
-    --destructive: 0 85% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 200 20% 18%;
-    --input: 200 20% 18%;
-    --ring: 145 70% 50%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 142 86% 45%;
     
-    /* GenZ Revolutionary Design Tokens - Dark Mode */
-    --gradient-revolutionary: linear-gradient(135deg, hsl(145 70% 50%) 0%, hsl(165 75% 45%) 50%, hsl(180 70% 50%) 100%);
-    --gradient-cyber: linear-gradient(to right, hsl(145 70% 50% / 0.2), hsl(165 75% 45% / 0.2));
-    --shadow-glow: 0 0 40px hsl(145 85% 65% / 0.4), 0 0 80px hsl(145 85% 65% / 0.15);
-    --shadow-neon: 0 0 25px hsl(165 75% 45% / 0.6);
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(142 86% 45%) 0%, hsl(191 92% 50%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(142 86% 45%) 0%, hsl(191 92% 50%) 50%, hsl(270 80% 60%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(222 47% 8%) 0%, hsl(222 47% 6%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(222 47% 4%) 0%, hsl(222 47% 6%) 100%);
+    
+    /* Dark mode shadows */
+    --shadow-elegant: 0 20px 60px -15px hsl(142 86% 45% / 0.4);
+    --shadow-glow: 0 0 60px hsl(142 90% 60% / 0.6), 0 0 100px hsl(191 92% 50% / 0.3);
+    --shadow-accent: 0 10px 40px -10px hsl(191 92% 50% / 0.5);
+    --shadow-card: 0 8px 32px -8px hsl(0 0% 0% / 0.7);
     
     --sidebar-background: 200 25% 6%;
     --sidebar-foreground: 0 0% 95%;
@@ -117,27 +133,56 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  /* Enhanced utility classes */
   .text-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 50%, hsl(var(--accent)) 100%);
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
-    background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  
+
+  .text-gradient-hero {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   .glow-text {
-    text-shadow: 0 0 20px hsl(var(--primary-glow) / 0.5);
+    text-shadow: var(--shadow-glow);
   }
-  
+
   .border-glow {
-    box-shadow: var(--shadow-glow);
+    box-shadow: var(--shadow-elegant);
+    border: 2px solid transparent;
+    background-image: linear-gradient(hsl(var(--card)), hsl(var(--card))), var(--gradient-primary);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
   }
-  
+
   .hover-lift {
     transition: var(--transition-smooth);
   }
-  
+
   .hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-neon);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .card-gradient {
+    background: var(--gradient-card);
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    }
+    to {
+      box-shadow: var(--shadow-glow);
+    }
   }
 }

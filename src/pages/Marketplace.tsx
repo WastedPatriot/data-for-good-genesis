@@ -192,12 +192,12 @@ const Marketplace = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-5xl font-black mb-4 text-center text-gradient">
+          <h1 className="text-6xl md:text-7xl font-black mb-6 text-center text-gradient-hero glow-text">
             Ethical Data Marketplace
           </h1>
-          <p className="text-xl text-muted-foreground mb-12 text-center max-w-3xl mx-auto">
-            Purchase ethically-sourced datasets that fund environmental initiatives. 
-            Every purchase comes with an Ethical Data Badge.
+          <p className="text-xl md:text-2xl text-muted-foreground mb-16 text-center max-w-4xl mx-auto leading-relaxed">
+            Purchase <span className="text-primary font-bold">ethically-sourced datasets</span> that fund environmental initiatives. 
+            Every purchase comes with a verified <span className="text-accent font-bold">Ethical Data Badge</span>.
           </p>
 
           {/* Sorting Controls */}
@@ -241,12 +241,15 @@ const Marketplace = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className={`bg-card border-2 rounded-xl p-6 hover-lift transition-all ${
+                    className={`card-gradient border-2 rounded-2xl p-8 hover-lift transition-all relative overflow-hidden group ${
                       dataset.featured
-                        ? "border-primary/50 bg-gradient-to-br from-primary/5 to-transparent"
+                        ? "border-primary/50 animate-glow"
                         : "border-border hover:border-primary/30"
                     }`}
                   >
+                    {dataset.featured && (
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 opacity-50" />
+                    )}
                     {dataset.featured && (
                       <div className="mb-4">
                         <span className="inline-block bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
