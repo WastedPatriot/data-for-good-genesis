@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 import PhoneMockup from "@/components/PhoneMockup";
 import DataHarvestAnimation from "@/components/DataHarvestAnimation";
 
@@ -126,9 +127,11 @@ const About = () => {
                   for something <span className="text-primary font-bold">bigger than profits</span>. 
                   Let's <span className="text-accent font-bold">heal the planet together</span>.
                 </p>
-                <Button size="lg" className="text-xl px-12 py-8 border-glow hover-lift font-black shadow-elegant">
-                  Start Contributing Now
-                </Button>
+                <Link to="/submit-data">
+                  <Button size="lg" className="text-xl px-12 py-8 border-glow hover-lift font-black shadow-elegant">
+                    Start Contributing Now
+                  </Button>
+                </Link>
               </div>
             </motion.section>
 
@@ -138,14 +141,15 @@ const About = () => {
               <p className="text-muted-foreground">
                 Have questions? Want to partner with us?
               </p>
-              <Button 
-                variant="outline" 
-                className="gap-2"
-                onClick={() => window.location.href = 'mailto:hello@dataforearth.org'}
-              >
-                <Mail className="w-4 h-4" />
-                hello@dataforearth.org
-              </Button>
+              <a href="mailto:hello@dataforearth.org">
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  hello@dataforearth.org
+                </Button>
+              </a>
             </section>
           </div>
         </motion.div>
