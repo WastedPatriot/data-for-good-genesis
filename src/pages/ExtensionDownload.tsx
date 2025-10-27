@@ -124,11 +124,18 @@ async function getCurrentDomain() {
       const co2Tons = (data.company.annual_co2_tons || 0);
       const score = data.company.sustainability_score || 0;
       const scoreColor = score > 70 ? '#4ade80' : score > 40 ? '#fbbf24' : '#ef4444';
+      const isEstimated = data.estimated || false;
+      const badge = isEstimated ? '⚠️ Estimated' : '✓ Verified';
+      const badgeColor = isEstimated ? '#fbbf24' : '#4ade80';
       document.getElementById('content').innerHTML = \`
         <div class="company-section">
-          <h3 style="margin: 0 0 8px 0; font-size: 18px;">\${data.company.company_name}</h3>
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+            <h3 style="margin: 0; font-size: 18px;">\${data.company.company_name}</h3>
+            <span style="background: \${badgeColor}; color: #1a4d2e; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; white-space: nowrap;">\${badge}</span>
+          </div>
           <div class="co2-amount">\${co2Tons.toLocaleString()} tons</div>
           <div style="font-size: 14px; margin-top: 4px; opacity: 0.9;">CO₂ emissions per year</div>
+          \${isEstimated ? '<div style="font-size: 11px; margin-top: 8px; padding: 8px; background: rgba(251, 191, 36, 0.2); border-radius: 6px; border-left: 3px solid #fbbf24;">AI-estimated data based on similar companies. Not officially verified.</div>' : ''}
           <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2);">
             <div style="font-size: 12px; opacity: 0.8;">Sustainability Score</div>
             <div style="font-size: 24px; font-weight: bold; color: \${scoreColor};">\${score}/100</div>

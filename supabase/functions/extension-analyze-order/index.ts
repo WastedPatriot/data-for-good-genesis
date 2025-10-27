@@ -68,7 +68,6 @@ Page Content: ${pageContent.substring(0, 3000)}
 Order Data: ${JSON.stringify(orderData)}`
           }
         ],
-        temperature: 0.3,
       }),
     });
 

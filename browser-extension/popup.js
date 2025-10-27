@@ -26,7 +26,7 @@ async function fetchCompanyData(domain) {
   try {
     const response = await fetch(`${API_URL}/extension-company-data?domain=${encodeURIComponent(domain)}`);
     const data = await response.json();
-    return data.company;
+    return data; // Return full data object including 'estimated' flag
   } catch (error) {
     console.error('Error fetching company data:', error);
     return null;
@@ -58,10 +58,10 @@ function getScoreClass(score) {
 }
 
 // Render company data
-function renderCompanyData(company) {
+function renderCompanyData(data) {
   const content = document.getElementById('content');
   
-  if (!company) {
+  if (!data || !data.company) {
     content.innerHTML = `
       <div class="no-data">
         <h3>🌱 No carbon data available</h3>
@@ -72,14 +72,26 @@ function renderCompanyData(company) {
     return;
   }
 
+  const company = data.company;
+  const isEstimated = data.estimated || false;
   const co2Tons = company.annual_co2_tons || 0;
   const score = company.sustainability_score || 0;
   const scoreClass = getScoreClass(score);
 
   content.innerHTML = `
     <div class="company-section">
-      <div class="company-name">${company.company_name}</div>
+      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+        <div class="company-name" style="flex: 1;">${company.company_name}</div>
+        <span style="background: ${isEstimated ? '#fbbf24' : '#4ade80'}; color: #1a4d2e; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; white-space: nowrap; margin-left: 8px;">
+          ${isEstimated ? '⚠️ Estimated' : '✓ Verified'}
+        </span>
+      </div>
       <div class="co2-amount">${formatNumber(co2Tons)} tons CO₂/year</div>
+      ${isEstimated ? `
+        <div style="margin: 12px 0; padding: 8px; background: rgba(251, 191, 36, 0.2); border-radius: 6px; border-left: 3px solid #fbbf24; font-size: 11px;">
+          AI-estimated based on similar companies. Not officially verified.
+        </div>
+      ` : ''}
       <div class="sustainability-score ${scoreClass}">
         Sustainability Score: ${score}/100
       </div>
@@ -160,12 +172,12 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
     return;
   }
 
-  const company = await fetchCompanyData(domain);
-  renderCompanyData(company);
+  const data = await fetchCompanyData(domain);
+  renderCompanyData(data);
   
   // Track visit anonymously
-  if (company) {
-    await trackVisit(domain, company.id);
+  if (data && data.company) {
+    await trackVisit(domain, data.company.id);
   } else {
     await trackVisit(domain, null);
   }
@@ -175,7 +187,7 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
   visitedDomains.push({
     domain,
     timestamp: new Date().toISOString(),
-    company: company?.company_name || 'Unknown'
+    company: data?.company?.company_name || 'Unknown'
   });
   
   // Keep only last 1000 visits
