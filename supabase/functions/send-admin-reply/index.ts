@@ -6,7 +6,7 @@ const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-ingest-secret",
 };
 
 serve(async (req) => {
@@ -16,32 +16,48 @@ serve(async (req) => {
 
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
   );
 
   try {
-    // Verify admin access
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header");
+    const ingestHeader = req.headers.get("X-Ingest-Secret");
+    const adminEmail = Deno.env.get("ADMIN_EMAIL") || "";
+
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : "";
+    const { data: userData } = token
+      ? await supabaseClient.auth.getUser(token)
+      : ({ data: { user: null } } as any);
+
+    const user = userData?.user || null;
+    const isAgent = !!ingestHeader && ingestHeader === (Deno.env.get("INGEST_SECRET") ?? "");
+    const isAdminEmail = !!(user?.email && adminEmail) && user.email.toLowerCase() === adminEmail.toLowerCase();
+
+    if (!user && !isAgent) {
+      return new Response(
+        JSON.stringify({ success: false, code: "UNAUTHORIZED", error: "Sign in required" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
     }
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user } } = await supabaseClient.auth.getUser(token);
-
-    if (!user) {
-      throw new Error("Unauthorized");
+    let isAdmin = false;
+    if (user) {
+      const { data: roleData } = await supabaseClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      isAdmin = !!roleData || isAdminEmail;
+    } else {
+      isAdmin = isAgent;
     }
 
-    const { data: roleData } = await supabaseClient
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (!roleData) {
-      throw new Error("Admin access required");
+    if (!isAdmin) {
+      return new Response(
+        JSON.stringify({ success: false, code: "FORBIDDEN", error: "Admin access required" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
     }
 
     const body = await req.json();
@@ -122,7 +138,7 @@ serve(async (req) => {
     await supabaseClient
       .from("audit_logs")
       .insert({
-        user_id: user.id,
+        user_id: user ? user.id : null,
         action: "admin_reply_sent",
         resource_type: "contact_submission",
         resource_id: contactSubmissionId || null,
@@ -141,9 +157,9 @@ serve(async (req) => {
     console.error("Error in send-admin-reply function:", error);
     const errorMessage = error instanceof Error ? error.message : "Failed to send reply";
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ success: false, code: "SEND_FAILED", error: errorMessage }),
       {
-        status: 500,
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
