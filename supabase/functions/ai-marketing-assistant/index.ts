@@ -86,7 +86,7 @@ serve(async (req) => {
       console.log("Sending test email to:", test_email);
       
       const emailResult = await resend.emails.send({
-        from: "DataForEarth <onboarding@resend.dev>",
+        from: "DataForEarth <hello@dataforearth.org>",
         to: [test_email],
         subject: "Test Email from DataForEarth AI Marketing Assistant",
         replyTo: "hello@dataforearth.org",
@@ -139,30 +139,16 @@ serve(async (req) => {
       let actualRecipient = campaign.email;
       let domainVerificationNote = "";
 
-      // Try sending to the actual recipient first
-      let emailResult = await resend.emails.send({
-        from: "DataForEarth <onboarding@resend.dev>",
+      // Send to the actual recipient using verified domain
+      const emailResult = await resend.emails.send({
+        from: "DataForEarth <hello@dataforearth.org>",
         to: [campaign.email],
         subject: `Partnership Opportunity with DataForEarth`,
         replyTo: "hello@dataforearth.org",
         html: campaign.email_content,
       });
 
-      // If domain not verified error, send to admin email instead
-      if (emailResult.error && emailResult.error.message.includes("testing emails")) {
-        console.log("Domain not verified, routing to admin email:", adminEmail);
-        domainVerificationNote = `\n\n---\n<p style="color: #666; font-size: 12px;"><strong>Note:</strong> This email was routed to your admin inbox because the sending domain is not yet verified. To send to external recipients, verify your domain at <a href="https://resend.com/domains">resend.com/domains</a>.</p>\n<p style="color: #666; font-size: 12px;"><strong>Original Recipient:</strong> ${campaign.company_name} (${campaign.email})</p>`;
-        
-        emailResult = await resend.emails.send({
-          from: "DataForEarth <onboarding@resend.dev>",
-          to: [adminEmail],
-          subject: `[TEST MODE] ${campaign.company_name} - Partnership Opportunity`,
-          replyTo: "hello@dataforearth.org",
-          html: campaign.email_content + domainVerificationNote,
-        });
-        
-        actualRecipient = adminEmail;
-      }
+      actualRecipient = campaign.email;
 
       if (emailResult.error) {
         // Update campaign status to failed
@@ -194,19 +180,15 @@ serve(async (req) => {
         .from("conversation_threads")
         .insert({
           direction: "outbound",
-          from_email: "onboarding@resend.dev",
+          from_email: "hello@dataforearth.org",
           to_email: actualRecipient,
-          subject: actualRecipient === adminEmail 
-            ? `[TEST MODE] ${campaign.company_name} - Partnership Opportunity`
-            : "Partnership Opportunity with DataForEarth",
-          message: campaign.email_content + (domainVerificationNote || ""),
+          subject: "Partnership Opportunity with DataForEarth",
+          message: campaign.email_content,
           status: "sent",
           sent_at: new Date().toISOString(),
           metadata: {
             campaign_id,
-            company_name: campaign.company_name,
-            intended_recipient: campaign.email,
-            test_mode: actualRecipient === adminEmail
+            company_name: campaign.company_name
           }
         });
 
@@ -230,10 +212,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: actualRecipient === adminEmail 
-            ? "Email sent to admin inbox (domain verification required for external sends)"
-            : "Campaign approved and email sent",
-          test_mode: actualRecipient === adminEmail,
+          message: "Campaign approved and email sent successfully",
           recipient: actualRecipient
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }

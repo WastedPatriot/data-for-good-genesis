@@ -60,12 +60,7 @@ export default function Campaigns() {
 
       if (error) throw error;
       
-      if (data?.test_mode) {
-        toast.success("Email sent to your inbox (verify domain for external sends)");
-      } else {
-        toast.success("Campaign approved and sent!");
-      }
-      
+      toast.success("Campaign approved and sent!");
       loadCampaigns();
     } catch (error) {
       console.error("Error approving campaign:", error);
