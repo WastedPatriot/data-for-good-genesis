@@ -91,8 +91,8 @@ serve(async (req) => {
       failed: [] as Array<{ id: string; error: string }>,
     };
 
-    // Get admin email from env
-    const adminEmail = Deno.env.get("ADMIN_EMAIL") || "hello@dataforearth.org";
+    // Get admin email from env or use Resend's test domain
+    const adminEmail = Deno.env.get("ADMIN_EMAIL") || "onboarding@resend.dev";
     console.log(`[BATCH-SEND] Using sender email: ${adminEmail}`);
 
     // Send emails with rate limiting (1 per second)
@@ -126,6 +126,19 @@ serve(async (req) => {
             approved_by: userData.user.id
           })
           .eq("id", campaign.id);
+
+        // Log to conversation threads for inbox visibility
+        await supabaseAdmin
+          .from("conversation_threads")
+          .insert({
+            direction: "outbound",
+            from_email: adminEmail,
+            to_email: campaign.email,
+            subject,
+            message: campaign.email_content,
+            status: "sent",
+            sent_at: new Date().toISOString(),
+          });
 
         results.sent.push(campaign.id);
         console.log(`[BATCH-SEND] ✓ Sent to ${campaign.company_name}`);

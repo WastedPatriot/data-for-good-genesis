@@ -137,9 +137,10 @@ serve(async (req) => {
 
       // Send the email
       const emailResult = await resend.emails.send({
-        from: "DataForEarth <hello@dataforearth.org>",
+        from: "DataForEarth <onboarding@resend.dev>",
         to: [campaign.email],
         subject: `Partnership Opportunity with DataForEarth`,
+        replyTo: "hello@dataforearth.org",
         html: campaign.email_content,
       });
 
@@ -162,6 +163,19 @@ serve(async (req) => {
           approved_by: userData.user.id
         })
         .eq("id", campaign_id);
+
+      // Log to conversation threads for inbox visibility
+      await supabaseClient
+        .from("conversation_threads")
+        .insert({
+          direction: "outbound",
+          from_email: "onboarding@resend.dev",
+          to_email: campaign.email,
+          subject: "Partnership Opportunity with DataForEarth",
+          message: campaign.email_content,
+          status: "sent",
+          sent_at: new Date().toISOString(),
+        });
 
       // Log to audit
       await supabaseClient

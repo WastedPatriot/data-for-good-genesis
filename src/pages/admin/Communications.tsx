@@ -163,7 +163,7 @@ export default function Communications() {
     try {
       const { data, error } = await supabase
         .from("marketing_campaigns")
-        .select("id, company_name, email, status, subject, created_at")
+        .select("id, company_name, email, email_content, status, created_at, sent_at")
         .order("created_at", { ascending: false })
         .limit(100);
       if (error) throw error;
@@ -232,6 +232,36 @@ export default function Communications() {
     } catch (e: any) {
       console.error("Send manual email error:", e);
       toast.error(e.message || "Failed to send email");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const toggleCampaignSelection = (id: string) => {
+    setSelectedCampaigns((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
+  };
+
+  const batchSendCampaigns = async () => {
+    if (selectedCampaigns.length === 0) {
+      toast.error("Please select at least one campaign");
+      return;
+    }
+    setIsSending(true);
+    try {
+      toast.info(`Sending ${selectedCampaigns.length} campaign emails...`);
+      const { data, error } = await supabase.functions.invoke("send-marketing-batch", {
+        body: { campaign_ids: selectedCampaigns },
+      });
+      if (error) throw error;
+      toast.success(`Sent ${data.sent} emails. ${data.failed} failed.`);
+      setSelectedCampaigns([]);
+      loadCampaignEmails();
+      loadThreadsAll();
+    } catch (e: any) {
+      console.error("Batch send error:", e);
+      toast.error(e.message || "Failed to send campaigns");
     } finally {
       setIsSending(false);
     }
@@ -797,27 +827,62 @@ export default function Communications() {
         {/* CAMPAIGNS TAB */}
         <TabsContent value="campaigns" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Recent Campaign Emails</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle>Marketing Campaigns</CardTitle>
+              <div className="flex items-center gap-2">
+                {selectedCampaigns.length > 0 && (
+                  <Badge variant="secondary">{selectedCampaigns.length} selected</Badge>
+                )}
+                <Button
+                  onClick={batchSendCampaigns}
+                  disabled={isSending || selectedCampaigns.length === 0}
+                  size="sm"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  {isSending ? "Sending..." : "Send Selected"}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-3">
               {campaignEmails.length ? (
                 campaignEmails.map((c: any) => (
-                  <Card key={c.id}>
+                  <Card key={c.id} className="relative">
                     <CardContent className="pt-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="text-sm text-muted-foreground">{new Date(c.created_at).toLocaleString()}</div>
-                          <div className="font-semibold">{c.subject}</div>
-                          <p className="text-sm mt-1 line-clamp-2">{c.body}</p>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          checked={selectedCampaigns.includes(c.id)}
+                          onCheckedChange={() => toggleCampaignSelection(c.id)}
+                          disabled={c.status === "sent"}
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <div className="font-semibold text-lg">{c.company_name}</div>
+                              <div className="text-sm text-muted-foreground">{c.email}</div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                Created: {new Date(c.created_at).toLocaleString()}
+                                {c.sent_at && ` • Sent: ${new Date(c.sent_at).toLocaleString()}`}
+                              </div>
+                            </div>
+                            <Badge 
+                              variant={c.status === "sent" ? "default" : "outline"}
+                              className={c.status === "sent" ? "bg-green-500" : ""}
+                            >
+                              {c.status === "pending_approval" ? "Draft" : c.status}
+                            </Badge>
+                          </div>
+                          <div className="text-sm mt-2 p-3 bg-muted rounded-md">
+                            <div dangerouslySetInnerHTML={{ __html: c.email_content.slice(0, 300) + (c.email_content.length > 300 ? "..." : "") }} />
+                          </div>
                         </div>
-                        <Badge variant="outline">{c.status}</Badge>
                       </div>
                     </CardContent>
                   </Card>
                 ))
               ) : (
-                <div className="text-center text-muted-foreground py-10">No campaign emails yet</div>
+                <div className="text-center text-muted-foreground py-10">
+                  No marketing campaigns yet. Use the AI Marketing Assistant to create campaigns.
+                </div>
               )}
             </CardContent>
           </Card>
