@@ -75,8 +75,8 @@ serve(async (req) => {
 
     if (!category) {
       return new Response(
-        JSON.stringify({ error: "Category is required" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+        JSON.stringify({ success: false, code: "BAD_REQUEST", error: "Category is required" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
 
@@ -123,13 +123,15 @@ serve(async (req) => {
         if (daysSinceRelease < policy.min_days_between_releases) {
           return new Response(
             JSON.stringify({ 
+              success: false,
+              code: "THROTTLED",
               error: "Throttle limit reached", 
               nextAvailableDate: new Date(
                 new Date(policy.last_release_at).getTime() + 
                 policy.min_days_between_releases * 24 * 60 * 60 * 1000
-              )
+              ).toISOString()
             }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 429 }
+            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
           );
         }
       }
@@ -163,8 +165,8 @@ serve(async (req) => {
 
     if (!curatedData || curatedData.length === 0) {
       return new Response(
-        JSON.stringify({ error: "No curated data available" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
+        JSON.stringify({ success: false, code: "NO_DATA", error: "No curated data available" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
 
@@ -408,7 +410,7 @@ Also provide a 2-3 sentence description highlighting:
       action: "dataset_built_from_curated",
       resource_type: "dataset",
       resource_id: dataset.id,
-      user_id: userData.user.id,
+      user_id: actingUserId,
       severity: "info",
       details: {
         name,

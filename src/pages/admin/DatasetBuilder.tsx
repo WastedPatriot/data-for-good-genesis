@@ -111,7 +111,13 @@ export default function DatasetBuilder() {
         });
         toast.success("AI suggestions generated! Review and publish.");
       } else {
-        toast.error(data.error || "Failed to generate suggestions");
+        if (data.code === "THROTTLED") {
+          toast.error(`Release throttle active. Next slot: ${new Date(data.nextAvailableDate).toLocaleString()}`);
+        } else if (data.code === "NO_DATA") {
+          toast.error("No curated data matches your filters. Try adjusting filters.");
+        } else {
+          toast.error(data.error || "Failed to generate suggestions");
+        }
       }
     } catch (error: any) {
       console.error("AI generation error:", error);
@@ -141,7 +147,13 @@ export default function DatasetBuilder() {
         );
         navigate("/admin/datasets");
       } else {
-        toast.error(data.error || "Failed to build dataset");
+        if (data.code === "THROTTLED") {
+          toast.error(`Release throttle active. Next slot: ${new Date(data.nextAvailableDate).toLocaleString()}`);
+        } else if (data.code === "NO_DATA") {
+          toast.error("No curated data matches your filters. Try lowering min quality or changing category.");
+        } else {
+          toast.error(data.error || "Failed to build dataset");
+        }
       }
     } catch (error: any) {
       console.error("Dataset build error:", error);
