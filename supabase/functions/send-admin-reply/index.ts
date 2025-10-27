@@ -53,8 +53,8 @@ serve(async (req) => {
       throw new Error("Missing required fields");
     }
 
-    // Map from addresses - note: these must be verified domains in Resend
-    const fromAddress = from || "onboarding@resend.dev";
+    // Always use Resend test domain for sending; set chosen address as reply-to
+    const fromAddress = "onboarding@resend.dev";
 
     const emailResponse = await resend.emails.send({
       from: `DataForEarth <${fromAddress}>`,
