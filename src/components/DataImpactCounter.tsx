@@ -93,7 +93,7 @@ export default function DataImpactCounter() {
       >
         <p className="text-sm md:text-base font-black text-primary uppercase tracking-wider flex items-center gap-2">
           <Sparkles className="w-4 h-4" />
-          Real-Time Impact
+          Live Market Value
           <Sparkles className="w-4 h-4" />
         </p>
       </motion.div>
@@ -101,8 +101,8 @@ export default function DataImpactCounter() {
       {/* Live Stats */}
       <div className="grid grid-cols-3 gap-6 md:gap-12">
         <StatCard icon={Users} value={stats.contributors} label="Contributors" />
-        <StatCard icon={TrendingUp} value={stats.datasets} label="Datasets" />
-        <StatCard icon={Sparkles} value={stats.revenue} label="Impact" prefix="$" />
+        <StatCard icon={TrendingUp} value={stats.datasets} label="Datasets Live" />
+        <StatCard icon={Sparkles} value={stats.revenue} label="Market Value" prefix="$" />
       </div>
 
       {/* Empowering Message */}
@@ -112,8 +112,8 @@ export default function DataImpactCounter() {
         transition={{ delay: 0.5 }}
         className="text-center text-muted-foreground text-sm md:text-base max-w-2xl px-4 leading-relaxed"
       >
-        Every second, people like you are turning their data into real-world change. 
-        <span className="text-primary font-semibold"> Join the movement.</span>
+        See what companies pay for data like yours. Every dataset shows the <span className="text-primary font-semibold">real market value</span> of your information.
+        <span className="text-primary font-semibold block mt-1">No selling—just transparency.</span>
       </motion.p>
 
       {/* Trust Badges */}
