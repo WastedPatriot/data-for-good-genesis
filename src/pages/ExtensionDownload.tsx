@@ -113,21 +113,56 @@ async function getCurrentDomain() {
 }
 (async () => {
   const domain = await getCurrentDomain();
-  if (!domain) return;
+  if (!domain) {
+    document.getElementById('content').innerHTML = '<div style="text-align: center; padding: 32px;">No active tab detected</div>';
+    return;
+  }
   try {
     const res = await fetch(\`\${API_URL}/extension-company-data?domain=\${encodeURIComponent(domain)}\`);
     const data = await res.json();
     if (data.company) {
-      document.getElementById('content').innerHTML = \`<div class="company-section"><div>\${data.company.company_name}</div><div class="co2-amount">\${(data.company.annual_co2_tons || 0).toLocaleString()} tons CO₂/year</div></div>\`;
+      const co2Tons = (data.company.annual_co2_tons || 0);
+      const score = data.company.sustainability_score || 0;
+      const scoreColor = score > 70 ? '#4ade80' : score > 40 ? '#fbbf24' : '#ef4444';
+      document.getElementById('content').innerHTML = \`
+        <div class="company-section">
+          <h3 style="margin: 0 0 8px 0; font-size: 18px;">\${data.company.company_name}</h3>
+          <div class="co2-amount">\${co2Tons.toLocaleString()} tons</div>
+          <div style="font-size: 14px; margin-top: 4px; opacity: 0.9;">CO₂ emissions per year</div>
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2);">
+            <div style="font-size: 12px; opacity: 0.8;">Sustainability Score</div>
+            <div style="font-size: 24px; font-weight: bold; color: \${scoreColor};">\${score}/100</div>
+          </div>
+          <div style="margin-top: 12px; font-size: 12px; opacity: 0.7;">
+            💡 Your browsing data helps fund eco projects
+          </div>
+        </div>
+      \`;
+    } else {
+      document.getElementById('content').innerHTML = \`
+        <div style="text-align: center; padding: 24px;">
+          <div style="font-size: 48px; margin-bottom: 8px;">🌍</div>
+          <div style="font-size: 14px; opacity: 0.9;">No carbon data available for</div>
+          <div style="font-weight: bold; margin: 8px 0;">\${domain}</div>
+          <div style="font-size: 12px; opacity: 0.7; margin-top: 12px;">We're still collecting data on this company</div>
+        </div>
+      \`;
     }
-  } catch (e) { console.error(e); }
+  } catch (e) {
+    console.error(e);
+    document.getElementById('content').innerHTML = '<div style="text-align: center; padding: 32px; color: #ef4444;">Error loading data</div>';
+  }
 })();
 document.getElementById('downloadBtn').onclick = async () => {
   const { visitedDomains = [] } = await chrome.storage.local.get('visitedDomains');
+  if (visitedDomains.length === 0) {
+    alert('No browsing data collected yet. Visit some websites first!');
+    return;
+  }
   const csv = 'data:text/csv;charset=utf-8,Domain,Timestamp\\n' + visitedDomains.map(v => \`\${v.domain},\${v.timestamp}\`).join('\\n');
   const a = document.createElement('a');
   a.href = encodeURI(csv);
-  a.download = 'carbon-data.csv';
+  a.download = 'my-carbon-data.csv';
   a.click();
 };`);
       
@@ -135,13 +170,57 @@ document.getElementById('downloadBtn').onclick = async () => {
       zip.file("background.js", `// Extension installed - no action needed
 console.log('DataForEarth extension installed successfully');`);
       
-      // Content JS
-      zip.file("content.js", `const domain = window.location.hostname.replace('www.', '');
+      // Content JS - Sends browsing data to backend
+      zip.file("content.js", `const API_URL = 'https://fszghwwbvxwkmgfvhzrh.supabase.co/functions/v1';
+const domain = window.location.hostname.replace('www.', '');
+const startTime = Date.now();
+
+// Store locally for user download
 chrome.storage.local.get('visitedDomains', (result) => {
   const domains = result.visitedDomains || [];
   domains.push({ domain, timestamp: new Date().toISOString() });
   if (domains.length > 1000) domains.shift();
   chrome.storage.local.set({ visitedDomains: domains });
+});
+
+// Send to backend for data monetization
+(async () => {
+  try {
+    // Check if we have company data for this domain
+    const companyRes = await fetch(\`\${API_URL}/extension-company-data?domain=\${encodeURIComponent(domain)}\`);
+    const companyData = await companyRes.json();
+    
+    // Track the visit in backend
+    await fetch(\`\${API_URL}/extension-track-visit\`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        domain: domain,
+        company_id: companyData.company?.id || null,
+        anonymous: true
+      })
+    });
+  } catch (e) {
+    console.error('DataForEarth extension error:', e);
+  }
+})();
+
+// Track time spent on page
+window.addEventListener('beforeunload', async () => {
+  const duration = Math.floor((Date.now() - startTime) / 1000);
+  try {
+    await fetch(\`\${API_URL}/extension-track-visit\`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        domain: domain,
+        duration: duration,
+        anonymous: true
+      })
+    });
+  } catch (e) {
+    console.error('Error tracking duration:', e);
+  }
 });`);
       
       // Content CSS
@@ -275,7 +354,12 @@ chrome.storage.local.get('visitedDomains', (result) => {
             </div>
             <div className="mt-4 p-3 bg-primary/10 rounded-lg">
               <p className="text-sm font-medium">
-                💾 All data stored locally in YOUR browser. Download anytime via extension popup!
+                🌍 <strong>How it works:</strong> Your anonymous browsing data is sent to our backend, where AI organizes it into valuable datasets. These datasets are sold to fund eco projects - you browse, we monetize, Earth benefits!
+              </p>
+            </div>
+            <div className="mt-3 p-3 bg-muted rounded-lg">
+              <p className="text-sm">
+                💾 Data is also stored locally in your browser so you can download it anytime via the extension popup.
               </p>
             </div>
           </div>
