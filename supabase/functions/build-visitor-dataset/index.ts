@@ -17,6 +17,42 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Verify this is an internal/admin call
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "No authorization header" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData } = await supabase.auth.getUser(token);
+    const isServiceCall = token === (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
+
+    if (!userData.user && !isServiceCall) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - admin or service role required" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
+
+    if (!isServiceCall) {
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userData.user!.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!roleData) {
+        return new Response(
+          JSON.stringify({ error: "Admin access required" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+        );
+      }
+    }
+
     const { tier = 'bronze', daysBack = 7 } = await req.json();
 
     console.log(`Building visitor dataset - Tier: ${tier}, Days back: ${daysBack}`);
