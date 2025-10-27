@@ -169,7 +169,7 @@ export function AIMarketingAssistant() {
 
   const approveCampaign = async (campaignId: string) => {
     try {
-      const { error } = await supabase.functions.invoke("ai-marketing-assistant", {
+      const { data, error } = await supabase.functions.invoke("ai-marketing-assistant", {
         body: { 
           action: "approve_campaign",
           campaign_id: campaignId
@@ -179,8 +179,8 @@ export function AIMarketingAssistant() {
       if (error) throw error;
 
       toast({
-        title: "Campaign Approved",
-        description: "Email will be sent shortly",
+        title: "✅ Campaign Sent Successfully!",
+        description: `Email sent from ${data?.sent_from || "hello@dataforearth.org"} to ${data?.recipient || "recipient"}. Check the Email Inbox to see it.`,
       });
 
       await loadCampaigns();

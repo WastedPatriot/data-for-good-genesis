@@ -176,7 +176,8 @@ serve(async (req) => {
         .eq("id", campaign_id);
 
       // Log to conversation threads for inbox visibility
-      await supabaseClient
+      console.log("Logging campaign to conversation_threads...");
+      const { data: threadData, error: threadError } = await supabaseClient
         .from("conversation_threads")
         .insert({
           direction: "outbound",
@@ -190,7 +191,15 @@ serve(async (req) => {
             campaign_id,
             company_name: campaign.company_name
           }
-        });
+        })
+        .select()
+        .single();
+
+      if (threadError) {
+        console.error("Failed to log to conversation_threads:", threadError);
+      } else {
+        console.log("Successfully logged to conversation_threads:", threadData?.id);
+      }
 
       // Log to audit
       await supabaseClient
@@ -208,12 +217,14 @@ serve(async (req) => {
         });
 
       console.log("Campaign approved and email sent:", emailResult);
+      console.log(`Email sent from hello@dataforearth.org to ${actualRecipient}`);
 
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: "Campaign approved and email sent successfully",
-          recipient: actualRecipient
+          message: `Campaign approved and email sent successfully to ${actualRecipient}`,
+          recipient: actualRecipient,
+          sent_from: "hello@dataforearth.org"
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
