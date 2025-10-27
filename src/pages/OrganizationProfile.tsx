@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Building2, CheckCircle, Clock, Mail, Phone, Globe, FileText, LogOut } from "lucide-react";
+import { SubscriptionManager } from "@/components/organization/SubscriptionManager";
 
 interface OrganizationProfile {
   id: string;
@@ -261,6 +262,16 @@ const OrganizationProfile = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Subscription Management */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-8"
+        >
+          <SubscriptionManager />
+        </motion.div>
       </div>
     </div>
   );

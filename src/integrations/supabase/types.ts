@@ -1199,9 +1199,16 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          monthly_downloads_limit: number | null
+          monthly_downloads_used: number | null
           organization_name: string
           organization_type: string
           privacy_accepted_at: string | null
+          subscription_end_date: string | null
+          subscription_product_id: string | null
+          subscription_renewed_at: string | null
+          subscription_status: string | null
+          subscription_tier: string | null
           tax_id: string | null
           terms_accepted_at: string | null
           updated_at: string
@@ -1217,9 +1224,16 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          monthly_downloads_limit?: number | null
+          monthly_downloads_used?: number | null
           organization_name: string
           organization_type: string
           privacy_accepted_at?: string | null
+          subscription_end_date?: string | null
+          subscription_product_id?: string | null
+          subscription_renewed_at?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
           tax_id?: string | null
           terms_accepted_at?: string | null
           updated_at?: string
@@ -1235,9 +1249,16 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          monthly_downloads_limit?: number | null
+          monthly_downloads_used?: number | null
           organization_name?: string
           organization_type?: string
           privacy_accepted_at?: string | null
+          subscription_end_date?: string | null
+          subscription_product_id?: string | null
+          subscription_renewed_at?: string | null
+          subscription_status?: string | null
+          subscription_tier?: string | null
           tax_id?: string | null
           terms_accepted_at?: string | null
           updated_at?: string
@@ -1935,6 +1956,7 @@ export type Database = {
         Returns: boolean
       }
       process_extension_data_batch: { Args: never; Returns: undefined }
+      reset_monthly_downloads: { Args: never; Returns: undefined }
       run_automation_cycle: { Args: never; Returns: Json }
       trigger_ai_curation: { Args: never; Returns: undefined }
       trigger_dataset_builder: { Args: never; Returns: undefined }
