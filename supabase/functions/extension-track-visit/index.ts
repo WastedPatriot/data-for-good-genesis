@@ -19,21 +19,36 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Track anonymous visit in extension_activity
-    const { error: activityError } = await supabase
+    const { data: activityData, error: activityError } = await supabase
       .from('extension_activity')
       .insert({
         extension_user_id: null, // Anonymous
         visited_domain: domain,
         company_id: company_id || null,
         co2_data_shown: !!company_id,
-        duration_seconds: null
-      });
+        duration_seconds: null,
+        processed: false // Will be processed by extension-handoff-for-review
+      })
+      .select()
+      .single();
 
     if (activityError) {
       console.error('Error tracking anonymous activity:', activityError);
+    } else {
+      console.log(`Anonymous visit tracked: ${domain}, activity_id: ${activityData?.id}`);
+      
+      // Periodically trigger batch processing (every 10th visit)
+      if (Math.random() < 0.1) {
+        try {
+          await supabase.functions.invoke('extension-handoff-for-review', {
+            body: { automated: true }
+          });
+          console.log('Triggered extension data batch processing');
+        } catch (e) {
+          console.log('Batch processing trigger failed (non-critical)');
+        }
+      }
     }
-
-    console.log(`Anonymous visit tracked: ${domain}, company_id: ${company_id}`);
 
     return new Response(
       JSON.stringify({ success: true }),

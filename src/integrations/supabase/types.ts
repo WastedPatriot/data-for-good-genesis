@@ -834,6 +834,7 @@ export type Database = {
           extension_user_id: string | null
           id: string
           impact_score: number | null
+          processed: boolean | null
           timestamp: string | null
           visited_domain: string
         }
@@ -844,6 +845,7 @@ export type Database = {
           extension_user_id?: string | null
           id?: string
           impact_score?: number | null
+          processed?: boolean | null
           timestamp?: string | null
           visited_domain: string
         }
@@ -854,6 +856,7 @@ export type Database = {
           extension_user_id?: string | null
           id?: string
           impact_score?: number | null
+          processed?: boolean | null
           timestamp?: string | null
           visited_domain?: string
         }
@@ -1922,6 +1925,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      process_extension_data_batch: { Args: never; Returns: undefined }
       run_automation_cycle: { Args: never; Returns: Json }
       trigger_ai_curation: { Args: never; Returns: undefined }
       trigger_dataset_builder: { Args: never; Returns: undefined }
