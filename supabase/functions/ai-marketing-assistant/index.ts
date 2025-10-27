@@ -135,8 +135,12 @@ serve(async (req) => {
         throw new Error("Campaign not found");
       }
 
-      // Send the email
-      const emailResult = await resend.emails.send({
+      const adminEmail = Deno.env.get("ADMIN_EMAIL") || "askewdominic86@gmail.com";
+      let actualRecipient = campaign.email;
+      let domainVerificationNote = "";
+
+      // Try sending to the actual recipient first
+      let emailResult = await resend.emails.send({
         from: "DataForEarth <onboarding@resend.dev>",
         to: [campaign.email],
         subject: `Partnership Opportunity with DataForEarth`,
@@ -144,11 +148,30 @@ serve(async (req) => {
         html: campaign.email_content,
       });
 
+      // If domain not verified error, send to admin email instead
+      if (emailResult.error && emailResult.error.message.includes("testing emails")) {
+        console.log("Domain not verified, routing to admin email:", adminEmail);
+        domainVerificationNote = `\n\n---\n<p style="color: #666; font-size: 12px;"><strong>Note:</strong> This email was routed to your admin inbox because the sending domain is not yet verified. To send to external recipients, verify your domain at <a href="https://resend.com/domains">resend.com/domains</a>.</p>\n<p style="color: #666; font-size: 12px;"><strong>Original Recipient:</strong> ${campaign.company_name} (${campaign.email})</p>`;
+        
+        emailResult = await resend.emails.send({
+          from: "DataForEarth <onboarding@resend.dev>",
+          to: [adminEmail],
+          subject: `[TEST MODE] ${campaign.company_name} - Partnership Opportunity`,
+          replyTo: "hello@dataforearth.org",
+          html: campaign.email_content + domainVerificationNote,
+        });
+        
+        actualRecipient = adminEmail;
+      }
+
       if (emailResult.error) {
         // Update campaign status to failed
         await supabaseClient
           .from("marketing_campaigns")
-          .update({ status: "failed" })
+          .update({ 
+            status: "failed",
+            error_message: emailResult.error.message
+          })
           .eq("id", campaign_id);
 
         throw new Error(`Email error: ${emailResult.error.message}`);
@@ -160,7 +183,9 @@ serve(async (req) => {
         .update({ 
           status: "sent",
           sent_at: new Date().toISOString(),
-          approved_by: userData.user.id
+          approved_by: userData.user.id,
+          actual_recipient: actualRecipient,
+          domain_verified: actualRecipient === campaign.email
         })
         .eq("id", campaign_id);
 
@@ -170,11 +195,19 @@ serve(async (req) => {
         .insert({
           direction: "outbound",
           from_email: "onboarding@resend.dev",
-          to_email: campaign.email,
-          subject: "Partnership Opportunity with DataForEarth",
-          message: campaign.email_content,
+          to_email: actualRecipient,
+          subject: actualRecipient === adminEmail 
+            ? `[TEST MODE] ${campaign.company_name} - Partnership Opportunity`
+            : "Partnership Opportunity with DataForEarth",
+          message: campaign.email_content + (domainVerificationNote || ""),
           status: "sent",
           sent_at: new Date().toISOString(),
+          metadata: {
+            campaign_id,
+            company_name: campaign.company_name,
+            intended_recipient: campaign.email,
+            test_mode: actualRecipient === adminEmail
+          }
         });
 
       // Log to audit
@@ -195,7 +228,14 @@ serve(async (req) => {
       console.log("Campaign approved and email sent:", emailResult);
 
       return new Response(
-        JSON.stringify({ success: true, message: "Campaign approved and email sent" }),
+        JSON.stringify({ 
+          success: true, 
+          message: actualRecipient === adminEmail 
+            ? "Email sent to admin inbox (domain verification required for external sends)"
+            : "Campaign approved and email sent",
+          test_mode: actualRecipient === adminEmail,
+          recipient: actualRecipient
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }

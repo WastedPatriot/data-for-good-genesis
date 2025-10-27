@@ -1109,36 +1109,45 @@ export type Database = {
       }
       marketing_campaigns: {
         Row: {
+          actual_recipient: string | null
           approved_by: string | null
           company_name: string
           created_at: string
           created_by: string | null
+          domain_verified: boolean | null
           email: string
           email_content: string
+          error_message: string | null
           id: string
           research_data: Json | null
           sent_at: string | null
           status: string
         }
         Insert: {
+          actual_recipient?: string | null
           approved_by?: string | null
           company_name: string
           created_at?: string
           created_by?: string | null
+          domain_verified?: boolean | null
           email: string
           email_content: string
+          error_message?: string | null
           id?: string
           research_data?: Json | null
           sent_at?: string | null
           status?: string
         }
         Update: {
+          actual_recipient?: string | null
           approved_by?: string | null
           company_name?: string
           created_at?: string
           created_by?: string | null
+          domain_verified?: boolean | null
           email?: string
           email_content?: string
+          error_message?: string | null
           id?: string
           research_data?: Json | null
           sent_at?: string | null
