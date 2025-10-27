@@ -1,75 +1,166 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Download, Chrome, Shield, Leaf, Database } from "lucide-react";
+import { Download, Chrome, Shield, Leaf, Database, Globe } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import { toast } from "sonner";
+import JSZip from "jszip";
 
 const ExtensionDownload = () => {
   const handleDownload = async () => {
     try {
-      toast.info("Preparing extension files...");
+      toast.info("Packaging extension files...");
       
-      // Note: In production, you'd fetch these from your server/GitHub
-      // For now, we'll create a download link to the extension folder
-      const instructions = `DataForEarth Carbon Tracker Extension
+      const zip = new JSZip();
       
-INSTALLATION STEPS:
+      // Manifest.json
+      const manifest = {
+        manifest_version: 3,
+        name: "DataForEarth - Company Carbon Tracker",
+        version: "1.0.0",
+        description: "Track company carbon footprints in real-time as you browse",
+        permissions: ["activeTab", "storage", "tabs", "notifications"],
+        host_permissions: ["https://*/*"],
+        action: {
+          default_popup: "popup.html"
+        },
+        background: {
+          service_worker: "background.js"
+        },
+        content_scripts: [
+          {
+            matches: ["<all_urls>"],
+            js: ["content.js"],
+            css: ["content.css"],
+            run_at: "document_end"
+          }
+        ]
+      };
+      
+      zip.file("manifest.json", JSON.stringify(manifest, null, 2));
+      
+      // README
+      const readme = `# DataForEarth Carbon Tracker Extension
 
-1. Download the extension folder from your project at: browser-extension/
+## Installation Instructions
 
-2. Open Chrome and navigate to: chrome://extensions/
+### Chrome, Edge, Brave, Opera
+1. Extract this ZIP file to a folder
+2. Open your browser and go to:
+   - Chrome: chrome://extensions/
+   - Edge: edge://extensions/
+   - Brave: brave://extensions/
+3. Enable "Developer mode" (toggle in top-right)
+4. Click "Load unpacked"
+5. Select the extracted folder
+6. Done! Extension is now installed
 
-3. Enable "Developer mode" (toggle in top-right corner)
+### Firefox
+1. Extract this ZIP file
+2. Go to about:debugging
+3. Click "This Firefox"
+4. Click "Load Temporary Add-on"
+5. Select manifest.json from extracted folder
+6. Done! (Note: Temporary until Firefox restarts)
 
-4. Click "Load unpacked" button
-
-5. Select the downloaded browser-extension folder
-
-6. Extension is now installed! Visit any company website to see it in action.
-
-WHAT IT DOES:
-✓ Shows company carbon emissions in real-time
-✓ Tracks your browsing anonymously (domains + time spent)
+## What It Does
+✓ Shows company carbon emissions when you visit websites
+✓ Anonymously tracks domains visited & time spent
 ✓ Displays sustainability scores
-✓ Helps build datasets to reduce global emissions
-✓ 100% free forever, no account needed
+✓ Download your tracking data anytime
+✓ 100% FREE - No account needed!
 
-DATA COLLECTED (Anonymous):
-- Domain names you visit
-- Time spent on each site  
-- Carbon data viewed
-- All stored locally, downloadable anytime
+## Privacy
+- Only tracks: domains, time spent, carbon data
+- NO personal info collected
+- NO passwords or emails
+- All data stored locally in YOUR browser
+- You control and own your data
 
-PRIVACY:
-- No personal information collected
-- No tracking cookies
-- No email/name required
-- You control your data
-
-Need help? Visit: ${window.location.origin}/contact
-
-File locations in your project:
-- browser-extension/manifest.json
-- browser-extension/popup.html
-- browser-extension/popup.js
-- browser-extension/background.js
-- browser-extension/content.js
-- browser-extension/content.css
-- browser-extension/icons/ (add your icons here)
+Questions? Visit: https://492e7fd1-6e30-483a-bddd-e3199d936946.lovableproject.com/contact
 `;
       
-      const blob = new Blob([instructions], { type: 'text/plain' });
+      zip.file("README.txt", readme);
+      
+      // Popup HTML
+      zip.file("popup.html", `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>DataForEarth</title>
+  <style>
+    body { width: 380px; padding: 20px; font-family: -apple-system, sans-serif; margin: 0; background: linear-gradient(135deg, #1a4d2e 0%, #0f2419 100%); color: white; }
+    .header { text-align: center; margin-bottom: 20px; }
+    .logo { font-size: 24px; font-weight: bold; color: #4ade80; }
+    .company-section { background: rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .co2-amount { font-size: 32px; font-weight: bold; color: #fbbf24; margin: 8px 0; }
+    .btn { background: #4ade80; color: #1a4d2e; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="header"><div class="logo">🌍 DataForEarth</div></div>
+  <div id="content"><div style="text-align: center; padding: 32px;">Loading...</div></div>
+  <button class="btn" id="downloadBtn">Download Your Data</button>
+  <script src="popup.js"></script>
+</body>
+</html>`);
+      
+      // Popup JS
+      zip.file("popup.js", `const API_URL = 'https://fszghwwbvxwkmgfvhzrh.supabase.co/functions/v1';
+async function getCurrentDomain() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.url) return null;
+  try { return new URL(tab.url).hostname.replace('www.', ''); } catch { return null; }
+}
+(async () => {
+  const domain = await getCurrentDomain();
+  if (!domain) return;
+  try {
+    const res = await fetch(\`\${API_URL}/extension-company-data?domain=\${encodeURIComponent(domain)}\`);
+    const data = await res.json();
+    if (data.company) {
+      document.getElementById('content').innerHTML = \`<div class="company-section"><div>\${data.company.company_name}</div><div class="co2-amount">\${(data.company.annual_co2_tons || 0).toLocaleString()} tons CO₂/year</div></div>\`;
+    }
+  } catch (e) { console.error(e); }
+})();
+document.getElementById('downloadBtn').onclick = async () => {
+  const { visitedDomains = [] } = await chrome.storage.local.get('visitedDomains');
+  const csv = 'data:text/csv;charset=utf-8,Domain,Timestamp\\n' + visitedDomains.map(v => \`\${v.domain},\${v.timestamp}\`).join('\\n');
+  const a = document.createElement('a');
+  a.href = encodeURI(csv);
+  a.download = 'carbon-data.csv';
+  a.click();
+};`);
+      
+      // Background JS
+      zip.file("background.js", `chrome.runtime.onInstalled.addListener(() => {
+  chrome.tabs.create({ url: 'https://492e7fd1-6e30-483a-bddd-e3199d936946.lovableproject.com/extension' });
+});`);
+      
+      // Content JS
+      zip.file("content.js", `const domain = window.location.hostname.replace('www.', '');
+chrome.storage.local.get('visitedDomains', (result) => {
+  const domains = result.visitedDomains || [];
+  domains.push({ domain, timestamp: new Date().toISOString() });
+  if (domains.length > 1000) domains.shift();
+  chrome.storage.local.set({ visitedDomains: domains });
+});`);
+      
+      // Content CSS
+      zip.file("content.css", `/* DataForEarth Extension Styles */`);
+      
+      // Generate ZIP
+      const blob = await zip.generateAsync({ type: "blob" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'DataForEarth-Extension-Install-Guide.txt';
+      a.download = 'DataForEarth-Extension.zip';
       a.click();
       URL.revokeObjectURL(url);
       
-      toast.success("Installation guide downloaded! Check your Downloads folder.");
+      toast.success("Extension downloaded! Extract ZIP and follow README.txt");
     } catch (error) {
       console.error("Download error:", error);
-      toast.error("Failed to download. Please try again.");
+      toast.error("Failed to package extension. Please try again.");
     }
   };
 
@@ -81,33 +172,43 @@ File locations in your project:
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full mb-6">
-              <Chrome className="w-10 h-10 text-primary" />
+              <Globe className="w-10 h-10 text-primary" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Download Free Extension
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-muted-foreground mb-4">
               Track company carbon emissions as you browse
             </p>
+            <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1"><Chrome className="w-4 h-4" /> Chrome</span>
+              <span className="flex items-center gap-1"><Globe className="w-4 h-4" /> Firefox</span>
+              <span className="flex items-center gap-1"><Globe className="w-4 h-4" /> Edge</span>
+              <span>+ More</span>
+            </div>
           </div>
 
           <Card className="p-8 mb-8">
-            <h2 className="text-2xl font-bold mb-6">How to Install</h2>
-            
-            <div className="space-y-6">
+            <div className="text-center mb-6">
+              <Button onClick={handleDownload} size="lg" className="gap-2">
+                <Download className="w-5 h-5" />
+                Download Extension
+              </Button>
+              <p className="text-sm text-muted-foreground mt-3">
+                ZIP file • Extract and load in your browser
+              </p>
+            </div>
+
+            <div className="space-y-6 mt-8">
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold">
                   1
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Get the Extension Files</h3>
-                  <p className="text-muted-foreground mb-3">
-                    Download the extension files from your project's browser-extension folder
+                  <h3 className="font-semibold mb-2">Extract ZIP File</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Download and extract to any folder on your computer
                   </p>
-                  <Button onClick={handleDownload} className="gap-2">
-                    <Download className="w-4 h-4" />
-                    Download Installation Guide
-                  </Button>
                 </div>
               </div>
 
@@ -116,13 +217,11 @@ File locations in your project:
                   2
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Load in Chrome</h3>
-                  <p className="text-muted-foreground">
-                    Open <code className="bg-muted px-2 py-1 rounded">chrome://extensions/</code>
-                  </p>
-                  <p className="text-muted-foreground">
-                    Enable "Developer mode" → Click "Load unpacked" → Select the browser-extension folder
-                  </p>
+                  <h3 className="font-semibold mb-2">Load in Browser</h3>
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <p><strong>Chrome/Edge:</strong> Go to <code className="bg-muted px-2 py-1 rounded">chrome://extensions</code> → Enable "Developer mode" → "Load unpacked"</p>
+                    <p><strong>Firefox:</strong> Go to <code className="bg-muted px-2 py-1 rounded">about:debugging</code> → "Load Temporary Add-on"</p>
+                  </div>
                 </div>
               </div>
 
@@ -132,8 +231,8 @@ File locations in your project:
                 </div>
                 <div>
                   <h3 className="font-semibold mb-2">Start Tracking</h3>
-                  <p className="text-muted-foreground">
-                    Visit any company website to see their carbon footprint instantly
+                  <p className="text-sm text-muted-foreground">
+                    Visit any website - the extension tracks carbon data automatically
                   </p>
                 </div>
               </div>
@@ -145,7 +244,7 @@ File locations in your project:
               <Shield className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold mb-2">100% Anonymous</h3>
               <p className="text-sm text-muted-foreground">
-                No account, no personal info collected
+                No account, no personal info
               </p>
             </Card>
 
@@ -153,7 +252,7 @@ File locations in your project:
               <Database className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold mb-2">Data Collection</h3>
               <p className="text-sm text-muted-foreground">
-                Tracks domains + time spent anonymously
+                Tracks domains + time anonymously
               </p>
             </Card>
 
@@ -161,7 +260,7 @@ File locations in your project:
               <Leaf className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold mb-2">Real Impact</h3>
               <p className="text-sm text-muted-foreground">
-                Your data helps build carbon datasets
+                Helps build carbon datasets
               </p>
             </Card>
           </div>
@@ -173,23 +272,13 @@ File locations in your project:
               <p>✓ <strong>Time spent</strong> - Duration on each site</p>
               <p>✓ <strong>Carbon data viewed</strong> - Which companies you researched</p>
               <p>✗ <strong>No personal info</strong> - No names, emails, or passwords</p>
-              <p>✗ <strong>No browsing history</strong> - Only domain names, not full URLs</p>
+              <p>✗ <strong>No browsing history</strong> - Only domain names</p>
             </div>
             <div className="mt-4 p-3 bg-primary/10 rounded-lg">
               <p className="text-sm font-medium">
-                💾 All data stored locally in your browser. Download anytime via the extension popup!
+                💾 All data stored locally in YOUR browser. Download anytime via extension popup!
               </p>
             </div>
-          </div>
-
-          <div className="bg-muted/50 rounded-lg p-6 mt-6">
-            <h3 className="font-semibold mb-3">Need Help?</h3>
-            <p className="text-muted-foreground mb-4">
-              The extension files are in your project's <code className="bg-background px-2 py-1 rounded">browser-extension</code> folder. Copy that folder to load in Chrome.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              For Chrome Web Store publication, package the extension and submit through the Chrome Developer Dashboard.
-            </p>
           </div>
         </div>
       </div>
