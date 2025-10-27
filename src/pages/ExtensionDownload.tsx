@@ -170,7 +170,7 @@ document.getElementById('downloadBtn').onclick = async () => {
       zip.file("background.js", `// Extension installed - no action needed
 console.log('DataForEarth extension installed successfully');`);
       
-      // Content JS - Sends browsing data to backend
+      // Content JS - AI-powered order detection and CO2 analysis
       zip.file("content.js", `const API_URL = 'https://fszghwwbvxwkmgfvhzrh.supabase.co/functions/v1';
 const domain = window.location.hostname.replace('www.', '');
 const startTime = Date.now();
@@ -183,23 +183,156 @@ chrome.storage.local.get('visitedDomains', (result) => {
   chrome.storage.local.set({ visitedDomains: domains });
 });
 
-// Send to backend for data monetization
+// Detect order/checkout pages
+function isOrderPage() {
+  const url = window.location.href.toLowerCase();
+  const body = document.body.innerText.toLowerCase();
+  const orderKeywords = ['checkout', 'order', 'cart', 'purchase', 'confirm order', 'place order', 'buy now', 'your order'];
+  return orderKeywords.some(k => url.includes(k) || body.includes(k));
+}
+
+// Extract order data from page
+function extractOrderData() {
+  const bodyText = document.body.innerText;
+  const priceMatch = bodyText.match(/\\$?\\d+\\.\\d{2}|£\\d+\\.\\d{2}|€\\d+\\.\\d{2}/g);
+  return {
+    detected: true,
+    pageType: isOrderPage() ? 'order' : 'browsing',
+    prices: priceMatch ? priceMatch.slice(0, 5) : [],
+    url: window.location.href
+  };
+}
+
+// Show CO2 overlay
+function showCO2Overlay(data) {
+  const existing = document.getElementById('dataforearth-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'dataforearth-overlay';
+  overlay.style.cssText = \`
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #1a4d2e 0%, #0f2419 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    z-index: 999999;
+    max-width: 380px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    cursor: move;
+  \`;
+
+  const isOrder = data.order_analysis;
+  const co2Amount = isOrder ? data.order_analysis.co2_kg : (data.company?.annual_co2_tons / 1000000 || 0);
+  const unit = isOrder ? 'kg CO₂' : 'M tons CO₂/year';
+
+  overlay.innerHTML = \`
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+      <div style="font-size: 18px; font-weight: bold; color: #4ade80;">🌍 DataForEarth</div>
+      <button id="close-overlay" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; width: 24px; height: 24px;">×</button>
+    </div>
+    <div style="font-size: 32px; font-weight: bold; color: #fbbf24; margin: 12px 0;">
+      \${co2Amount.toFixed(1)} \${unit}
+    </div>
+    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 12px;">
+      \${isOrder ? '🛒 This order will produce' : '🏢 ' + (data.company?.company_name || domain)}
+    </div>
+    \${isOrder ? \`
+      <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; margin: 12px 0;">
+        <div style="font-size: 12px; opacity: 0.8; margin-bottom: 8px;">CO₂ Breakdown:</div>
+        <div style="font-size: 11px; line-height: 1.6;">
+          📦 Manufacturing: \${data.order_analysis.breakdown.manufacturing.toFixed(1)}kg<br>
+          🚚 Shipping: \${data.order_analysis.breakdown.shipping.toFixed(1)}kg<br>
+          📦 Packaging: \${data.order_analysis.breakdown.packaging.toFixed(1)}kg
+        </div>
+      </div>
+      <div style="background: rgba(74,222,128,0.2); border-radius: 8px; padding: 12px; margin-top: 12px;">
+        <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">💡 Reduce Your Impact:</div>
+        <ul style="font-size: 11px; margin: 0; padding-left: 20px; line-height: 1.8;">
+          \${data.order_analysis.tips.map(t => \`<li>\${t}</li>\`).join('')}
+        </ul>
+      </div>
+    \` : \`
+      <div style="font-size: 12px; opacity: 0.8; margin-top: 8px;">
+        Sustainability Score: <span style="color: \${data.company?.sustainability_score > 70 ? '#4ade80' : data.company?.sustainability_score > 40 ? '#fbbf24' : '#ef4444'}; font-weight: bold;">\${data.company?.sustainability_score || 'N/A'}/100</span>
+      </div>
+    \`}
+    <div style="font-size: 11px; opacity: 0.6; margin-top: 12px; text-align: center;">
+      Your browsing data helps fund eco projects 🌱
+    </div>
+  \`;
+
+  document.body.appendChild(overlay);
+
+  // Make draggable
+  let isDragging = false;
+  let offsetX, offsetY;
+  overlay.addEventListener('mousedown', (e) => {
+    if (e.target.id === 'close-overlay') return;
+    isDragging = true;
+    offsetX = e.clientX - overlay.offsetLeft;
+    offsetY = e.clientY - overlay.offsetTop;
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      overlay.style.left = (e.clientX - offsetX) + 'px';
+      overlay.style.top = (e.clientY - offsetY) + 'px';
+      overlay.style.right = 'auto';
+      overlay.style.bottom = 'auto';
+    }
+  });
+  document.addEventListener('mouseup', () => isDragging = false);
+  
+  document.getElementById('close-overlay').onclick = () => overlay.remove();
+
+  // Auto-hide after 15 seconds
+  setTimeout(() => {
+    if (overlay.parentElement) overlay.remove();
+  }, 15000);
+}
+
+// Main analysis function
 (async () => {
   try {
-    // Check if we have company data for this domain
-    const companyRes = await fetch(\`\${API_URL}/extension-company-data?domain=\${encodeURIComponent(domain)}\`);
-    const companyData = await companyRes.json();
-    
-    // Track the visit in backend
+    const orderData = extractOrderData();
+    const isOrder = isOrderPage();
+
+    // Send to backend for tracking
     await fetch(\`\${API_URL}/extension-track-visit\`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         domain: domain,
-        company_id: companyData.company?.id || null,
         anonymous: true
       })
     });
+
+    if (isOrder) {
+      // AI-powered order analysis
+      const analysisRes = await fetch(\`\${API_URL}/extension-analyze-order\`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          domain: domain,
+          pageContent: document.body.innerText.substring(0, 5000),
+          orderData: orderData
+        })
+      });
+      const analysis = await analysisRes.json();
+      if (analysis.analyzed) {
+        showCO2Overlay(analysis);
+      }
+    } else {
+      // Show company-level data
+      const companyRes = await fetch(\`\${API_URL}/extension-company-data?domain=\${encodeURIComponent(domain)}\`);
+      const companyData = await companyRes.json();
+      if (companyData.company) {
+        showCO2Overlay(companyData);
+      }
+    }
   } catch (e) {
     console.error('DataForEarth extension error:', e);
   }
