@@ -1,195 +1,187 @@
-// Configuration
+// Anonymous extension - no authentication required
 const API_URL = 'https://fszghwwbvxwkmgfvhzrh.supabase.co/functions/v1';
-const WEBSITE_URL = 'https://492e7fd1-6e30-483a-bddd-e3199d936946.lovableproject.com';
 
-// Get user authentication state
-async function checkAuth() {
-  const token = await chrome.storage.local.get(['authToken']);
-  return token.authToken || null;
-}
-
-// Format large numbers
-function formatNumber(num) {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-  return num.toString();
-}
-
-// Format CO2 emissions
-function formatCO2(tons) {
-  if (tons >= 1000000) return (tons / 1000000).toFixed(1) + 'M tons';
-  if (tons >= 1000) return (tons / 1000).toFixed(0) + 'K tons';
-  return tons.toFixed(0) + ' tons';
-}
-
-// Get badge data
-function getBadgeData(tier) {
-  const badges = {
-    bronze: { icon: '🥉', name: 'Bronze Tracker' },
-    silver: { icon: '🥈', name: 'Silver Guardian' },
-    gold: { icon: '🥇', name: 'Gold Champion' },
-    platinum: { icon: '💎', name: 'Platinum Hero' }
-  };
-  return badges[tier] || badges.bronze;
-}
-
-// Extract domain from URL
-function getDomain(url) {
+// Get current tab domain
+async function getCurrentDomain() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.url) return null;
+  
   try {
-    const urlObj = new URL(url);
-    return urlObj.hostname.replace('www.', '');
+    const url = new URL(tab.url);
+    return url.hostname.replace('www.', '');
   } catch {
     return null;
   }
 }
 
-// Load current tab company data
-async function loadCurrentCompany() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab?.url) return null;
+// Format large numbers
+function formatNumber(num) {
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return num.toFixed(0);
+}
 
-  const domain = getDomain(tab.url);
-  if (!domain) return null;
-
+// Fetch company data for current domain
+async function fetchCompanyData(domain) {
   try {
-    const response = await fetch(`${API_URL}/extension-company-data?domain=${domain}`);
+    const response = await fetch(`${API_URL}/extension-company-data?domain=${encodeURIComponent(domain)}`);
     const data = await response.json();
-    return data.company || null;
+    return data.company;
   } catch (error) {
-    console.error('Error loading company:', error);
+    console.error('Error fetching company data:', error);
     return null;
   }
 }
 
-// Load user stats
-async function loadUserStats() {
-  const token = await checkAuth();
-  if (!token) return null;
-
-  try {
-    const response = await fetch(`${API_URL}/extension-user-stats`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error loading user stats:', error);
-    return null;
-  }
-}
-
-// Track current site visit
-async function trackVisit(domain, companyId) {
-  const token = await checkAuth();
-  if (!token) return;
-
+// Track anonymous visit
+async function trackVisit(domain, companyId = null) {
   try {
     await fetch(`${API_URL}/extension-track-visit`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ domain, company_id: companyId })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        domain,
+        company_id: companyId,
+        anonymous: true
+      })
     });
   } catch (error) {
     console.error('Error tracking visit:', error);
   }
 }
 
-// Update UI with company data
-function updateCompanyUI(company) {
+// Get sustainability score class
+function getScoreClass(score) {
+  if (score >= 70) return 'score-high';
+  if (score >= 40) return 'score-medium';
+  return 'score-low';
+}
+
+// Render company data
+function renderCompanyData(company) {
+  const content = document.getElementById('content');
+  
   if (!company) {
-    document.getElementById('companyCard').style.display = 'none';
+    content.innerHTML = `
+      <div class="no-data">
+        <h3>🌱 No carbon data available</h3>
+        <p>We don't have carbon emissions data for this website yet.</p>
+        <p style="margin-top: 16px; font-size: 12px;">Help us expand our database by visiting more sites!</p>
+      </div>
+    `;
     return;
   }
 
-  document.getElementById('companyCard').style.display = 'block';
-  document.getElementById('companyName').textContent = company.company_name;
-  document.getElementById('annualCO2').textContent = formatCO2(company.annual_co2_tons);
-  
-  const scope12 = (company.scope_1_emissions || 0) + (company.scope_2_emissions || 0);
-  document.getElementById('scope12').textContent = formatCO2(scope12);
-  
-  document.getElementById('scoreValue').textContent = company.sustainability_score + '/100';
-  document.getElementById('scoreFill').style.width = company.sustainability_score + '%';
-}
+  const co2Tons = company.annual_co2_tons || 0;
+  const score = company.sustainability_score || 0;
+  const scoreClass = getScoreClass(score);
 
-// Update UI with user stats
-function updateStatsUI(stats) {
-  if (!stats) return;
-
-  document.getElementById('totalImpact').textContent = formatNumber(stats.total_co2_awareness || 0);
-  document.getElementById('sitesTracked').textContent = formatNumber(stats.total_sites_tracked || 0);
-  document.getElementById('pointsEarned').textContent = formatNumber(stats.points || 0);
-  document.getElementById('challengesCompleted').textContent = stats.challenges_completed || 0;
-
-  const badge = getBadgeData(stats.badge_tier || 'bronze');
-  document.getElementById('badgeIcon').textContent = badge.icon;
-  document.getElementById('badgeTier').textContent = badge.name;
-}
-
-// Initialize popup
-async function init() {
-  const loading = document.getElementById('loading');
-  const notLoggedIn = document.getElementById('not-logged-in');
-  const mainContent = document.getElementById('main-content');
-
-  const token = await checkAuth();
-
-  if (!token) {
-    loading.style.display = 'none';
-    notLoggedIn.style.display = 'block';
-    return;
-  }
-
-  // Load data
-  const [company, stats] = await Promise.all([
-    loadCurrentCompany(),
-    loadUserStats()
-  ]);
-
-  // Track this visit
-  if (company) {
-    trackVisit(company.domain, company.id);
-  }
-
-  // Update UI
-  updateCompanyUI(company);
-  updateStatsUI(stats);
-
-  loading.style.display = 'none';
-  mainContent.style.display = 'block';
-}
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  init();
-
-  document.getElementById('loginBtn')?.addEventListener('click', () => {
-    chrome.tabs.create({ url: `${WEBSITE_URL}/login` });
-  });
-
-  document.getElementById('viewDashboard')?.addEventListener('click', () => {
-    chrome.tabs.create({ url: `${WEBSITE_URL}/profile` });
-  });
-
-  document.getElementById('shareCO2')?.addEventListener('click', async () => {
-    const stats = await loadUserStats();
-    const text = `I've tracked ${formatNumber(stats?.total_co2_awareness || 0)} tons of CO₂ emissions with @DataForEarth! Join me in tracking company carbon footprints. 🌍 ${WEBSITE_URL}`;
+  content.innerHTML = `
+    <div class="company-section">
+      <div class="company-name">${company.company_name}</div>
+      <div class="co2-amount">${formatNumber(co2Tons)} tons CO₂/year</div>
+      <div class="sustainability-score ${scoreClass}">
+        Sustainability Score: ${score}/100
+      </div>
+      
+      ${company.scope_1_emissions || company.scope_2_emissions || company.scope_3_emissions ? `
+        <div style="margin-top: 16px;">
+          ${company.scope_1_emissions ? `
+            <div class="stat-row">
+              <span class="stat-label">Scope 1 (Direct)</span>
+              <span class="stat-value">${formatNumber(company.scope_1_emissions)} tons</span>
+            </div>
+          ` : ''}
+          ${company.scope_2_emissions ? `
+            <div class="stat-row">
+              <span class="stat-label">Scope 2 (Energy)</span>
+              <span class="stat-value">${formatNumber(company.scope_2_emissions)} tons</span>
+            </div>
+          ` : ''}
+          ${company.scope_3_emissions ? `
+            <div class="stat-row">
+              <span class="stat-label">Scope 3 (Indirect)</span>
+              <span class="stat-value">${formatNumber(company.scope_3_emissions)} tons</span>
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
+      
+      ${company.last_report_date ? `
+        <div style="margin-top: 12px; text-align: center; font-size: 11px; color: #86efac;">
+          Last reported: ${new Date(company.last_report_date).toLocaleDateString()}
+        </div>
+      ` : ''}
+    </div>
     
-    chrome.tabs.create({ 
-      url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}` 
-    });
-  });
-});
+    <div class="stats-summary">
+      <div class="stats-title">🌍 You're helping raise awareness!</div>
+      <p style="font-size: 12px; margin: 8px 0 0 0;">
+        By using this extension, you're contributing to a global database of corporate carbon emissions.
+      </p>
+    </div>
+  `;
+}
 
-// Listen for auth updates from website
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'AUTH_UPDATE') {
-    if (message.token) {
-      chrome.storage.local.set({ authToken: message.token });
-      init(); // Reload popup
-    }
+// Download data feature
+document.getElementById('downloadBtn').addEventListener('click', async () => {
+  try {
+    const { visitedDomains = [] } = await chrome.storage.local.get('visitedDomains');
+    
+    const csvContent = 'data:text/csv;charset=utf-8,' + 
+      'Domain,Visited At,Duration (seconds)\n' +
+      visitedDomains.map(v => `${v.domain},${v.timestamp},${v.duration || 0}`).join('\n');
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `dataforearth_carbon_tracking_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    alert('Your carbon tracking data has been downloaded!');
+  } catch (error) {
+    console.error('Error downloading data:', error);
+    alert('Failed to download data. Please try again.');
   }
 });
+
+// Initialize
+(async () => {
+  const domain = await getCurrentDomain();
+  
+  if (!domain) {
+    document.getElementById('content').innerHTML = `
+      <div class="no-data">
+        <p>Unable to detect domain</p>
+      </div>
+    `;
+    return;
+  }
+
+  const company = await fetchCompanyData(domain);
+  renderCompanyData(company);
+  
+  // Track visit anonymously
+  if (company) {
+    await trackVisit(domain, company.id);
+  } else {
+    await trackVisit(domain, null);
+  }
+  
+  // Store visit locally for download feature
+  const { visitedDomains = [] } = await chrome.storage.local.get('visitedDomains');
+  visitedDomains.push({
+    domain,
+    timestamp: new Date().toISOString(),
+    company: company?.company_name || 'Unknown'
+  });
+  
+  // Keep only last 1000 visits
+  if (visitedDomains.length > 1000) {
+    visitedDomains.shift();
+  }
+  
+  await chrome.storage.local.set({ visitedDomains });
+})();
