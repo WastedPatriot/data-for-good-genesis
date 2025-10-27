@@ -89,6 +89,7 @@ import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
 import EnterpriseDashboard from "./pages/EnterpriseDashboard";
 import Domains from "./pages/Domains";
+import ExtensionDownload from "./pages/ExtensionDownload";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
@@ -234,6 +235,7 @@ const AppContent = () => {
             </ProtectedRoute>
           } />
           <Route path="/domains" element={<Domains />} />
+          <Route path="/extension" element={<ExtensionDownload />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

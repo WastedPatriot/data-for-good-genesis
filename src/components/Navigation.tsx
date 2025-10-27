@@ -58,6 +58,7 @@ const Navigation = () => {
 
   const links = [
     { to: "/", label: "Home" },
+    { to: "/extension", label: "Extension" },
     { to: "/submit-data", label: "Submit Data" },
     { to: "/marketplace", label: "Marketplace" },
     { to: "/projects", label: "Projects" },
