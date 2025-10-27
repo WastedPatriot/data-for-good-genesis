@@ -104,10 +104,6 @@ serve(async (req) => {
       }
     }
 
-    if (updateError) {
-      console.error('Error updating user stats:', updateError);
-    }
-
     // Check for badge tier upgrade
     const { data: updatedUser } = await supabase
       .from('extension_users')
