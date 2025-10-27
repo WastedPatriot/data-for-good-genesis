@@ -86,15 +86,15 @@ export default function AdminReview() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const params = new URLSearchParams();
-      params.append("status", filters.status);
-      if (filters.category) params.append("category", filters.category);
-      if (filters.minConfidence) params.append("minConfidence", filters.minConfidence);
-      if (filters.quality) params.append("quality", filters.quality);
-      if (filters.source) params.append("source", filters.source);
-
       const { data, error } = await supabase.functions.invoke("review-queue-fetch", {
-        body: Object.fromEntries(params),
+        body: {
+          status: filters.status,
+          category: filters.category || undefined,
+          minConfidence: filters.minConfidence || "0",
+          quality: filters.quality || undefined,
+          source: filters.source || undefined,
+          limit: 100,
+        },
       });
 
       if (error) throw error;

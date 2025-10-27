@@ -50,13 +50,26 @@ serve(async (req) => {
       );
     }
 
+    // Support both query params and JSON body for filters
+    let bodyParams: any = null;
+    try {
+      if (req.headers.get("content-type")?.includes("application/json")) {
+        bodyParams = await req.json();
+      }
+    } catch (_) { /* ignore body parse errors */ }
+
     const url = new URL(req.url);
-    const status = url.searchParams.get("status") || "pending";
-    const category = url.searchParams.get("category");
-    const minConfidence = parseFloat(url.searchParams.get("minConfidence") || "0");
-    const quality = url.searchParams.get("quality");
-    const source = url.searchParams.get("source");
-    const limit = parseInt(url.searchParams.get("limit") || "100");
+    const getParam = (key: string, fallback?: string) =>
+      (bodyParams && bodyParams[key] !== undefined && bodyParams[key] !== null
+        ? String(bodyParams[key])
+        : url.searchParams.get(key) ?? fallback);
+
+    const status = getParam("status", "pending");
+    const category = getParam("category") || undefined;
+    const minConfidence = parseFloat(getParam("minConfidence", "0")!);
+    const quality = getParam("quality") || undefined;
+    const source = getParam("source") || undefined;
+    const limit = parseInt(getParam("limit", "100")!);
 
     let query = supabaseClient
       .from("review_queue")

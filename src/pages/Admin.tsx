@@ -369,6 +369,7 @@ export default function Admin() {
           <TabsList>
             <TabsTrigger value="marketing">AI Marketing</TabsTrigger>
             <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+            <TabsTrigger value="automation">Automation</TabsTrigger>
           </TabsList>
 
           <TabsContent value="marketing">
@@ -411,6 +412,20 @@ export default function Admin() {
                     ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="automation">
+            <Card>
+              <CardHeader>
+                <CardTitle>Automation Control</CardTitle>
+                <CardDescription>Run the AI data harvester and monitor stats</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full" onClick={() => navigate('/admin/automation')}>
+                  Open Automation Control
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
