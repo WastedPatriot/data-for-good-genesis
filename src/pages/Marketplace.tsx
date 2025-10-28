@@ -319,6 +319,7 @@ const Marketplace = () => {
                       </Button>
                     ) : (
                       <Button
+                        variant="outline"
                         className="w-full border-glow hover-lift font-bold"
                         onClick={() => handlePurchase(dataset.id)}
                         disabled={processing}
@@ -344,15 +345,11 @@ const Marketplace = () => {
               Available on Partnered Platforms
             </h2>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Purchase our datasets directly through these verified data marketplaces — 
-              each purchase comes with an Ethical Data Badge code for verification.
+              We're working on partnerships with major data marketplaces to make our ethical datasets 
+              available on trusted platforms. Each purchase will come with an Ethical Data Badge code for verification.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              {["Kaggle", "DataHub", "Snowflake Marketplace"].map((platform) => (
-                <Button key={platform} variant="outline" className="border-2 hover-lift">
-                  {platform}
-                </Button>
-              ))}
+            <div className="inline-block bg-accent/20 text-accent-foreground px-6 py-3 rounded-lg font-bold">
+              Coming Soon - TBC
             </div>
           </div>
         </motion.div>
