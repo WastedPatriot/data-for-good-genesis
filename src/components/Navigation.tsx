@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, Leaf, User, Building2, Shield } from "lucide-react";
+import { Menu, X, Leaf, User, Building2, Shield, MoreVertical } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,12 +62,15 @@ const Navigation = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const links = [
+  const primaryLinks = [
     { to: "/", label: "Home" },
     { to: "/extension", label: "Extension" },
-    { to: "/submit-data", label: "Submit Data" },
     { to: "/marketplace", label: "Marketplace" },
     { to: "/projects", label: "Projects" },
+  ];
+
+  const secondaryLinks = [
+    { to: "/submit-data", label: "Submit Data" },
     { to: "/about", label: "About" },
     { to: "/donate", label: "Donate" },
     { to: "/contact", label: "Contact" },
@@ -79,27 +82,27 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             {logoError ? (
-              <div className="h-14 w-14 grid place-items-center rounded-md bg-primary/20 text-primary shadow-lg">
-                <Leaf className="h-8 w-8" />
+              <div className="h-9 w-9 grid place-items-center rounded-md bg-primary/20 text-primary shadow-lg">
+                <Leaf className="h-5 w-5" />
               </div>
             ) : (
               <img
                 src={logo}
                 alt="dataforearth logo"
-                className="h-14 w-14 object-contain drop-shadow-lg"
+                className="h-9 w-9 object-contain drop-shadow-lg"
                 loading="eager"
                 decoding="async"
                 onError={() => setLogoError(true)}
               />
             )}
-            <span className="font-black text-xl text-foreground drop-shadow-md">dataforearth</span>
+            <span className="font-bold text-base text-foreground hidden sm:inline">dataforearth</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
-            {links.map((link) => (
+          <div className="hidden lg:flex items-center gap-3">
+            {primaryLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
@@ -112,20 +115,35 @@ const Navigation = () => {
                 {link.label}
               </Link>
             ))}
-            <Link to="/claim-badge">
-              <Button size="sm" variant="outline">Claim Badge</Button>
-            </Link>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="ghost" className="gap-1">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-background z-50">
+                {secondaryLinks.map((link) => (
+                  <DropdownMenuItem key={link.to} onClick={() => window.location.href = link.to}>
+                    {link.label}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuItem onClick={() => window.location.href = "/claim-badge"}>
+                  Claim Badge
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {user ? (
               <>
                 {isAdmin && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button size="sm" variant="secondary" className="gap-2">
-                        <Shield className="w-4 h-4" />
-                        Admin
+                      <Button size="sm" variant="secondary" className="gap-1.5">
+                        <Shield className="w-3.5 h-3.5" />
+                        <span className="hidden xl:inline">Admin</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="bg-background z-50">
                       <DropdownMenuItem onClick={() => window.location.href = "/admin"}>
                         Dashboard
                       </DropdownMenuItem>
@@ -139,15 +157,14 @@ const Navigation = () => {
                   </DropdownMenu>
                 )}
                 <Link to="/company-portal">
-                  <Button size="sm" variant="default" className="gap-2">
-                    <Building2 className="w-4 h-4" />
-                    Company Portal
+                  <Button size="sm" variant="default" className="gap-1.5">
+                    <Building2 className="w-3.5 h-3.5" />
+                    <span className="hidden xl:inline">Company</span>
                   </Button>
                 </Link>
                 <Link to="/profile">
-                  <Button size="sm" variant="outline" className="gap-2">
-                    <User className="w-4 h-4" />
-                    Profile
+                  <Button size="sm" variant="outline" className="gap-1.5">
+                    <User className="w-3.5 h-3.5" />
                   </Button>
                 </Link>
                 <Button 
@@ -177,13 +194,13 @@ const Navigation = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             ) : (
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             )}
           </button>
         </div>
@@ -196,10 +213,10 @@ const Navigation = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-border bg-background"
+            className="lg:hidden border-t border-border bg-background"
           >
-            <div className="container mx-auto px-4 py-4 space-y-4">
-              {links.map((link) => (
+            <div className="container mx-auto px-4 py-4 space-y-2">
+              {[...primaryLinks, ...secondaryLinks].map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
@@ -214,7 +231,7 @@ const Navigation = () => {
                 </Link>
               ))}
               <Link to="/claim-badge" onClick={() => setMobileMenuOpen(false)}>
-                <Button size="sm" className="w-full">
+                <Button size="sm" className="w-full mt-2">
                   Claim Badge
                 </Button>
               </Link>
@@ -222,7 +239,7 @@ const Navigation = () => {
                 <>
                   {isAdmin && (
                     <>
-                      <div className="text-xs font-semibold text-muted-foreground px-2 py-2">Admin</div>
+                      <div className="text-xs font-semibold text-muted-foreground px-2 py-2 mt-2">Admin</div>
                       <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
                         <Button size="sm" variant="outline" className="w-full justify-start">Dashboard</Button>
                       </Link>
@@ -235,7 +252,7 @@ const Navigation = () => {
                     </>
                   )}
                   <Link to="/company-portal" onClick={() => setMobileMenuOpen(false)}>
-                    <Button size="sm" variant="default" className="w-full gap-2">
+                    <Button size="sm" variant="default" className="w-full gap-2 mt-2">
                       <Building2 className="w-4 h-4" />
                       Company Portal
                     </Button>
