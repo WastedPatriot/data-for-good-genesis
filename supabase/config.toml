@@ -138,4 +138,6 @@ verify_jwt = true
 [functions.download-dataset-subscription]
 verify_jwt = true
 
+[functions.marketing-inbox]
+verify_jwt = true
 

@@ -31,6 +31,10 @@ export default function EmailInbox() {
   const [filter, setFilter] = useState<"all" | "inbox" | "sent">("all");
   const [composeOpen, setComposeOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [counts, setCounts] = useState({ total: 0, inbox: 0, sent: 0 });
   
   // Compose form
   const [composeTo, setComposeTo] = useState("");
@@ -47,10 +51,10 @@ export default function EmailInbox() {
     { value: "noreply@dataforearth.org", label: "noreply@dataforearth.org" },
   ];
 
-  useEffect(() => {
+useEffect(() => {
     checkAuth();
     loadAllEmails();
-  }, [selectedAccount, filter]);
+  }, [selectedAccount, filter, search, page, pageSize]);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -72,78 +76,29 @@ export default function EmailInbox() {
     }
   };
 
-  const loadAllEmails = async () => {
+const loadAllEmails = async () => {
     setLoading(true);
     try {
-      const allEmails: EmailMessage[] = [];
+      const { data, error } = await supabase.functions.invoke("marketing-inbox", {
+        body: {
+          account: selectedAccount,
+          filter,
+          search,
+          page,
+          pageSize,
+        },
+      });
 
-      // Load contact submissions (inbound)
-      const { data: contacts } = await supabase
-        .from("contact_submissions")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (contacts) {
-        contacts.forEach((contact) => {
-          allEmails.push({
-            id: contact.id,
-            type: "contact",
-            direction: "inbound",
-            from_email: contact.email,
-            to_email: "contact@dataforearth.org",
-            subject: contact.subject,
-            message: contact.message,
-            sent_at: contact.created_at,
-            status: contact.status,
-            contact_name: contact.name,
-          });
-        });
+      if (error) throw error;
+      if (!data?.success) {
+        throw new Error(data?.error || "Failed to load inbox");
       }
 
-      // Load conversation threads (both inbound and outbound)
-      const { data: threads } = await supabase
-        .from("conversation_threads")
-        .select("*")
-        .order("sent_at", { ascending: false });
-
-      if (threads) {
-        threads.forEach((thread) => {
-          allEmails.push({
-            id: thread.id,
-            type: "conversation",
-            direction: thread.direction as "inbound" | "outbound",
-            from_email: thread.from_email,
-            to_email: thread.to_email,
-            subject: thread.subject,
-            message: thread.message,
-            sent_at: thread.sent_at,
-            status: thread.status,
-          });
-        });
-      }
-
-      // Sort all emails by date
-      allEmails.sort((a, b) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime());
-
-      // Filter by account
-      let filtered = allEmails;
-      if (selectedAccount !== "all") {
-        filtered = allEmails.filter(
-          (email) => email.from_email === selectedAccount || email.to_email === selectedAccount
-        );
-      }
-
-      // Filter by direction
-      if (filter === "inbox") {
-        filtered = filtered.filter((email) => email.direction === "inbound");
-      } else if (filter === "sent") {
-        filtered = filtered.filter((email) => email.direction === "outbound");
-      }
-
-      setEmails(filtered);
-    } catch (error) {
+      setEmails(data.items || []);
+      setCounts(data.counts || { total: 0, inbox: 0, sent: 0 });
+    } catch (error: any) {
       console.error("Error loading emails:", error);
-      toast.error("Failed to load emails");
+      toast.error(error?.message || "Failed to load emails");
     } finally {
       setLoading(false);
     }
@@ -196,11 +151,11 @@ export default function EmailInbox() {
     }
   };
 
-  const stats = {
-    total: emails.length,
-    inbox: emails.filter((e) => e.direction === "inbound").length,
-    sent: emails.filter((e) => e.direction === "outbound").length,
-  };
+const stats = {
+  total: counts.total || emails.length,
+  inbox: counts.inbox || emails.filter((e) => e.direction === "inbound").length,
+  sent: counts.sent || emails.filter((e) => e.direction === "outbound").length,
+};
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -330,11 +285,11 @@ export default function EmailInbox() {
         <CardHeader>
           <CardTitle>Filter Emails</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-4">
-            <div className="flex-1">
+<CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-1">
               <label className="text-sm font-medium mb-2 block">Account:</label>
-              <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+              <Select value={selectedAccount} onValueChange={(v) => { setSelectedAccount(v); setPage(1); }}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -347,31 +302,64 @@ export default function EmailInbox() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex-1">
+            <div className="md:col-span-1">
               <label className="text-sm font-medium mb-2 block">Mailbox:</label>
               <div className="flex gap-2">
                 <Button
                   variant={filter === "all" ? "default" : "outline"}
-                  onClick={() => setFilter("all")}
+                  onClick={() => { setFilter("all"); setPage(1); }}
                   className="flex-1"
                 >
                   All ({stats.total})
                 </Button>
                 <Button
                   variant={filter === "inbox" ? "default" : "outline"}
-                  onClick={() => setFilter("inbox")}
+                  onClick={() => { setFilter("inbox"); setPage(1); }}
                   className="flex-1"
                 >
                   Inbox ({stats.inbox})
                 </Button>
                 <Button
                   variant={filter === "sent" ? "default" : "outline"}
-                  onClick={() => setFilter("sent")}
+                  onClick={() => { setFilter("sent"); setPage(1); }}
                   className="flex-1"
                 >
                   Sent ({stats.sent})
                 </Button>
               </div>
+            </div>
+            <div className="md:col-span-1">
+              <label className="text-sm font-medium mb-2 block">Search:</label>
+              <Input
+                placeholder="Search email, subject, message..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Rows per page</span>
+              <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); setPage(1); }}>
+                <SelectTrigger className="w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[10, 25, 50, 100].map((n) => (
+                    <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" disabled={page === 1 || loading} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+                Previous
+              </Button>
+              <div className="text-sm text-muted-foreground">Page {page}</div>
+              <Button variant="outline" disabled={emails.length < pageSize || loading} onClick={() => setPage((p) => p + 1)}>
+                Next
+              </Button>
             </div>
           </div>
         </CardContent>
