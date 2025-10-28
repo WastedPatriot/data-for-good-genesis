@@ -332,33 +332,40 @@ export function AIMarketingAssistant() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-2 border-primary/20">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-primary/20 to-accent/20 p-3 rounded-lg">
-              <Brain className="w-6 h-6 text-primary" />
+      <Card className="border-2 border-primary/20 shadow-lg">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-primary/20 to-accent/20 p-3 rounded-lg">
+                <Brain className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  AI Marketing Assistant
+                  <Badge variant="secondary" className="gap-1">
+                    <Shield className="w-3 h-3" />
+                    Active
+                  </Badge>
+                </CardTitle>
+                <CardDescription className="text-base mt-1">
+                  AI-powered campaign generation & email automation
+                </CardDescription>
+              </div>
             </div>
-            <div className="flex-1">
-              <CardTitle className="flex items-center gap-2">
-                AI Marketing Assistant
-                <Badge variant="secondary" className="gap-1">
-                  <Shield className="w-3 h-3" />
-                  Secure
-                </Badge>
-              </CardTitle>
-              <CardDescription>
-                Automated research, email drafting, and outreach to potential partners
-              </CardDescription>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-primary">{campaigns.length}</div>
+              <div className="text-xs text-muted-foreground">Total Campaigns</div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="chat" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="chat">AI Chat</TabsTrigger>
-              <TabsTrigger value="batch">Batch Generate</TabsTrigger>
-              <TabsTrigger value="campaigns">Campaigns ({campaigns.length})</TabsTrigger>
-              <TabsTrigger value="test">Test Email</TabsTrigger>
+          <Tabs defaultValue="batch" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="batch">Generate Campaigns</TabsTrigger>
+              <TabsTrigger value="campaigns">
+                Review & Send ({campaigns.filter(c => c.status === "pending_approval").length})
+              </TabsTrigger>
+              <TabsTrigger value="chat">AI Assistant</TabsTrigger>
             </TabsList>
 
             <TabsContent value="chat" className="space-y-4">
@@ -435,67 +442,122 @@ export function AIMarketingAssistant() {
               </div>
             </TabsContent>
 
-            <TabsContent value="batch" className="space-y-4">
-              <Card className="border-dashed border-2 border-primary/30">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-primary" />
-                    Automated Campaign Generation
-                  </CardTitle>
-                  <CardDescription>
-                    AI researches companies and generates personalized outreach emails
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+            <TabsContent value="batch" className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="border-2 border-primary/30">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      Quick Campaign Generation
+                    </CardTitle>
+                    <CardDescription>
+                      AI finds and researches companies, then generates personalized emails
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="industry" className="text-base">Target Industry</Label>
+                        <Input
+                          id="industry"
+                          value={batchIndustry}
+                          onChange={(e) => setBatchIndustry(e.target.value)}
+                          placeholder="renewable energy, carbon capture, etc."
+                          className="h-11"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="count" className="text-base">Number of Companies</Label>
+                        <Input
+                          id="count"
+                          type="number"
+                          min="1"
+                          max="20"
+                          value={batchCount}
+                          onChange={(e) => setBatchCount(parseInt(e.target.value))}
+                          className="h-11"
+                        />
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={generateBatchCampaigns}
+                      disabled={generatingBatch || !batchIndustry.trim()}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {generatingBatch ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Generating Campaigns...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5 mr-2" />
+                          Generate {batchCount} Campaigns
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-muted">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Mail className="w-5 h-5" />
+                      Test Email System
+                    </CardTitle>
+                    <CardDescription>
+                      Verify your email configuration is working
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="industry">Target Industry</Label>
+                      <Label htmlFor="testEmail" className="text-base">Test Email Address</Label>
                       <Input
-                        id="industry"
-                        value={batchIndustry}
-                        onChange={(e) => setBatchIndustry(e.target.value)}
-                        placeholder="e.g., renewable energy"
+                        id="testEmail"
+                        type="email"
+                        value={testEmail}
+                        onChange={(e) => setTestEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        className="h-11"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="count">Number of Campaigns</Label>
-                      <Input
-                        id="count"
-                        type="number"
-                        min="1"
-                        max="20"
-                        value={batchCount}
-                        onChange={(e) => setBatchCount(parseInt(e.target.value))}
-                      />
-                    </div>
-                  </div>
+                    <Button
+                      onClick={sendTestEmail}
+                      disabled={loading}
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-5 h-5 mr-2" />
+                          Send Test Email
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
 
-                  <Button
-                    onClick={generateBatchCampaigns}
-                    disabled={generatingBatch}
-                    className="w-full"
-                    size="lg"
-                  >
-                    {generatingBatch ? (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                        Researching & Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="w-4 h-4 mr-2" />
-                        Generate {batchCount} Campaigns
-                      </>
-                    )}
-                  </Button>
-
-                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                    <h4 className="font-semibold text-sm">What happens:</h4>
-                    <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-                      <li>AI researches {batchCount} companies in {batchIndustry}</li>
-                      <li>Analyzes each company's sustainability initiatives</li>
-                      <li>Generates personalized emails referencing their work</li>
-                      <li>Saves all campaigns for your review & approval</li>
+              <Card className="bg-muted/30 border-dashed border-2">
+                <CardContent className="pt-6">
+                  <div className="space-y-3">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-primary" />
+                      How It Works
+                    </h4>
+                    <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside ml-2">
+                      <li>AI researches {batchCount} companies in "{batchIndustry}" industry</li>
+                      <li>Analyzes each company's sustainability initiatives and data needs</li>
+                      <li>Generates personalized outreach emails referencing their specific work</li>
+                      <li>All campaigns require your manual review & approval before sending</li>
                     </ol>
                   </div>
                 </CardContent>
@@ -618,45 +680,82 @@ export function AIMarketingAssistant() {
               </ScrollArea>
             </TabsContent>
 
-            <TabsContent value="test" className="space-y-4">
-              <Card className="border-dashed">
-                <CardHeader>
-                  <CardTitle className="text-lg">Test Email Configuration</CardTitle>
-                  <CardDescription>
-                    Send a test email to verify the system is working correctly
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="test-email">Test Email Address</Label>
-                    <Input
-                      id="test-email"
-                      type="email"
-                      value={testEmail}
-                      onChange={(e) => setTestEmail(e.target.value)}
-                      placeholder="your@email.com"
-                    />
+            <TabsContent value="chat" className="space-y-4">
+              <ScrollArea className="h-[400px] w-full border rounded-lg p-4 bg-card">
+                {messages.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-12">
+                    <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p className="font-medium text-lg">AI Marketing Assistant</p>
+                    <p className="text-sm mt-2">
+                      Try: "Research and draft an email to companies working on carbon capture technology"
+                    </p>
                   </div>
-
-                  <Button
-                    onClick={sendTestEmail}
-                    disabled={loading || !testEmail}
-                    className="w-full"
-                  >
-                    <Mail className="w-4 h-4 mr-2" />
-                    Send Test Email
-                  </Button>
-
-                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                    <h4 className="font-semibold text-sm">Email Configuration</h4>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <p>✓ Sending from: hello@dataforearth.org</p>
-                      <p>✓ Using Resend email service</p>
-                      <p>✓ Rate limited to prevent abuse</p>
-                    </div>
+                ) : (
+                  <div className="space-y-4">
+                    {messages.map((msg, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-[80%] rounded-lg p-3 ${
+                            msg.role === "user"
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted"
+                          }`}
+                        >
+                          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                          <p className="text-xs opacity-70 mt-1">
+                            {msg.timestamp.toLocaleTimeString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    <div ref={scrollRef} />
                   </div>
-                </CardContent>
-              </Card>
+                )}
+              </ScrollArea>
+
+              <div className="flex gap-2">
+                <Textarea
+                  placeholder="Ask the AI to research companies, draft emails, or manage campaigns..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                  className="min-h-[80px]"
+                  disabled={loading}
+                />
+                <Button
+                  onClick={sendMessage}
+                  disabled={loading || !input.trim()}
+                  size="icon"
+                  className="h-[80px] w-[80px]"
+                >
+                  {loading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
+                </Button>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  Security Features
+                </h4>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li>✓ All emails require admin approval before sending</li>
+                  <li>✓ Rate limiting prevents spam and abuse</li>
+                  <li>✓ Company research verified before outreach</li>
+                  <li>✓ No sensitive data shared without permission</li>
+                </ul>
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>
