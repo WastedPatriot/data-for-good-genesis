@@ -15,6 +15,12 @@ interface Dataset {
   size_mb: number | null;
   featured: boolean;
   stripe_price_id: string;
+  domain: string | null;
+  sector: string | null;
+  region: string | null;
+  enterprise_grade: boolean;
+  limited_supply: number | null;
+  batch_number: number | null;
 }
 
 interface Purchase {
@@ -197,33 +203,54 @@ const Marketplace = () => {
               Ethical Data Marketplace
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed">
-              Purchase <span className="text-primary font-bold">ethically-sourced datasets</span> that fund environmental initiatives. 
-              Every purchase comes with a verified <span className="text-accent font-bold">Ethical Data Badge</span>.
+              Access <span className="text-primary font-bold">premium, ethically-sourced datasets</span> at competitive prices. 
+              From behavioral analytics to market intelligence—every purchase funds verified environmental and social impact projects.
             </p>
+            <div className="flex flex-wrap justify-center gap-6 text-sm mb-8">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">⚡</span>
+                <span className="text-muted-foreground font-medium">Instant Download</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">✓</span>
+                <span className="text-muted-foreground font-medium">Verified Quality</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🌍</span>
+                <span className="text-muted-foreground font-medium">100% Funds Impact</span>
+              </div>
+            </div>
           </div>
 
           {/* Platform Explanation */}
-          <div className="card-gradient border-2 border-primary/30 rounded-2xl p-8 mb-16 max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-6 text-center">
+          <div className="card-gradient border-2 border-primary/30 rounded-2xl p-8 mb-12 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-4 gap-6 text-center">
+              <div>
+                <div className="text-4xl mb-3">📊</div>
+                <h3 className="text-lg font-bold mb-2 text-primary">Quality Data</h3>
+                <p className="text-sm text-muted-foreground">
+                  Multi-source verified datasets with confidence scoring and provenance tracking
+                </p>
+              </div>
+              <div>
+                <div className="text-4xl mb-3">⚡</div>
+                <h3 className="text-lg font-bold mb-2 text-accent">Instant Access</h3>
+                <p className="text-sm text-muted-foreground">
+                  Download immediately in multiple formats (CSV, JSON, Parquet) with API access
+                </p>
+              </div>
+              <div>
+                <div className="text-4xl mb-3">🛡️</div>
+                <h3 className="text-lg font-bold mb-2 text-primary">Enterprise Ready</h3>
+                <p className="text-sm text-muted-foreground">
+                  SLA-backed uptime, indemnification coverage, and dedicated support for enterprise datasets
+                </p>
+              </div>
               <div>
                 <div className="text-4xl mb-3">🌍</div>
-                <h3 className="text-lg font-bold mb-2 text-primary">What We Do</h3>
+                <h3 className="text-lg font-bold mb-2 text-accent">Impact Driven</h3>
                 <p className="text-sm text-muted-foreground">
-                  We aggregate voluntarily contributed data into valuable datasets for businesses and researchers
-                </p>
-              </div>
-              <div>
-                <div className="text-4xl mb-3">💚</div>
-                <h3 className="text-lg font-bold mb-2 text-accent">Why We Exist</h3>
-                <p className="text-sm text-muted-foreground">
-                  100% of profits fund environmental projects, medical research, and social causes voted on by contributors
-                </p>
-              </div>
-              <div>
-                <div className="text-4xl mb-3">✓</div>
-                <h3 className="text-lg font-bold mb-2 text-primary">Trust & Ethics</h3>
-                <p className="text-sm text-muted-foreground">
-                  Every dataset includes provenance tracking and an Ethical Data Badge proving its transparent origins
+                  100% of profits fund environmental and social projects with transparent allocation
                 </p>
               </div>
             </div>
@@ -301,16 +328,44 @@ const Marketplace = () => {
                       </div>
                     </div>
 
-                    <div className="mb-2">
+                    <div className="mb-3 flex flex-wrap gap-2">
                       <span className="inline-block bg-accent/20 text-accent-foreground text-xs font-medium px-2 py-1 rounded">
                         {dataset.category}
                       </span>
+                      {dataset.enterprise_grade && (
+                        <span className="inline-block bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded border border-primary/30">
+                          ⭐ ENTERPRISE
+                        </span>
+                      )}
+                      {dataset.limited_supply && (
+                        <span className="inline-block bg-destructive/20 text-destructive text-xs font-bold px-2 py-1 rounded border border-destructive/30">
+                          🔥 {dataset.limited_supply} LEFT
+                        </span>
+                      )}
+                      {dataset.domain && (
+                        <span className="inline-block bg-secondary/20 text-secondary-foreground text-xs font-medium px-2 py-1 rounded">
+                          {dataset.domain}
+                        </span>
+                      )}
                     </div>
 
-                    <h3 className="text-xl font-bold mb-3">{dataset.name}</h3>
-                    <p className="text-muted-foreground mb-6 min-h-[80px]">
+                    <h3 className="text-xl font-bold mb-3 line-clamp-2">{dataset.name}</h3>
+                    <p className="text-muted-foreground mb-4 min-h-[80px] text-sm leading-relaxed">
                       {dataset.description}
                     </p>
+
+                    <div className="mb-6 flex flex-wrap gap-2 text-xs">
+                      {dataset.sector && (
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                          <span className="font-semibold">Sector:</span> {dataset.sector}
+                        </div>
+                      )}
+                      {dataset.region && (
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                          <span className="font-semibold">Region:</span> {dataset.region}
+                        </div>
+                      )}
+                    </div>
 
                     {purchased ? (
                       <Button className="w-full font-bold" variant="success" disabled>
