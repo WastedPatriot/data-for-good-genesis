@@ -439,15 +439,15 @@ export default function Admin() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/purchases")}>
+              <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/campaigns")}>
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    Orders & Revenue
+                    AI Campaigns
                   </CardTitle>
-                  <CardDescription>Sales and transactions</CardDescription>
+                  <CardDescription>Generate and manage outreach</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button variant="outline" size="sm" className="w-full">View Orders</Button>
+                  <Button variant="outline" size="sm" className="w-full">Open Campaigns</Button>
                 </CardContent>
               </Card>
             </div>

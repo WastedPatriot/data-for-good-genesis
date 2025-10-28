@@ -112,9 +112,17 @@ const Navigation = () => {
             {user ? (
               <>
                 {isAdmin && (
-                  <Link to="/admin">
-                    <Button size="sm" variant="secondary">Admin</Button>
-                  </Link>
+                  <>
+                    <Link to="/admin">
+                      <Button size="sm" variant="secondary">Admin</Button>
+                    </Link>
+                    <Link to="/admin/campaigns">
+                      <Button size="sm" variant="outline">Campaigns</Button>
+                    </Link>
+                    <Link to="/admin/email-inbox">
+                      <Button size="sm" variant="outline">Inbox</Button>
+                    </Link>
+                  </>
                 )}
                 <Link to="/company-portal">
                   <Button size="sm" variant="default" className="gap-2">
@@ -199,9 +207,17 @@ const Navigation = () => {
               {user ? (
                 <>
                   {isAdmin && (
-                    <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
-                      <Button size="sm" variant="secondary" className="w-full">Admin</Button>
-                    </Link>
+                    <>
+                      <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
+                        <Button size="sm" variant="secondary" className="w-full">Admin</Button>
+                      </Link>
+                      <Link to="/admin/campaigns" onClick={() => setMobileMenuOpen(false)}>
+                        <Button size="sm" variant="outline" className="w-full">Campaigns</Button>
+                      </Link>
+                      <Link to="/admin/email-inbox" onClick={() => setMobileMenuOpen(false)}>
+                        <Button size="sm" variant="outline" className="w-full">Inbox</Button>
+                      </Link>
+                    </>
                   )}
                   <Link to="/company-portal" onClick={() => setMobileMenuOpen(false)}>
                     <Button size="sm" variant="default" className="w-full gap-2">
