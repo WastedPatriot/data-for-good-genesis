@@ -54,13 +54,13 @@ const Home = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/submit-data">
-                <Button size="lg" className="text-lg px-8 py-6 border-glow hover-lift font-bold">
+                <Button size="lg" className="text-lg px-8 py-6 shadow-xl hover-lift">
                   <Heart className="w-5 h-5 mr-2" />
                   Submit Your Data
                 </Button>
               </Link>
               <Link to="/marketplace">
-                <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2 font-bold">
+                <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift">
                   <Database className="w-5 h-5 mr-2" />
                   Explore Datasets
                 </Button>
@@ -263,7 +263,7 @@ const Home = () => {
 
           <div className="text-center">
             <Link to="/projects">
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2 font-bold">
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift">
                 <Leaf className="w-5 h-5 mr-2" />
                 View All Projects
               </Button>
@@ -289,13 +289,13 @@ const Home = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/submit-data">
-                <Button size="lg" className="text-lg px-8 py-6 border-glow hover-lift font-bold">
+                <Button size="lg" className="text-lg px-8 py-6 shadow-xl hover-lift">
                   <Heart className="w-5 h-5 mr-2" />
                   Start Your Impact Journey
                 </Button>
               </Link>
               <Link to="/about">
-                <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2 font-bold">
+                <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift">
                   Learn More About Us
                 </Button>
               </Link>

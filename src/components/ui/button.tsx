@@ -9,13 +9,13 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-primary/50 transition-all",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg hover:shadow-destructive/50",
-        outline: "border-2 border-primary/40 bg-card/50 text-foreground hover:bg-primary/10 hover:text-primary hover:border-primary transition-all",
-        secondary: "bg-secondary/80 text-secondary-foreground hover:bg-secondary shadow-lg border-2 border-secondary/40",
-        ghost: "hover:bg-accent/10 hover:text-accent transition-all",
-        link: "text-primary underline-offset-4 hover:underline",
-        success: "bg-primary/20 text-primary border-2 border-primary/50 hover:bg-primary/30 transition-all",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-primary/50 transition-all font-bold",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg hover:shadow-destructive/50 font-semibold",
+        outline: "border-2 border-primary bg-background/80 backdrop-blur-sm text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all font-semibold shadow-md",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-lg border-2 border-secondary/40 font-semibold",
+        ghost: "text-foreground hover:bg-accent/10 hover:text-accent transition-all",
+        link: "text-primary underline-offset-4 hover:underline font-medium",
+        success: "bg-primary/20 text-primary border-2 border-primary/50 hover:bg-primary/30 transition-all font-semibold",
       },
       size: {
         default: "h-10 px-4 py-2",
