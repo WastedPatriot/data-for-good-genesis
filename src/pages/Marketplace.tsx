@@ -192,13 +192,42 @@ const Marketplace = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-6xl md:text-7xl font-black mb-6 text-center text-gradient-hero glow-text">
-            Ethical Data Marketplace
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-16 text-center max-w-4xl mx-auto leading-relaxed">
-            Purchase <span className="text-primary font-bold">ethically-sourced datasets</span> that fund environmental initiatives. 
-            Every purchase comes with a verified <span className="text-accent font-bold">Ethical Data Badge</span>.
-          </p>
+          <div className="mb-12 text-center">
+            <h1 className="text-6xl md:text-7xl font-black mb-6 text-gradient-hero glow-text">
+              Ethical Data Marketplace
+            </h1>
+            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-4xl mx-auto leading-relaxed">
+              Purchase <span className="text-primary font-bold">ethically-sourced datasets</span> that fund environmental initiatives. 
+              Every purchase comes with a verified <span className="text-accent font-bold">Ethical Data Badge</span>.
+            </p>
+          </div>
+
+          {/* Platform Explanation */}
+          <div className="card-gradient border-2 border-primary/30 rounded-2xl p-8 mb-16 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div>
+                <div className="text-4xl mb-3">🌍</div>
+                <h3 className="text-lg font-bold mb-2 text-primary">What We Do</h3>
+                <p className="text-sm text-muted-foreground">
+                  We aggregate voluntarily contributed data into valuable datasets for businesses and researchers
+                </p>
+              </div>
+              <div>
+                <div className="text-4xl mb-3">💚</div>
+                <h3 className="text-lg font-bold mb-2 text-accent">Why We Exist</h3>
+                <p className="text-sm text-muted-foreground">
+                  100% of profits fund environmental projects, medical research, and social causes voted on by contributors
+                </p>
+              </div>
+              <div>
+                <div className="text-4xl mb-3">✓</div>
+                <h3 className="text-lg font-bold mb-2 text-primary">Trust & Ethics</h3>
+                <p className="text-sm text-muted-foreground">
+                  Every dataset includes provenance tracking and an Ethical Data Badge proving its transparent origins
+                </p>
+              </div>
+            </div>
+          </div>
 
           {/* Sorting Controls */}
           <div className="flex justify-center gap-2 mb-8">
@@ -284,7 +313,7 @@ const Marketplace = () => {
                     </p>
 
                     {purchased ? (
-                      <Button className="w-full" variant="outline" disabled>
+                      <Button className="w-full font-bold" variant="success" disabled>
                         <CheckCircle className="w-4 h-4 mr-2" />
                         Purchased
                       </Button>

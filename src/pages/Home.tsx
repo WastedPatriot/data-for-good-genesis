@@ -27,15 +27,30 @@ const Home = () => {
               <br />
               <span className="text-gradient">Real Impact.</span>
             </h1>
-            <h2 className="text-2xl md:text-4xl font-bold mb-10 text-foreground/90 leading-tight">
-              Transform your digital footprint into <span className="text-primary">meaningful change</span>
-            </h2>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              Every day, your data generates billions in profit for big tech. 
-              <span className="text-primary font-semibold"> We're changing that.</span> Contribute voluntarily, 
-              fund causes you care about, and see the direct impact of your participation.
-            </p>
+            <div className="card-gradient border-2 border-primary/30 rounded-2xl p-8 mb-10 max-w-4xl mx-auto">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4 text-foreground leading-tight">
+                The ethical alternative to <span className="text-destructive">data exploitation</span>
+              </h2>
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-4">
+                <span className="text-primary font-bold">DataForEarth</span> turns voluntary data contributions into funding for causes that matter. 
+                Your data creates valuable datasets. Those datasets generate revenue. That revenue funds environmental, medical, and social projects—chosen by contributors like you.
+              </p>
+              <div className="flex flex-wrap justify-center gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-primary"></div>
+                  <span className="text-foreground/80">100% Voluntary</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-accent"></div>
+                  <span className="text-foreground/80">100% Transparent</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-primary"></div>
+                  <span className="text-foreground/80">100% Profit to Causes</span>
+                </div>
+              </div>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/submit-data">
