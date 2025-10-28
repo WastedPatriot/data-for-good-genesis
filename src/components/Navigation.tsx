@@ -1,6 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Leaf, User, Building2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu, X, Leaf, User, Building2, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -112,17 +118,25 @@ const Navigation = () => {
             {user ? (
               <>
                 {isAdmin && (
-                  <>
-                    <Link to="/admin">
-                      <Button size="sm" variant="secondary">Admin</Button>
-                    </Link>
-                    <Link to="/admin/campaigns">
-                      <Button size="sm" variant="outline">Campaigns</Button>
-                    </Link>
-                    <Link to="/admin/email-inbox">
-                      <Button size="sm" variant="outline">Inbox</Button>
-                    </Link>
-                  </>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="secondary" className="gap-2">
+                        <Shield className="w-4 h-4" />
+                        Admin
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => window.location.href = "/admin"}>
+                        Dashboard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => window.location.href = "/admin/campaigns"}>
+                        Campaigns
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => window.location.href = "/admin/email-inbox"}>
+                        Inbox
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
                 <Link to="/company-portal">
                   <Button size="sm" variant="default" className="gap-2">
@@ -208,14 +222,15 @@ const Navigation = () => {
                 <>
                   {isAdmin && (
                     <>
+                      <div className="text-xs font-semibold text-muted-foreground px-2 py-2">Admin</div>
                       <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
-                        <Button size="sm" variant="secondary" className="w-full">Admin</Button>
+                        <Button size="sm" variant="outline" className="w-full justify-start">Dashboard</Button>
                       </Link>
                       <Link to="/admin/campaigns" onClick={() => setMobileMenuOpen(false)}>
-                        <Button size="sm" variant="outline" className="w-full">Campaigns</Button>
+                        <Button size="sm" variant="outline" className="w-full justify-start">Campaigns</Button>
                       </Link>
                       <Link to="/admin/email-inbox" onClick={() => setMobileMenuOpen(false)}>
-                        <Button size="sm" variant="outline" className="w-full">Inbox</Button>
+                        <Button size="sm" variant="outline" className="w-full justify-start">Inbox</Button>
                       </Link>
                     </>
                   )}
