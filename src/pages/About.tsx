@@ -141,7 +141,7 @@ const About = () => {
               <p className="text-muted-foreground">
                 Have questions? Want to partner with us?
               </p>
-              <a href="mailto:hello@dataforearth.org">
+              <a href="mailto:hello@dataforearth.org" className="text-foreground hover:text-primary">
                 <Button 
                   variant="outline" 
                   className="gap-2"

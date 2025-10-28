@@ -32,22 +32,22 @@ const Home = () => {
               <h2 className="text-2xl md:text-3xl font-bold mb-4 text-foreground leading-tight">
                 The ethical alternative to <span className="text-destructive">data exploitation</span>
               </h2>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-4">
-                <span className="text-primary font-bold">DataForEarth</span> turns voluntary data contributions into funding for causes that matter. 
+              <p className="text-lg md:text-xl text-foreground/90 leading-relaxed mb-4">
+                <span className="text-primary font-bold">dataforearth</span> turns voluntary data contributions into funding for causes that matter. 
                 Your data creates valuable datasets. Those datasets generate revenue. That revenue funds environmental, medical, and social projects—chosen by contributors like you.
               </p>
               <div className="flex flex-wrap justify-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-primary"></div>
-                  <span className="text-foreground/80">100% Voluntary</span>
+                  <span className="text-foreground font-medium">100% Voluntary</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-accent"></div>
-                  <span className="text-foreground/80">100% Transparent</span>
+                  <span className="text-foreground font-medium">100% Transparent</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-primary"></div>
-                  <span className="text-foreground/80">100% Profit to Causes</span>
+                  <span className="text-foreground font-medium">100% Profit to Causes</span>
                 </div>
               </div>
             </div>

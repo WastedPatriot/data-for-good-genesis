@@ -229,7 +229,7 @@ const Contact = () => {
                   <Mail className="w-6 h-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-bold mb-1">Email</h3>
-                    <p className="text-muted-foreground">contact@dataforearth.org</p>
+                    <p className="text-foreground/80">contact@dataforearth.org</p>
                   </div>
                 </motion.div>
 
@@ -242,7 +242,7 @@ const Contact = () => {
                   <Building2 className="w-6 h-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-bold mb-1">For Organizations</h3>
-                    <p className="text-muted-foreground">partnerships@dataforearth.org</p>
+                    <p className="text-foreground/80">partnerships@dataforearth.org</p>
                   </div>
                 </motion.div>
 

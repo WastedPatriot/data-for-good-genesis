@@ -75,20 +75,20 @@ const Navigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             {logoError ? (
-              <div className="h-10 w-10 grid place-items-center rounded-md bg-secondary text-primary">
-                <Leaf className="h-6 w-6" />
+              <div className="h-14 w-14 grid place-items-center rounded-md bg-primary/20 text-primary shadow-lg">
+                <Leaf className="h-8 w-8" />
               </div>
             ) : (
               <img
                 src={logo}
-                alt="Data for Earth logo"
-                className="h-10 w-10 object-contain"
+                alt="dataforearth logo"
+                className="h-14 w-14 object-contain drop-shadow-lg"
                 loading="eager"
                 decoding="async"
                 onError={() => setLogoError(true)}
               />
             )}
-            <span className="font-bold text-lg">Data for Earth</span>
+            <span className="font-black text-xl text-foreground drop-shadow-md">dataforearth</span>
           </Link>
 
           {/* Desktop Navigation */}
