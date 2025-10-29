@@ -99,6 +99,8 @@ import Earth3DBackground from "./components/Earth3DBackground";
 import { useVisitorTracking } from "./hooks/useVisitorTracking";
 import { useLeadScoring } from "./hooks/useLeadScoring";
 import { useAutomationHeartbeat } from "./hooks/useAutomationHeartbeat";
+import { useSiteTheme } from "./hooks/useSiteTheme";
+import ThemeSwitcher from "./components/ThemeSwitcher";
 import { CookieConsent } from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
@@ -107,6 +109,7 @@ const AppContent = () => {
   useVisitorTracking();
   useLeadScoring();
   useAutomationHeartbeat();
+  useSiteTheme();
   
   return (
     <>
@@ -117,6 +120,7 @@ const AppContent = () => {
       />
       <Navigation />
       <CookieConsent />
+      <ThemeSwitcher />
       <div className="pt-16 relative z-10">
         <Routes>
           <Route path="/" element={<Home />} />
