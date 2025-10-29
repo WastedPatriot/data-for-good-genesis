@@ -10,6 +10,7 @@ import ExternalScraperFeeds from './components/ExternalScraperFeeds';
 import { InstitutionalSignals } from './components/InstitutionalSignals';
 import DataHarvestHub from './components/DataHarvestHub';
 import DatasetPublisher from './components/DatasetPublisher';
+import { Toaster } from './components/ui/toaster';
 
 declare global {
   interface Window {
@@ -81,6 +82,7 @@ function App() {
           {activeTab === 'settings' && <Settings config={config} onConfigUpdate={loadConfig} />}
         </main>
       </div>
+      <Toaster />
     </div>
   );
 }
