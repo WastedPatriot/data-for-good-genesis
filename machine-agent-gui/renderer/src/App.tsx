@@ -6,7 +6,7 @@ import EcoProjects from './components/EcoProjects';
 import BadgeCodes from './components/BadgeCodes';
 import Logs from './components/Logs';
 import Settings from './components/Settings';
-import { ExternalScraperFeeds } from './components/ExternalScraperFeeds';
+import ExternalScraperFeeds from './components/ExternalScraperFeeds';
 import { InstitutionalSignals } from './components/InstitutionalSignals';
 import DataHarvestHub from './components/DataHarvestHub';
 import DatasetPublisher from './components/DatasetPublisher';
