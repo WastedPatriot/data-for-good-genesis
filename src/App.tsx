@@ -84,6 +84,7 @@ import EmailInbox from "./pages/admin/EmailInbox";
 import Campaigns from "./pages/admin/Campaigns";
 import AdminDatasetBuilder from "./pages/admin/DatasetBuilder";
 import DataCuration from "./pages/admin/DataCuration";
+import AdminThemes from "./pages/admin/Themes";
 import ImpactTransparency from "./pages/ImpactTransparency";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
@@ -227,6 +228,11 @@ const AppContent = () => {
           <Route path="/admin/data-curation" element={
             <ProtectedRoute requireAdmin={true}>
               <DataCuration />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/themes" element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminThemes />
             </ProtectedRoute>
           } />
           <Route path="/impact-transparency" element={<ImpactTransparency />} />

@@ -205,7 +205,7 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="operations" className="mt-6">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <Card>
                 <CardHeader>
                   <CardTitle>Automation Control</CardTitle>
@@ -225,6 +225,17 @@ export default function Admin() {
                 <CardContent>
                   <Button variant="outline" className="w-full" onClick={() => navigate('/admin/release-policy')}>
                     Edit Policy
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Website Themes</CardTitle>
+                  <CardDescription>Seasonal/holiday theme scheduling</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full" onClick={() => navigate('/admin/themes')}>
+                    Manage Themes
                   </Button>
                 </CardContent>
               </Card>

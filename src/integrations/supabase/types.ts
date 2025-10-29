@@ -1741,6 +1741,45 @@ export type Database = {
           },
         ]
       }
+      site_themes: {
+        Row: {
+          config: Json | null
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_challenge_progress: {
         Row: {
           challenge_id: string | null
