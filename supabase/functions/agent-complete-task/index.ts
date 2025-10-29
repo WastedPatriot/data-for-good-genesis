@@ -32,7 +32,15 @@ serve(async (req) => {
     } else {
       updateData.status = "failed";
       updateData.error_message = taskError || "Task failed";
-      updateData.retry_count = supabase.raw("retry_count + 1");
+      
+      // Get current retry count and increment
+      const { data: currentTask } = await supabase
+        .from("agent_tasks")
+        .select("retry_count")
+        .eq("id", taskId)
+        .single();
+      
+      updateData.retry_count = (currentTask?.retry_count || 0) + 1;
     }
 
     const { data, error } = await supabase

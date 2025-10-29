@@ -1,5 +1,17 @@
 project_id = "fszghwwbvxwkmgfvhzrh"
 
+[functions.agent-register]
+verify_jwt = false
+
+[functions.agent-heartbeat]
+verify_jwt = false
+
+[functions.agent-get-task]
+verify_jwt = false
+
+[functions.agent-complete-task]
+verify_jwt = false
+
 [functions.verify-badge]
 verify_jwt = false
 
