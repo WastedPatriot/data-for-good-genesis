@@ -129,7 +129,7 @@ ipcMain.handle('fetch-processed-records', async () => {
       throw new Error(`HTTP ${response.status}: ${await response.text()}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
     log('info', `Fetched ${data.records?.length || 0} processed records`);
     return { success: true, data };
   } catch (error) {
@@ -296,7 +296,7 @@ ipcMain.handle('fetch-review-queue', async (_, status: string, filters: any) => 
       throw new Error(`HTTP ${response.status}: ${await response.text()}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
     log('info', `Fetched ${data.items?.length || 0} review queue items`);
     return { success: true, data };
   } catch (error) {
@@ -385,7 +385,7 @@ ipcMain.handle('build-dataset', async (_, mode: string, filters: any) => {
       throw new Error(`HTTP ${response.status}: ${await response.text()}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
     log('info', `Built dataset: ${data.datasetId}`);
     return { success: true, data };
   } catch (error) {
@@ -517,7 +517,7 @@ ipcMain.handle('get-trending-signals', async () => {
       throw new Error(`HTTP ${response.status}: ${await response.text()}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as any[];
     
     // Analyze trending patterns
     const tagFrequency: Record<string, number> = {};
