@@ -5,7 +5,7 @@ import { Badge } from "../components/ui/badge";
 import { Checkbox } from "../components/ui/checkbox";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
-import { toast } from "../components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { CheckCircle2, XCircle, Clock, FileText, Send, Loader2 } from "lucide-react";
 
 interface ScraperRecord {
