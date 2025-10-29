@@ -5,7 +5,7 @@
   "main": "dist/electron/main.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:electron\" \"npm run dev:react\"",
-    "dev:electron": "tsc -p tsconfig.electron.json && electron .",
+    "dev:electron": "tsc -p tsconfig.electron.json && cross-env NODE_ENV=development electron .",
     "dev:react": "vite",
     "build": "npm run build:react && npm run build:electron",
     "build:react": "vite build",
@@ -25,6 +25,9 @@
       "dist/**/*",
       "renderer/**/*"
     ],
+    "electronDownload": {
+      "mirror": "https://github.com/electron/electron/releases/download/"
+    },
     "linux": {
       "target": "AppImage",
       "category": "Utility",
@@ -64,7 +67,9 @@
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
     "electron": "^28.0.0",
     "electron-builder": "^24.9.1",
     "typescript": "^5.3.3",
