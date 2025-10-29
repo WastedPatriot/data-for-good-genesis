@@ -5,7 +5,10 @@
     "moduleResolution": "node",
     "allowImportingTsExtensions": false,
     "noEmit": false,
-    "outDir": "dist/electron"
+    "outDir": "dist/electron",
+    "strict": false,
+    "noImplicitAny": false,
+    "types": ["node"]
   },
   "include": ["electron/**/*"]
 }
