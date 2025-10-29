@@ -27,7 +27,7 @@
       "renderer/**/*"
     ],
     "electronDownload": {
-      "mirror": "https://github.com/electron/electron/releases/download/"
+      "mirror": "https://github.com/electron/electron/releases/download/v"
     },
     "linux": {
       "target": "AppImage",
