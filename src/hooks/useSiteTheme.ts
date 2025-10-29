@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-// Simple geo/locale gating for auto-activation preferences per theme
-const THEME_REGIONS: Record<string, (locale: string) => boolean> = {
-  "independence-day": (locale) => locale.toLowerCase().includes("-us"),
-  thanksgiving: (locale) => locale.toLowerCase().includes("-us"),
+// Region-aware gating for holiday themes
+// Predicate receives ISO country code (e.g., "US", "GB") and returns whether to allow auto-activation
+const THEME_REGIONS: Record<string, (country: string) => boolean> = {
+  "independence-day": (country) => country === "US",
+  thanksgiving: (country) => country === "US",
   pride: () => true,
   halloween: () => true,
   christmas: () => true,
@@ -22,14 +23,65 @@ export type SiteTheme = {
   config?: any;
 };
 
+function getSearchParam(name: string): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const v = params.get(name);
+    return v && v.trim().length ? v.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeCountry(input?: string | null): string | null {
+  if (!input) return null;
+  const v = input.replace(/[^a-zA-Z]/g, "").slice(-2).toUpperCase();
+  return v.length === 2 ? v : null;
+}
+
+function detectCountry(): string {
+  // 1) URL overrides (handy for admin testing): ?region=US or ?country=GB
+  const urlCountry = normalizeCountry(getSearchParam("region") || getSearchParam("country"));
+  if (urlCountry) return urlCountry;
+
+  // 2) Local storage override (for QA): siteThemeCountryOverride
+  try {
+    const lsCountry = normalizeCountry(localStorage.getItem("siteThemeCountryOverride"));
+    if (lsCountry) return lsCountry;
+  } catch {}
+
+  // 3) Navigator language (e.g., en-US)
+  const lang = typeof navigator !== "undefined" ? navigator.language : "en-US";
+  const parts = lang.split("-");
+  if (parts.length >= 2) return normalizeCountry(parts[1]) || "US";
+
+  // 4) Fallback
+  return "US";
+}
+
 export function useSiteTheme() {
   const [themes, setThemes] = useState<SiteTheme[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load override from localStorage
+  // Local, persistent user override via ThemeSwitcher
   const [override, setOverride] = useState<string | null>(() => {
-    try { return localStorage.getItem("siteThemeOverride"); } catch { return null; }
+    try {
+      return localStorage.getItem("siteThemeOverride");
+    } catch {
+      return null;
+    }
   });
+
+  // URL override (non-persistent) for admin testing: ?theme=christmas
+  const [urlOverride, setUrlOverride] = useState<string | null>(() => getSearchParam("theme"));
+
+  // Watch URL for changes (SPA navigations that change query)
+  useEffect(() => {
+    const onPopState = () => setUrlOverride(getSearchParam("theme"));
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -44,16 +96,23 @@ export function useSiteTheme() {
     })();
   }, []);
 
-  const locale = typeof navigator !== "undefined" ? navigator.language || "en-US" : "en-US";
+  const country = detectCountry();
   const today = new Date();
 
   const activeTheme = useMemo(() => {
+    // URL override takes highest precedence (admin test)
+    const forced = urlOverride && themes.find((t) => t.slug === urlOverride);
+    if (forced) return forced;
+
+    // User-selected override next
     if (override) {
-      return themes.find((t) => t.slug === override) || null;
+      const chosen = themes.find((t) => t.slug === override) || null;
+      if (chosen) return chosen;
     }
 
-    // pick is_active first
+    // Otherwise, compute best match
     const preferred = themes.find((t) => t.is_active) || null;
+
     const withinDates = themes.filter((t) => {
       const startOk = !t.start_date || new Date(t.start_date) <= today;
       const endOk = !t.end_date || today <= new Date(t.end_date);
@@ -61,12 +120,12 @@ export function useSiteTheme() {
     });
 
     const gated = withinDates.filter((t) => {
-      const allow = THEME_REGIONS[t.slug] ? THEME_REGIONS[t.slug](locale) : true;
+      const allow = THEME_REGIONS[t.slug] ? THEME_REGIONS[t.slug](country) : true;
       return allow;
     });
 
     return preferred || gated[0] || null;
-  }, [themes, override, locale]);
+  }, [themes, override, urlOverride, country]);
 
   // Apply attribute for CSS theming (design tokens can react to this)
   useEffect(() => {
