@@ -101,6 +101,7 @@ import { useLeadScoring } from "./hooks/useLeadScoring";
 import { useAutomationHeartbeat } from "./hooks/useAutomationHeartbeat";
 import { useSiteTheme } from "./hooks/useSiteTheme";
 import ThemeSwitcher from "./components/ThemeSwitcher";
+import HolidayDecorations from "./components/HolidayDecorations";
 import { CookieConsent } from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
@@ -114,6 +115,7 @@ const AppContent = () => {
   return (
     <>
       <Earth3DBackground />
+      <HolidayDecorations />
       <div
         className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,_hsl(var(--background)/0.35)_0%,_hsl(var(--background)/0.6)_60%,_hsl(var(--background)/0.75)_100%)]"
         aria-hidden="true"

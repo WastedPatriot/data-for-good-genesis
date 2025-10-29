@@ -100,9 +100,23 @@ export default function AdminThemes() {
         <PaintBucket className="w-10 h-10 text-primary" />
         <div>
           <h1 className="text-4xl font-bold">Website Themes</h1>
-          <p className="text-muted-foreground">Schedule and activate seasonal/holiday themes</p>
+          <p className="text-muted-foreground">Schedule and activate seasonal/holiday themes with visual effects</p>
         </div>
       </header>
+
+      {activeTheme && (
+        <Card className="mb-6 border-2 border-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+              Currently Active: {PRESET_THEMES.find(p => p.slug === activeTheme.slug)?.emoji} {activeTheme.name}
+            </CardTitle>
+            <CardDescription>
+              This theme is live with animated decorations and custom color scheme
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

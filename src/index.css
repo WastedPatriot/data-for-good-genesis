@@ -203,4 +203,116 @@ All colors MUST be HSL.
       box-shadow: 0 0 40px rgba(34, 197, 94, 0.6);
     }
   }
+
+  /* Holiday Theme Animations */
+  @keyframes santa-fly {
+    0% { transform: translate(-100px, 100vh) rotate(-10deg); }
+    25% { transform: translate(25vw, 20vh) rotate(0deg); }
+    50% { transform: translate(50vw, 10vh) rotate(5deg); }
+    75% { transform: translate(75vw, 30vh) rotate(-5deg); }
+    100% { transform: translate(calc(100vw + 100px), 100vh) rotate(-10deg); }
+  }
+
+  @keyframes float-ghost {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(5deg); }
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  @keyframes fall-snow {
+    0% { transform: translateY(-10px) translateX(0); opacity: 1; }
+    100% { transform: translateY(100vh) translateX(100px); opacity: 0.3; }
+  }
+
+  @keyframes bounce-pumpkin {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+}
+
+/* Holiday Theme Styles */
+[data-site-theme="christmas"] {
+  --primary: 0 84% 55%; /* Red */
+  --primary-glow: 0 90% 65%;
+  --accent: 142 70% 45%; /* Green */
+  --accent-glow: 142 75% 55%;
+  --gradient-primary: linear-gradient(135deg, hsl(0 84% 55%) 0%, hsl(142 70% 45%) 100%);
+  --gradient-hero: linear-gradient(135deg, hsl(0 84% 55%) 0%, hsl(142 70% 45%) 50%, hsl(280 60% 60%) 100%);
+  --shadow-glow: 0 0 60px hsl(0 84% 55% / 0.5), 0 0 100px hsl(142 70% 45% / 0.3);
+}
+
+[data-site-theme="halloween"] {
+  --primary: 30 100% 50%; /* Orange */
+  --primary-glow: 30 100% 60%;
+  --accent: 280 90% 50%; /* Purple */
+  --accent-glow: 280 90% 60%;
+  --background: 280 40% 3%;
+  --card: 280 40% 5%;
+  --gradient-primary: linear-gradient(135deg, hsl(30 100% 50%) 0%, hsl(280 90% 50%) 100%);
+  --gradient-hero: linear-gradient(135deg, hsl(30 100% 50%) 0%, hsl(280 90% 50%) 50%, hsl(0 0% 10%) 100%);
+  --shadow-glow: 0 0 60px hsl(30 100% 50% / 0.6), 0 0 100px hsl(280 90% 50% / 0.4);
+}
+
+[data-site-theme="valentines"] {
+  --primary: 330 80% 55%; /* Pink */
+  --primary-glow: 330 85% 65%;
+  --accent: 0 70% 50%; /* Red */
+  --accent-glow: 0 75% 60%;
+  --gradient-primary: linear-gradient(135deg, hsl(330 80% 55%) 0%, hsl(0 70% 50%) 100%);
+  --gradient-hero: linear-gradient(135deg, hsl(330 80% 55%) 0%, hsl(0 70% 50%) 50%, hsl(310 60% 60%) 100%);
+  --shadow-glow: 0 0 60px hsl(330 80% 55% / 0.5), 0 0 100px hsl(0 70% 50% / 0.3);
+}
+
+[data-site-theme="earth-day"] {
+  --primary: 142 86% 45%; /* Green */
+  --primary-glow: 142 90% 60%;
+  --accent: 200 90% 40%; /* Blue */
+  --accent-glow: 200 90% 50%;
+  --gradient-primary: linear-gradient(135deg, hsl(142 86% 45%) 0%, hsl(200 90% 40%) 100%);
+  --gradient-hero: linear-gradient(135deg, hsl(142 86% 45%) 0%, hsl(200 90% 40%) 50%, hsl(120 70% 35%) 100%);
+  --shadow-glow: 0 0 60px hsl(142 86% 45% / 0.5), 0 0 100px hsl(200 90% 40% / 0.3);
+}
+
+[data-site-theme="pride"] {
+  --primary: 280 90% 55%; /* Purple */
+  --primary-glow: 280 90% 65%;
+  --accent: 330 80% 55%; /* Pink */
+  --accent-glow: 330 85% 65%;
+  --gradient-primary: linear-gradient(135deg, hsl(0 100% 50%) 0%, hsl(30 100% 50%) 14%, hsl(60 100% 50%) 28%, hsl(120 100% 40%) 42%, hsl(200 100% 50%) 56%, hsl(250 100% 50%) 70%, hsl(280 100% 50%) 84%, hsl(330 100% 50%) 100%);
+  --gradient-hero: var(--gradient-primary);
+  --shadow-glow: 0 0 80px hsl(280 90% 55% / 0.6), 0 0 120px hsl(330 80% 55% / 0.4);
+}
+
+[data-site-theme="independence-day"] {
+  --primary: 220 90% 55%; /* Blue */
+  --primary-glow: 220 95% 65%;
+  --accent: 0 80% 55%; /* Red */
+  --accent-glow: 0 85% 65%;
+  --gradient-primary: linear-gradient(135deg, hsl(220 90% 55%) 0%, hsl(0 0% 98%) 50%, hsl(0 80% 55%) 100%);
+  --gradient-hero: linear-gradient(135deg, hsl(220 90% 55%) 0%, hsl(0 0% 98%) 50%, hsl(0 80% 55%) 100%);
+  --shadow-glow: 0 0 60px hsl(220 90% 55% / 0.5), 0 0 100px hsl(0 80% 55% / 0.3);
+}
+
+[data-site-theme="thanksgiving"] {
+  --primary: 30 80% 45%; /* Orange/Brown */
+  --primary-glow: 30 85% 55%;
+  --accent: 25 60% 35%; /* Brown */
+  --accent-glow: 25 65% 45%;
+  --gradient-primary: linear-gradient(135deg, hsl(30 80% 45%) 0%, hsl(25 60% 35%) 100%);
+  --gradient-hero: linear-gradient(135deg, hsl(30 80% 45%) 0%, hsl(25 60% 35%) 50%, hsl(45 70% 50%) 100%);
+  --shadow-glow: 0 0 60px hsl(30 80% 45% / 0.5), 0 0 100px hsl(25 60% 35% / 0.3);
+}
+
+[data-site-theme="new-year"] {
+  --primary: 280 90% 55%; /* Purple */
+  --primary-glow: 280 95% 65%;
+  --accent: 50 100% 50%; /* Gold */
+  --accent-glow: 50 100% 60%;
+  --gradient-primary: linear-gradient(135deg, hsl(280 90% 55%) 0%, hsl(50 100% 50%) 100%);
+  --gradient-hero: linear-gradient(135deg, hsl(280 90% 55%) 0%, hsl(50 100% 50%) 50%, hsl(200 90% 55%) 100%);
+  --shadow-glow: 0 0 80px hsl(280 90% 55% / 0.6), 0 0 120px hsl(50 100% 50% / 0.5);
 }
