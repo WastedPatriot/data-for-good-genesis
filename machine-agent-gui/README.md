@@ -2,6 +2,14 @@
 
 Desktop automation agent for DataForEarth dataset publishing and management.
 
+## Platform Support
+
+| Platform | Format | Status | Installation Guide |
+|----------|--------|--------|-------------------|
+| **Linux** | AppImage | ✅ Fully Supported | [UBUNTU_INSTALLATION.md](../UBUNTU_INSTALLATION.md) |
+| **Windows** | .exe (NSIS + Portable) | ✅ Fully Supported | [WINDOWS_INSTALLATION.md](./WINDOWS_INSTALLATION.md) |
+| **macOS** | .dmg | 🚧 Planned | Coming Soon |
+
 ## Features
 
 - 📊 Real-time dashboard with revenue analytics
@@ -10,8 +18,22 @@ Desktop automation agent for DataForEarth dataset publishing and management.
 - 🏆 Badge code generation and management
 - 📝 Comprehensive logging
 - ⚙️ Easy configuration
+- 💻 Cross-platform support (Linux + Windows)
 
-## Installation on Ubuntu
+## Quick Downloads
+
+### Windows (10/11)
+- **Installer**: `DataForEarth-Agent-Setup-1.0.0.exe` (~150MB)
+- **Portable**: `DataForEarth-Agent-1.0.0-portable.exe` (~150MB)
+- See [WINDOWS_INSTALLATION.md](./WINDOWS_INSTALLATION.md)
+
+### Linux (Ubuntu/Debian)
+- **AppImage**: `DataForEarth-Agent-1.0.0.AppImage` (~180MB)
+- See [UBUNTU_INSTALLATION.md](../UBUNTU_INSTALLATION.md)
+
+---
+
+## Installation on Linux (Ubuntu)
 
 ### Prerequisites
 
@@ -105,10 +127,15 @@ sudo journalctl -u dataforearth-agent -f
 3. Review projects
 4. Click "Approve" on desired projects
 
-## Configuration File Location
+## Configuration File Locations
 
-- Linux: `~/.config/dataforearth-machine-agent/config.json`
+### Linux
+- Config: `~/.config/dataforearth-machine-agent/config.json`
 - Logs: `~/.config/dataforearth-machine-agent/logs/agent.log`
+
+### Windows
+- Config: `%APPDATA%\dataforearth-machine-agent\config.json`
+- Logs: `%APPDATA%\dataforearth-machine-agent\logs\agent.log`
 
 ## Troubleshooting
 

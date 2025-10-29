@@ -1,6 +1,8 @@
 # Complete Ubuntu Installation Guide
 ## DataForEarth Machine Agent + Extension System
 
+> **Platform Note:** This guide is for Linux (Ubuntu/Debian). For Windows installation, see [machine-agent-gui/WINDOWS_INSTALLATION.md](./machine-agent-gui/WINDOWS_INSTALLATION.md).
+
 ---
 
 ## 🎯 What You're Installing

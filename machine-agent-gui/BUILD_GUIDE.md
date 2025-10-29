@@ -71,9 +71,21 @@ npm install
 added 423 packages, and audited 424 packages in 45s
 ```
 
-### Step 3: Build for Production
+### Step 3: Build for Your Platform
+
+**Linux AppImage:**
 ```bash
 npm run package:linux
+```
+
+**Windows Executables:**
+```bash
+npm run package:win
+```
+
+**All Platforms:**
+```bash
+npm run package:all
 ```
 
 **This command does 3 things:**
@@ -93,7 +105,68 @@ npm run package:linux
   • building        target=AppImage arch=x64 file=dist-package/DataForEarth-Agent-1.0.0.AppImage
 ```
 
-**Build time:** ~3-5 minutes (depending on system)
+**Build time:** ~3-5 minutes per platform (depending on system)
+
+---
+
+## ✅ Platform-Specific Build Notes
+
+### Building for Windows
+
+**From Linux (Cross-compile):**
+
+electron-builder can build Windows executables from Linux without requiring Windows or Wine:
+
+```bash
+cd machine-agent-gui
+npm install
+npm run package:win
+```
+
+Output files in `dist-package/`:
+- `DataForEarth-Agent-Setup-1.0.0.exe` (NSIS installer ~150MB)
+- `DataForEarth-Agent-1.0.0-portable.exe` (Portable ~150MB)
+
+**From Windows:**
+
+```cmd
+cd machine-agent-gui
+npm install
+npm run package:win
+```
+
+**Wine (Optional):**
+
+Wine is NOT required for building Windows executables. However, if you want to TEST Windows builds on Linux:
+
+```bash
+sudo dpkg --add-architecture i386
+sudo apt update
+sudo apt install -y wine64 wine32
+```
+
+### Building for Linux
+
+**From any platform:**
+
+```bash
+npm run package:linux
+```
+
+Works on Linux, Windows, and macOS.
+
+### Build All Platforms at Once
+
+```bash
+npm run package:all
+```
+
+This creates:
+- Linux AppImage (~180MB)
+- Windows NSIS installer (~150MB)
+- Windows portable exe (~150MB)
+
+**Note:** macOS builds require a macOS machine or CI/CD runner with macOS.
 
 ---
 
@@ -113,20 +186,40 @@ machine-agent-gui/
 │       └── ...
 │
 └── dist-package/                   # FINAL ARTIFACTS ⭐
-    ├── DataForEarth-Agent-1.0.0.AppImage  # 🎯 MAIN OUTPUT (~180 MB)
-    ├── linux-unpacked/             # Unpacked version (for debugging)
+    ├── DataForEarth-Agent-1.0.0.AppImage        # 🎯 Linux (~180 MB)
+    ├── DataForEarth-Agent-Setup-1.0.0.exe       # 🎯 Windows Installer (~150 MB)
+    ├── DataForEarth-Agent-1.0.0-portable.exe    # 🎯 Windows Portable (~150 MB)
+    ├── linux-unpacked/             # Unpacked Linux (for debugging)
     │   ├── DataForEarth-Agent      # Executable
+    │   ├── resources/              # App resources
+    │   └── ...
+    ├── win-unpacked/               # Unpacked Windows (for debugging)
+    │   ├── DataForEarth Agent.exe  # Executable
     │   ├── resources/              # App resources
     │   └── ...
     ├── builder-effective-config.yaml  # Build config used
     └── builder-debug.yml           # Debug info
 ```
 
-### Main Output File
-**Location**: `dist-package/DataForEarth-Agent-1.0.0.AppImage`
-**Size**: ~180-200 MB
-**Type**: AppImage (single-file executable)
-**Permissions**: Needs execute permission (`chmod +x`)
+### Main Output Files
+
+**Linux AppImage:**
+- **Location**: `dist-package/DataForEarth-Agent-1.0.0.AppImage`
+- **Size**: ~180MB
+- **Type**: AppImage (single-file executable)
+- **Permissions**: Needs execute permission (`chmod +x`)
+
+**Windows Installer:**
+- **Location**: `dist-package/DataForEarth-Agent-Setup-1.0.0.exe`
+- **Size**: ~150MB
+- **Type**: NSIS installer
+- **Features**: Desktop shortcut, Start Menu, uninstaller
+
+**Windows Portable:**
+- **Location**: `dist-package/DataForEarth-Agent-1.0.0-portable.exe`
+- **Size**: ~150MB
+- **Type**: Portable executable
+- **Features**: No installation required, run from any folder
 
 ---
 
@@ -353,8 +446,9 @@ npm run package:linux
 
 ## 🚀 Quick Start Commands
 
+**Linux:**
 ```bash
-# Full build process
+# Build Linux AppImage
 cd machine-agent-gui
 npm install
 npm run package:linux
@@ -362,6 +456,35 @@ npm run package:linux
 # Run the AppImage
 chmod +x dist-package/DataForEarth-Agent-*.AppImage
 ./dist-package/DataForEarth-Agent-*.AppImage
+```
+
+**Windows (from Linux):**
+```bash
+# Cross-compile Windows executables
+cd machine-agent-gui
+npm install
+npm run package:win
+
+# Output: dist-package/DataForEarth-Agent-Setup-1.0.0.exe
+# Copy to Windows machine to test
+```
+
+**Windows (from Windows):**
+```cmd
+cd machine-agent-gui
+npm install
+npm run package:win
+
+REM Run installer
+dist-package\DataForEarth-Agent-Setup-1.0.0.exe
+
+REM Or run portable
+dist-package\DataForEarth-Agent-1.0.0-portable.exe
+```
+
+**All Platforms:**
+```bash
+npm run package:all
 
 # Configure (in app Settings tab)
 # 1. Supabase URL: https://fszghwwbvxwkmgfvhzrh.supabase.co
@@ -398,12 +521,14 @@ sudo systemctl enable --now dataforearth-agent
 ## 🎯 Expected File Sizes
 
 ```
-dist/electron/main.js           ~50 KB
-dist/electron/preload.js        ~5 KB
-dist/renderer/index.html        ~1 KB
-dist/renderer/assets/*.js       ~500 KB (combined)
-dist/renderer/assets/*.css      ~10 KB
-dist-package/*.AppImage         ~180 MB (main artifact)
+dist/electron/main.js                            ~50 KB
+dist/electron/preload.js                         ~5 KB
+dist/renderer/index.html                         ~1 KB
+dist/renderer/assets/*.js                        ~500 KB (combined)
+dist/renderer/assets/*.css                       ~10 KB
+dist-package/DataForEarth-Agent-1.0.0.AppImage        ~180 MB (Linux)
+dist-package/DataForEarth-Agent-Setup-1.0.0.exe       ~150 MB (Windows Installer)
+dist-package/DataForEarth-Agent-1.0.0-portable.exe    ~150 MB (Windows Portable)
 ```
 
 ---
