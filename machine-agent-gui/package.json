@@ -1,6 +1,7 @@
 {
   "name": "dataforearth-machine-agent",
   "version": "1.0.0",
+  "type": "module",
   "description": "DataForEarth Machine Agent - Automated Dataset Publisher",
   "main": "dist/electron/main.js",
   "scripts": {
