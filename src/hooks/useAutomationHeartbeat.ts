@@ -31,9 +31,8 @@ export function useAutomationHeartbeat(intervalMs: number = 120000) {
           if (runningRef.current) return;
           runningRef.current = true;
           try {
-            // Auto-ingest external scraper data
-            await supabase.functions.invoke("external-ingest");
             // Run AI curation and dataset building
+            // Note: external-ingest is called by external scrapers with HMAC auth, not here
             await supabase.functions.invoke("run-automation");
           } catch (e) {
             // Silent
