@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Shield, Users, Database, FileText, Mail, TrendingUp, Activity, Brain } from "lucide-react";
 import { AIMarketingAssistant } from "@/components/admin/AIMarketingAssistant";
+import { DataHarvestDashboard } from "@/components/admin/DataHarvestDashboard";
 
 export default function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -193,12 +194,17 @@ export default function Admin() {
         </div>
 
         {/* Quick Actions */}
-        <Tabs defaultValue="marketing" className="mb-8">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="harvest" className="mb-8">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="harvest">Data Harvest</TabsTrigger>
             <TabsTrigger value="marketing">AI Marketing</TabsTrigger>
             <TabsTrigger value="operations">Operations</TabsTrigger>
             <TabsTrigger value="activity">Activity Log</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="harvest" className="mt-6">
+            <DataHarvestDashboard />
+          </TabsContent>
 
           <TabsContent value="marketing" className="mt-6">
             <AIMarketingAssistant />
