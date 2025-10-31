@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import ContributorValueCard from "@/components/ContributorValueCard";
 import { 
   User, 
   Mail, 
@@ -203,6 +204,11 @@ export default function Profile() {
               )}
             </CardContent>
           </Card>
+
+          {/* Contributor Value Card - NEW! */}
+          <div className="mb-6">
+            <ContributorValueCard userEmail={user?.email || ""} />
+          </div>
 
           {/* Stats Grid */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">

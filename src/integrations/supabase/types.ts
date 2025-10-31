@@ -469,6 +469,7 @@ export type Database = {
           curated_payload: Json
           domain: string | null
           enterprise_grade: boolean | null
+          estimated_dataset_price: number | null
           id: string
           last_used_at: string | null
           limited_supply: number | null
@@ -488,6 +489,7 @@ export type Database = {
           curated_payload: Json
           domain?: string | null
           enterprise_grade?: boolean | null
+          estimated_dataset_price?: number | null
           id?: string
           last_used_at?: string | null
           limited_supply?: number | null
@@ -507,6 +509,7 @@ export type Database = {
           curated_payload?: Json
           domain?: string | null
           enterprise_grade?: boolean | null
+          estimated_dataset_price?: number | null
           id?: string
           last_used_at?: string | null
           limited_supply?: number | null
@@ -1630,8 +1633,10 @@ export type Database = {
         Row: {
           category: string | null
           confidence_score: number | null
+          contributor_email: string | null
           created_at: string
           duplicate_of: string | null
+          estimated_market_value: number | null
           id: string
           normalized_payload: Json | null
           provenance_hash: string
@@ -1652,8 +1657,10 @@ export type Database = {
         Insert: {
           category?: string | null
           confidence_score?: number | null
+          contributor_email?: string | null
           created_at?: string
           duplicate_of?: string | null
+          estimated_market_value?: number | null
           id?: string
           normalized_payload?: Json | null
           provenance_hash: string
@@ -1674,8 +1681,10 @@ export type Database = {
         Update: {
           category?: string | null
           confidence_score?: number | null
+          contributor_email?: string | null
           created_at?: string
           duplicate_of?: string | null
+          estimated_market_value?: number | null
           id?: string
           normalized_payload?: Json | null
           provenance_hash?: string
@@ -1968,6 +1977,18 @@ export type Database = {
           updated_at?: string | null
           verified_at?: string | null
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      contributor_value_summary: {
+        Row: {
+          approved_contributions: number | null
+          avg_quality_score: number | null
+          contributor_email: string | null
+          curated_items: number | null
+          last_contribution_date: string | null
+          total_contributions: number | null
+          total_estimated_value: number | null
         }
         Relationships: []
       }

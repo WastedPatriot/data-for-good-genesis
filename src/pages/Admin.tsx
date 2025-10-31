@@ -194,13 +194,40 @@ export default function Admin() {
         </div>
 
         {/* Quick Actions */}
-        <Tabs defaultValue="harvest" className="mb-8">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs defaultValue="pipeline" className="mb-8">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="pipeline">
+              <Brain className="h-4 w-4 mr-2" />
+              Unified Pipeline
+            </TabsTrigger>
             <TabsTrigger value="harvest">Data Harvest</TabsTrigger>
             <TabsTrigger value="marketing">AI Marketing</TabsTrigger>
-            <TabsTrigger value="operations">Operations</TabsTrigger>
-            <TabsTrigger value="activity">Activity Log</TabsTrigger>
+            <TabsTrigger value="curation">Manual Curation</TabsTrigger>
+            <TabsTrigger value="builder">Dataset Builder</TabsTrigger>
           </TabsList>
+
+          {/* Unified Pipeline Tab - NEW! */}
+          <TabsContent value="pipeline" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-primary" />
+                  Unified Data Pipeline
+                </CardTitle>
+                <CardDescription>
+                  Complete workflow from data ingestion to dataset publication
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={() => navigate("/admin/unified-pipeline")} size="lg" className="w-full">
+                  Open Unified Pipeline Manager
+                </Button>
+                <p className="text-sm text-muted-foreground mt-4 text-center">
+                  Single interface for review, AI curation, dataset building, and publishing
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="harvest" className="mt-6">
             <DataHarvestDashboard />
@@ -210,11 +237,34 @@ export default function Admin() {
             <AIMarketingAssistant />
           </TabsContent>
 
-          <TabsContent value="operations" className="mt-6">
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Automation Control</CardTitle>
+          <TabsContent value="curation" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Manual Data Curation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={() => navigate("/admin/data-curation")}>Open Curation</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="builder" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Dataset Builder</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={() => navigate("/admin/dataset-builder")}>Open Builder</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Management Links */}
+        <div className="grid gap-4 md:grid-cols-3 mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Automation Control</CardTitle>
                   <CardDescription>Manage AI data harvester and automation</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -245,10 +295,9 @@ export default function Admin() {
                   </Button>
                 </CardContent>
               </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="activity" className="mt-6">
+            </Card>
+          </div>
+        </div>
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>

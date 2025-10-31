@@ -94,6 +94,30 @@ serve(async (req) => {
       );
     }
 
+    // Also insert contributor_email into review_queue for tracking
+    await supabaseClient
+      .from("review_queue")
+      .insert([{
+        source_type: "user_contribution",
+        category: "consumer",  // Default category
+        tags: payload.interests || [],
+        normalized_payload: {
+          age_range: payload.age_range,
+          location: payload.location,
+          device_ownership: payload.device_ownership,
+          ev_ownership: payload.ev_ownership,
+          sustainability: payload.sustainability,
+          sensor_data: payload.sensor_data,
+          timestamp: new Date().toISOString()
+        },
+        raw_payload: rawPayload,
+        contributor_email: payload.email || null,
+        status: "pending",
+        confidence_score: 0.7, // Initial confidence for user contributions
+      }])
+      .select()
+      .single();
+
     return new Response(
       JSON.stringify({ submission: data }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
