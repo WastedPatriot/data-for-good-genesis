@@ -261,90 +261,43 @@ export default function Admin() {
         </Tabs>
 
         {/* Management Links */}
-        <div className="grid gap-4 md:grid-cols-3 mt-8">
+        <div className="grid gap-4 md:grid-cols-3 mt-8 mb-8">
           <Card>
             <CardHeader>
               <CardTitle>Automation Control</CardTitle>
-                  <CardDescription>Manage AI data harvester and automation</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full" onClick={() => navigate('/admin/automation')}>
-                    Open Automation Control
-                  </Button>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Release Policy</CardTitle>
-                  <CardDescription>Configure data publishing rules</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full" onClick={() => navigate('/admin/release-policy')}>
-                    Edit Policy
-                  </Button>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Website Themes</CardTitle>
-                  <CardDescription>Seasonal/holiday theme scheduling</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full" onClick={() => navigate('/admin/themes')}>
-                    Manage Themes
-                  </Button>
-                </CardContent>
-              </Card>
-            </Card>
-          </div>
+              <CardDescription>Manage AI data harvester and automation</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full" onClick={() => navigate('/admin/automation')}>
+                Open Automation Control
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Release Policy</CardTitle>
+              <CardDescription>Configure data publishing rules</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full" onClick={() => navigate('/admin/release-policy')}>
+                Edit Policy
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Website Themes</CardTitle>
+              <CardDescription>Seasonal/holiday theme scheduling</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full" onClick={() => navigate('/admin/themes')}>
+                Manage Themes
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Latest system events and audit logs</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Time</TableHead>
-                      <TableHead>Action</TableHead>
-                      <TableHead>Resource</TableHead>
-                      <TableHead>Severity</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentActivity.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                          No recent activity
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      recentActivity.map((log) => (
-                        <TableRow key={log.id}>
-                          <TableCell className="text-sm">
-                            {new Date(log.created_at).toLocaleString()}
-                          </TableCell>
-                          <TableCell className="font-medium">{log.action}</TableCell>
-                          <TableCell>{log.resource_type}</TableCell>
-                          <TableCell>
-                            <Badge variant={
-                              log.severity === "error" ? "destructive" :
-                              log.severity === "warning" ? "secondary" : "default"
-                            }>
-                              {log.severity}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
 
         {/* Management Sections */}
         <div className="space-y-8">
