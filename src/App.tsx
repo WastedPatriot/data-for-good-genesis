@@ -85,6 +85,7 @@ import Campaigns from "./pages/admin/Campaigns";
 import AdminDatasetBuilder from "./pages/admin/DatasetBuilder";
 import DataCuration from "./pages/admin/DataCuration";
 import AdminThemes from "./pages/admin/Themes";
+import UnifiedPipeline from "./pages/admin/UnifiedPipeline";
 import ImpactTransparency from "./pages/ImpactTransparency";
 import WhyContribute from "./pages/WhyContribute";
 import ImpactDashboard from "./pages/ImpactDashboard";
@@ -254,6 +255,11 @@ const AppContent = () => {
           } />
           <Route path="/domains" element={<Domains />} />
           <Route path="/extension" element={<ExtensionDownload />} />
+          <Route path="/admin/unified-pipeline" element={
+            <ProtectedRoute requireAdmin={true}>
+              <UnifiedPipeline />
+            </ProtectedRoute>
+          } />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
