@@ -141,7 +141,7 @@ const Marketplace = () => {
       if (!user) {
         toast({
           title: "Authentication Required",
-          description: "Please log in to purchase datasets",
+          description: "Please sign in or create an account to purchase datasets",
           variant: "destructive",
         });
         navigate("/login");

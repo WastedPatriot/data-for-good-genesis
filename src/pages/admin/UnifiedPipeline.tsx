@@ -54,8 +54,8 @@ export default function UnifiedPipeline() {
   const [stats, setStats] = useState({
     pending: 0,
     curated: 0,
-    published: 25, // You have 25 datasets live
-    avgPrice: 64.62,
+    published: 0,
+    avgPrice: 0,
     totalValue: 0
   });
 
@@ -99,7 +99,7 @@ export default function UnifiedPipeline() {
 
   const loadAllData = async () => {
     try {
-      const [queueData, poolData, datasetData] = await Promise.all([
+      const [queueData, poolData, poolCountData, datasetData] = await Promise.all([
         supabase
           .from("review_queue")
           .select("*")
@@ -111,24 +111,42 @@ export default function UnifiedPipeline() {
           .order("created_at", { ascending: false })
           .limit(100),
         supabase
+          .from("curated_pool")
+          .select("estimated_dataset_price", { count: "exact", head: false }),
+        supabase
           .from("datasets")
           .select("*")
+          .eq("active", true)
           .order("created_at", { ascending: false })
-          .limit(50)
       ]);
 
       if (queueData.data) setReviewQueue(queueData.data);
       if (poolData.data) {
         setCuratedPool(poolData.data);
-        const totalValue = poolData.data.reduce((sum, item) => sum + (item.estimated_dataset_price || 0), 0);
+      }
+      
+      // Calculate stats from full curated pool count
+      if (poolCountData.data) {
+        const totalValue = poolCountData.data.reduce((sum, item) => sum + (item.estimated_dataset_price || 0), 0);
         setStats(prev => ({
           ...prev,
           pending: queueData.data?.length || 0,
-          curated: poolData.data?.length || 0,
+          curated: poolCountData.count || 0,
           totalValue
         }));
       }
-      if (datasetData.data) setDatasets(datasetData.data);
+      
+      if (datasetData.data) {
+        setDatasets(datasetData.data);
+        const avgPrice = datasetData.data.length > 0 
+          ? datasetData.data.reduce((sum, d) => sum + Number(d.price || 0), 0) / datasetData.data.length
+          : 0;
+        setStats(prev => ({
+          ...prev,
+          published: datasetData.data.length,
+          avgPrice: Number(avgPrice.toFixed(2))
+        }));
+      }
     } catch (error) {
       console.error("Error loading pipeline data:", error);
     }
@@ -418,7 +436,9 @@ export default function UnifiedPipeline() {
           <Card>
             <CardHeader>
               <CardTitle>Curated Data Pool</CardTitle>
-              <CardDescription>High-quality data ready for dataset building</CardDescription>
+              <CardDescription>
+                High-quality data ready for dataset building (showing first 100 of {stats.curated} total)
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -535,7 +555,7 @@ export default function UnifiedPipeline() {
           <Card>
             <CardHeader>
               <CardTitle>Published Datasets</CardTitle>
-              <CardDescription>Live on marketplace</CardDescription>
+              <CardDescription>All {stats.published} datasets live on marketplace</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
