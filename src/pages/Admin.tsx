@@ -260,16 +260,16 @@ export default function Admin() {
           </TabsContent>
         </Tabs>
 
-        {/* Management Links */}
-        <div className="grid gap-4 md:grid-cols-3 mt-8 mb-8">
+        {/* Quick Management Links */}
+        <div className="grid gap-4 md:grid-cols-4 mt-8 mb-8">
           <Card>
             <CardHeader>
               <CardTitle>Automation Control</CardTitle>
-              <CardDescription>Manage AI data harvester and automation</CardDescription>
+              <CardDescription>24/7 data harvester</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" onClick={() => navigate('/admin/automation')}>
-                Open Automation Control
+                Open Control
               </Button>
             </CardContent>
           </Card>
@@ -277,7 +277,7 @@ export default function Admin() {
           <Card>
             <CardHeader>
               <CardTitle>Release Policy</CardTitle>
-              <CardDescription>Configure data publishing rules</CardDescription>
+              <CardDescription>Publishing rules</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" onClick={() => navigate('/admin/release-policy')}>
@@ -289,7 +289,7 @@ export default function Admin() {
           <Card>
             <CardHeader>
               <CardTitle>Website Themes</CardTitle>
-              <CardDescription>Seasonal/holiday theme scheduling</CardDescription>
+              <CardDescription>Holiday scheduling</CardDescription>
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" onClick={() => navigate('/admin/themes')}>
@@ -297,91 +297,32 @@ export default function Admin() {
               </Button>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>User Management</CardTitle>
+              <CardDescription>Accounts & roles</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full" onClick={() => navigate('/admin/users')}>
+                View Users
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Management Sections */}
-        <div className="space-y-8">
-          {/* Data Management */}
+        {/* Secondary Management Sections */}
+        <div className="space-y-6">
+          {/* Analytics & Insights */}
           <div>
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-              <Database className="w-6 h-6 text-primary" />
-              Data Management
+              <TrendingUp className="w-6 h-6 text-primary" />
+              Analytics & Insights
             </h2>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/datasets")}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    Dataset Management
-                  </CardTitle>
-                  <CardDescription>Control marketplace inventory</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" size="sm" className="w-full">Manage Datasets</Button>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/data-pipeline")}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    Data Pipeline
-                  </CardTitle>
-                  <CardDescription>Automate curation flow</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" size="sm" className="w-full">View Pipeline</Button>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/data-curation")}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    AI Data Curation
-                  </CardTitle>
-                  <CardDescription>AI-powered analysis</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" size="sm" className="w-full">Curate with AI</Button>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/review")}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    Review Queue
-                  </CardTitle>
-                  <CardDescription>Approve submissions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" size="sm" className="w-full">Review Items</Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* User & Analytics */}
-          <div>
-            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-              <Users className="w-6 h-6 text-primary" />
-              Users & Analytics
-            </h2>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/users")}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    User Management
-                  </CardTitle>
-                  <CardDescription>Accounts & permissions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" size="sm" className="w-full">View Users</Button>
-                </CardContent>
-              </Card>
-
+            <div className="grid gap-4 md:grid-cols-4">
               <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/analytics")}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    Live Analytics
-                  </CardTitle>
+                  <CardTitle className="text-lg">Live Analytics</CardTitle>
                   <CardDescription>Real-time metrics</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -391,9 +332,7 @@ export default function Admin() {
 
               <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/visitor-insights")}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    Visitor Insights
-                  </CardTitle>
+                  <CardTitle className="text-lg">Visitor Insights</CardTitle>
                   <CardDescription>AI-powered analytics</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -403,9 +342,7 @@ export default function Admin() {
 
               <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/warm-leads")}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    Warm Leads
-                  </CardTitle>
+                  <CardTitle className="text-lg">Warm Leads</CardTitle>
                   <CardDescription>High-intent visitors</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -415,9 +352,7 @@ export default function Admin() {
 
               <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/logs")}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    System Logs
-                  </CardTitle>
+                  <CardTitle className="text-lg">System Logs</CardTitle>
                   <CardDescription>Audit trail</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -427,43 +362,37 @@ export default function Admin() {
             </div>
           </div>
 
-          {/* Communications */}
+          {/* Communications & Outreach */}
           <div>
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
               <Mail className="w-6 h-6 text-primary" />
-              Communications
+              Communications & Outreach
             </h2>
             <div className="grid gap-4 md:grid-cols-3">
               <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/communications")}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    Communications Center
-                  </CardTitle>
+                  <CardTitle className="text-lg">Communications Center</CardTitle>
                   <CardDescription>Inbox/Outbox + AI scoring</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button variant="outline" size="sm" className="w-full">Manage Communications</Button>
+                  <Button variant="outline" size="sm" className="w-full">Open Center</Button>
                 </CardContent>
               </Card>
 
               <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/email-inbox")}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    Email Inbox
-                  </CardTitle>
-                  <CardDescription>All sent/received emails</CardDescription>
+                  <CardTitle className="text-lg">Email Inbox</CardTitle>
+                  <CardDescription>All emails</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button variant="outline" size="sm" className="w-full">View All Emails</Button>
+                  <Button variant="outline" size="sm" className="w-full">View Inbox</Button>
                 </CardContent>
               </Card>
 
               <Card className="hover:border-primary transition-colors cursor-pointer" onClick={() => navigate("/admin/campaigns")}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    AI Campaigns
-                  </CardTitle>
-                  <CardDescription>Generate and manage outreach</CardDescription>
+                  <CardTitle className="text-lg">AI Campaigns</CardTitle>
+                  <CardDescription>Automated outreach</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button variant="outline" size="sm" className="w-full">Open Campaigns</Button>
