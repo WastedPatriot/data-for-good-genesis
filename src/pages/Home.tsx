@@ -20,21 +20,27 @@ const Home = () => {
               <DataImpactCounter />
             </div>
             
-            <h1 className="text-6xl md:text-8xl font-black mb-8 text-gradient-hero glow-text leading-tight tracking-tight">
-              Your Data.
+            <div className="mb-6 inline-block px-6 py-2 bg-primary/20 rounded-full border border-primary/40">
+              <p className="text-sm font-semibold text-primary uppercase tracking-wider">
+                🌍 The World's First Ethical Data Marketplace
+              </p>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-black mb-8 text-gradient-hero glow-text leading-tight tracking-tight">
+              Transform Your Data Into
               <br />
-              Your Power.
-              <br />
-              <span className="text-gradient">Real Impact.</span>
+              <span className="text-gradient">Environmental Impact</span>
             </h1>
             
             <div className="card-gradient border-2 border-primary/30 rounded-2xl p-8 mb-10 max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4 text-foreground leading-tight">
-                The ethical alternative to <span className="text-destructive">data exploitation</span>
+              <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground leading-tight">
+                The Billion-Dollar Data Machine That <span className="text-primary">Fights for the Planet</span>
               </h2>
               <p className="text-lg md:text-xl text-foreground/90 leading-relaxed mb-4">
-                <span className="text-primary font-bold">dataforearth</span> turns voluntary data contributions into funding for causes that matter. 
-                Your data creates valuable datasets. Those datasets generate revenue. That revenue funds environmental, medical, and social projects—chosen by contributors like you.
+                <span className="text-primary font-bold">dataforearth</span> is an autonomous data harvesting and marketplace platform that collects environmental, climate, ESG, and sensor data from thousands of sources—then packages it into premium datasets sold to researchers, corporations, and institutions.
+              </p>
+              <p className="text-lg md:text-xl text-foreground/90 leading-relaxed mb-4">
+                <strong className="text-primary">100% of profits</strong> fund verified environmental projects, climate initiatives, and conservation efforts. No middlemen. No exploitation. Pure impact.
               </p>
               <div className="flex flex-wrap justify-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
