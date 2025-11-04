@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,6 +108,60 @@ export default function Admin() {
       console.error("Error loading dashboard data:", error);
     }
   };
+
+  // Harvester download handling
+  const [harvesterUrl, setHarvesterUrl] = useState<string | null>(null);
+  const [harvesterName, setHarvesterName] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const loadHarvesterUrl = async () => {
+    try {
+      const listRes = await supabase.storage.from('harvester').list('', {
+        limit: 100,
+        sortBy: { column: 'created_at', order: 'desc' }
+      });
+
+      if (listRes.data && listRes.data.length > 0) {
+        const exe = listRes.data.find((f) => f.name.toLowerCase().endsWith('.exe')) || listRes.data[0];
+        const { data } = supabase.storage.from('harvester').getPublicUrl(exe.name);
+        setHarvesterUrl(data.publicUrl);
+        setHarvesterName(exe.name);
+      } else {
+        setHarvesterUrl(null);
+        setHarvesterName(null);
+      }
+    } catch (error) {
+      console.error('Error loading harvester URL:', error);
+    }
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploading(true);
+      const filename = `DataForEarth-Harvester-Setup-${Date.now()}.exe`;
+      const { error } = await supabase.storage.from('harvester').upload(filename, file, {
+        upsert: false,
+        contentType: 'application/octet-stream',
+      });
+      if (error) throw error;
+      toast({ title: 'Upload complete', description: 'Harvester build uploaded.' });
+      await loadHarvesterUrl();
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err.message || 'Unknown error', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  useEffect(() => {
+    if (isAdmin) {
+      loadHarvesterUrl();
+    }
+  }, [isAdmin]);
 
   if (loading) {
     return (
@@ -236,28 +290,42 @@ export default function Admin() {
               </div>
             </div>
             
-            <div className="flex justify-center">
-              <Button 
-                size="lg" 
-                className="px-12 py-6 text-lg"
-                onClick={() => {
-                  // Download the EXE from the releases or download server
-                  const link = document.createElement('a');
-                  link.href = '/downloads/DataForEarth-Harvester-Setup.exe'; // Update this path to your actual EXE location
-                  link.download = 'DataForEarth-Harvester-Setup.exe';
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                  
-                  toast({
-                    title: "Download Started",
-                    description: "DataForEarth Harvester is downloading. Run the installer after download completes.",
-                  });
-                }}
-              >
-                <Database className="w-6 h-6 mr-3" />
-                Download Harvester EXE
-              </Button>
+            <div className="flex flex-col items-center gap-3">
+              <div className="text-sm text-muted-foreground">
+                Latest build: {harvesterName ? <span className="font-medium">{harvesterName}</span> : "No build uploaded yet"}
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  size="lg"
+                  className="px-10 py-6 text-lg"
+                  onClick={() => {
+                    if (harvesterUrl) {
+                      window.open(harvesterUrl, '_blank');
+                    } else {
+                      toast({ title: "No build available", description: "Upload a harvester build first.", variant: "destructive" });
+                    }
+                  }}
+                >
+                  <Database className="w-6 h-6 mr-3" />
+                  Download Harvester EXE
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".exe"
+                  className="hidden"
+                  onChange={handleUpload}
+                />
+                
+                <Button
+                  variant="outline"
+                  size="lg"
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {uploading ? "Uploading..." : "Upload New Build (admin)"}
+                </Button>
+              </div>
             </div>
 
             <div className="text-xs text-muted-foreground bg-muted/30 p-4 rounded text-center">
