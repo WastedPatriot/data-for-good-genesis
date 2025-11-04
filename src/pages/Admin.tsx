@@ -199,15 +199,15 @@ export default function Admin() {
             <div className="flex items-center gap-3">
               <Database className="w-8 h-8 text-primary animate-pulse" />
               <div>
-                <CardTitle className="text-2xl">Data Harvester Machine - Windows EXE</CardTitle>
+                <CardTitle className="text-2xl">Data Harvester Machine</CardTitle>
                 <CardDescription className="text-base mt-1">
-                  Download and run the autonomous 24/7 data harvesting machine on any Windows server
+                  Autonomous 24/7 data scraping, AI curation & dataset publishing for Windows
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+          <CardContent className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <h3 className="font-bold text-lg flex items-center gap-2">
                   <Shield className="w-5 h-5 text-primary" />
@@ -231,61 +231,38 @@ export default function Admin() {
                   <li>• Windows 10/11 or Windows Server 2019+</li>
                   <li>• 4GB RAM minimum (8GB recommended)</li>
                   <li>• Stable internet connection</li>
-                  <li>• Your Supabase URL and Ingest Secret (from settings)</li>
+                  <li>• Runs on your server - full control</li>
                 </ul>
               </div>
             </div>
             
-            <div className="bg-card/50 border border-border rounded-lg p-4 space-y-3">
-              <h3 className="font-bold flex items-center gap-2">
-                📥 Download & Setup Instructions
-              </h3>
-              <ol className="text-sm space-y-2 text-muted-foreground pl-5 list-decimal">
-                <li>Build the harvester: Navigate to <code className="bg-muted px-1 py-0.5 rounded">machine-agent-gui</code> directory and run <code className="bg-muted px-1 py-0.5 rounded">npm run package:win</code></li>
-                <li>Find the EXE in: <code className="bg-muted px-1 py-0.5 rounded">machine-agent-gui/dist-package/DataForEarth Agent Setup X.X.X.exe</code></li>
-                <li>Run the installer on your Windows machine/server</li>
-                <li>Launch "DataForEarth Agent" from Start Menu</li>
-                <li>Go to ⚙️ Settings tab and configure:
-                  <ul className="pl-4 mt-1 space-y-1">
-                    <li>- SUPABASE_URL: {window.location.origin.includes('localhost') ? 'https://fszghwwbvxwkmgfvhzrh.supabase.co' : 'Get from project settings'}</li>
-                    <li>- INGEST_SECRET: Get from your Supabase secrets</li>
-                    <li>- DATA_PRICE: Default dataset pricing (e.g., 49.99)</li>
-                    <li>- CATEGORY: Default category (e.g., "environmental")</li>
-                  </ul>
-                </li>
-                <li>Click "Test Connection" then "Save Configuration"</li>
-                <li>Go to 🤖 Dataset Automation tab and click "Start Automation"</li>
-                <li><strong>Optional:</strong> Run <code className="bg-muted px-1 py-0.5 rounded">windows-service-install.bat</code> (as admin) to set up auto-start on boot</li>
-              </ol>
-            </div>
-
-            <div className="flex gap-3">
+            <div className="flex justify-center">
               <Button 
                 size="lg" 
-                className="flex-1"
+                className="px-12 py-6 text-lg"
                 onClick={() => {
+                  // Download the EXE from the releases or download server
+                  const link = document.createElement('a');
+                  link.href = '/downloads/DataForEarth-Harvester-Setup.exe'; // Update this path to your actual EXE location
+                  link.download = 'DataForEarth-Harvester-Setup.exe';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  
                   toast({
-                    title: "Build Instructions",
-                    description: "Navigate to machine-agent-gui directory and run: npm run package:win",
+                    title: "Download Started",
+                    description: "DataForEarth Harvester is downloading. Run the installer after download completes.",
                   });
                 }}
               >
-                <Database className="w-5 h-5 mr-2" />
-                View Build Command
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                onClick={() => window.open('https://github.com/yourusername/dataforearth/tree/main/machine-agent-gui', '_blank')}
-              >
-                📖 Full Documentation
+                <Database className="w-6 h-6 mr-3" />
+                Download Harvester EXE
               </Button>
             </div>
 
-            <div className="text-xs text-muted-foreground bg-muted/30 p-3 rounded">
-              <strong>💡 Pro Tip:</strong> For maximum reliability, run the harvester on a dedicated Windows VPS/server with at least 8GB RAM. 
-              The machine will operate 24/7, continuously scraping data, curating it with AI, building datasets, and publishing to the marketplace automatically.
-              Average runtime generates $500-$2000/month in dataset sales depending on data volume and quality.
+            <div className="text-xs text-muted-foreground bg-muted/30 p-4 rounded text-center">
+              <strong>💡 After Download:</strong> Run the installer, configure your Supabase URL in settings, and start the automation. 
+              The machine will operate 24/7, automatically scraping data, curating it with AI, and publishing datasets to your marketplace.
             </div>
           </CardContent>
         </Card>
