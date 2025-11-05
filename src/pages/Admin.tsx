@@ -337,9 +337,32 @@ export default function Admin() {
               </div>
             </div>
 
-            <div className="text-xs text-muted-foreground bg-muted/30 p-4 rounded text-center">
-              <strong>💡 After Download:</strong> Run the installer, configure your Supabase URL in settings, and start the automation. 
-              The machine will operate 24/7, automatically scraping data, curating it with AI, and publishing datasets to your marketplace.
+            <div className="space-y-3 text-sm bg-muted/30 p-4 rounded">
+              <div className="font-bold text-base">📥 Download & Setup (3 Steps):</div>
+              <ol className="space-y-2 ml-4">
+                <li><strong>1. Download harvester.js</strong> - Click button above</li>
+                <li><strong>2. Configure INGEST_SECRET</strong> - Edit line 12 in harvester.js with your secret from Supabase</li>
+                <li><strong>3. Run:</strong> <code className="bg-background px-2 py-1 rounded">node harvester.js</code></li>
+              </ol>
+              <div className="pt-2 border-t border-border mt-3">
+                <strong>🎯 What Happens:</strong> Scrapes climate/ESG/sensor data every 30min → AI curates → Builds datasets → Publishes to marketplace → Revenue 24/7
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => window.open('/downloads/harvester.js', '_blank')}
+                >
+                  Download harvester.js
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => window.open('/downloads/HARVESTER_INSTRUCTIONS.md', '_blank')}
+                >
+                  Full Instructions (MD)
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
