@@ -294,7 +294,7 @@ export default function Admin() {
               <div className="text-sm text-muted-foreground">
                 Latest build: {harvesterName ? <span className="font-medium">{harvesterName}</span> : "No build uploaded yet"}
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap justify-center">
                 <Button
                   size="lg"
                   className="px-10 py-6 text-lg"
@@ -302,13 +302,22 @@ export default function Admin() {
                     if (harvesterUrl) {
                       window.open(harvesterUrl, '_blank');
                     } else {
-                      toast({ title: "No build available", description: "Upload a harvester build first.", variant: "destructive" });
+                      toast({ title: "No EXE available", description: "Use the Windows Runner below or upload an EXE.", variant: "destructive" });
                     }
                   }}
                 >
                   <Database className="w-6 h-6 mr-3" />
                   Download Harvester EXE
                 </Button>
+
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => window.open('/downloads/harvester-runner.ps1', '_blank')}
+                >
+                  Windows Runner (PowerShell)
+                </Button>
+
                 <input
                   ref={fileInputRef}
                   type="file"
