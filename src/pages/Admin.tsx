@@ -114,6 +114,7 @@ export default function Admin() {
   const [harvesterName, setHarvesterName] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [ingestSecret] = useState<string>("f8f9f86dec56dd1edef163eb63d9967c");
 
   const loadHarvesterUrl = async () => {
     try {
@@ -247,122 +248,114 @@ export default function Admin() {
           </Card>
         </div>
 
-        {/* Data Harvester Machine Download Section */}
+        {/* Data Harvester Machine - GUI Application */}
         <Card className="mb-8 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30">
           <CardHeader>
             <div className="flex items-center gap-3">
               <Database className="w-8 h-8 text-primary animate-pulse" />
               <div>
-                <CardTitle className="text-2xl">Data Harvester Machine</CardTitle>
+                <CardTitle className="text-2xl">🤖 Data Harvester Machine (Desktop App)</CardTitle>
                 <CardDescription className="text-base mt-1">
-                  Autonomous 24/7 data scraping, AI curation & dataset publishing for Windows
+                  Full GUI application for automated data harvesting, AI curation & marketplace publishing
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <h3 className="font-bold text-lg flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-primary" />
-                  What It Does
-                </h3>
-                <ul className="text-sm space-y-1 text-muted-foreground">
-                  <li>✅ Scrapes environmental, climate, ESG & sensor data from 15+ sources</li>
-                  <li>✅ AI-powered data curation and quality scoring</li>
-                  <li>✅ Automatic dataset building and marketplace publishing</li>
-                  <li>✅ Badge code generation and Stripe integration</li>
-                  <li>✅ 24/7 autonomous operation with health monitoring</li>
-                  <li>✅ Real-time revenue tracking and analytics</li>
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-bold text-lg flex items-center gap-2">
+            <div className="bg-muted/50 p-6 rounded-lg border-2 border-primary/20">
+              <h3 className="font-bold text-xl mb-4 flex items-center gap-2">
+                <Shield className="w-6 h-6 text-primary" />
+                What This Does:
+              </h3>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold">✓</span>
+                  <span>Harvests <strong>ALL types of data</strong>: climate, ESG, financial, social, consumer, health, energy, agriculture, transportation, waste & more</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold">✓</span>
+                  <span>AI-powered curation and quality scoring</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold">✓</span>
+                  <span>Automatically builds and publishes datasets to your marketplace</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold">✓</span>
+                  <span>24/7 autonomous operation with visual dashboard</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold">✓</span>
+                  <span>Real-time revenue tracking and logs</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary font-bold">✓</span>
+                  <span>Pre-configured to connect to YOUR website</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-background p-4 rounded-lg border">
+                <h4 className="font-bold mb-3 flex items-center gap-2">
                   <Activity className="w-5 h-5 text-primary" />
-                  Requirements
-                </h3>
-                <ul className="text-sm space-y-1 text-muted-foreground">
-                  <li>• Windows 10/11 or Windows Server 2019+</li>
-                  <li>• 4GB RAM minimum (8GB recommended)</li>
-                  <li>• Stable internet connection</li>
-                  <li>• Runs on your server - full control</li>
-                </ul>
+                  Windows Users
+                </h4>
+                <ol className="space-y-2 text-sm">
+                  <li><strong>1.</strong> Open terminal in project folder</li>
+                  <li><strong>2.</strong> Run:
+                    <code className="block bg-muted p-2 rounded mt-1 text-xs">
+                      cd machine-agent-gui<br/>
+                      npm install<br/>
+                      npm run package:win
+                    </code>
+                  </li>
+                  <li><strong>3.</strong> Find your .exe in <code className="bg-muted px-2 py-1 rounded text-xs">machine-agent-gui/dist-package/</code></li>
+                  <li><strong>4.</strong> Run the .exe, go to Settings, enter your secret below, click "Start Automation"</li>
+                </ol>
               </div>
-            </div>
-            
-            <div className="flex flex-col items-center gap-3">
-              <div className="text-sm text-muted-foreground">
-                Latest build: {harvesterName ? <span className="font-medium">{harvesterName}</span> : "No build uploaded yet"}
-              </div>
-              <div className="flex gap-3 flex-wrap justify-center">
-                <Button
-                  size="lg"
-                  className="px-10 py-6 text-lg"
-                  onClick={() => {
-                    if (harvesterUrl) {
-                      window.open(harvesterUrl, '_blank');
-                    } else {
-                      toast({ title: "No EXE available", description: "Use the Windows Runner below or upload an EXE.", variant: "destructive" });
-                    }
-                  }}
-                >
-                  <Database className="w-6 h-6 mr-3" />
-                  Download Harvester EXE
-                </Button>
 
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => window.open('/downloads/harvester-runner.ps1', '_blank')}
-                >
-                  Windows Runner (PowerShell)
-                </Button>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".exe"
-                  className="hidden"
-                  onChange={handleUpload}
-                />
-                
-                <Button
-                  variant="outline"
-                  size="lg"
-                  disabled={uploading}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {uploading ? "Uploading..." : "Upload New Build (admin)"}
-                </Button>
+              <div className="bg-background p-4 rounded-lg border">
+                <h4 className="font-bold mb-3 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-primary" />
+                  Linux Users
+                </h4>
+                <ol className="space-y-2 text-sm">
+                  <li><strong>1.</strong> Open terminal in project folder</li>
+                  <li><strong>2.</strong> Run:
+                    <code className="block bg-muted p-2 rounded mt-1 text-xs">
+                      cd machine-agent-gui<br/>
+                      npm install<br/>
+                      npm run package:linux
+                    </code>
+                  </li>
+                  <li><strong>3.</strong> Find your AppImage in <code className="bg-muted px-2 py-1 rounded text-xs">machine-agent-gui/dist-package/</code></li>
+                  <li><strong>4.</strong> Make executable: <code className="bg-muted px-2 py-1 rounded text-xs">chmod +x *.AppImage</code></li>
+                  <li><strong>5.</strong> Run it, go to Settings, enter your secret below, click "Start Automation"</li>
+                </ol>
               </div>
             </div>
 
-            <div className="space-y-3 text-sm bg-muted/30 p-4 rounded">
-              <div className="font-bold text-base">📥 Download & Setup (3 Steps):</div>
-              <ol className="space-y-2 ml-4">
-                <li><strong>1. Download harvester.js</strong> - Click button above</li>
-                <li><strong>2. Configure INGEST_SECRET</strong> - Edit line 12 in harvester.js with your secret from Supabase</li>
-                <li><strong>3. Run:</strong> <code className="bg-background px-2 py-1 rounded">node harvester.js</code></li>
-              </ol>
-              <div className="pt-2 border-t border-border mt-3">
-                <strong>🎯 What Happens:</strong> Scrapes climate/ESG/sensor data every 30min → AI curates → Builds datasets → Publishes to marketplace → Revenue 24/7
-              </div>
-              <div className="flex gap-2 pt-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => window.open('/downloads/harvester.js', '_blank')}
-                >
-                  Download harvester.js
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => window.open('/downloads/HARVESTER_INSTRUCTIONS.md', '_blank')}
-                >
-                  Full Instructions (MD)
-                </Button>
-              </div>
+            <div className="bg-yellow-500/10 border-2 border-yellow-500/30 p-4 rounded-lg">
+              <h4 className="font-bold mb-2 flex items-center gap-2">
+                <Shield className="w-5 h-5 text-yellow-600" />
+                Your INGEST_SECRET (Copy This!)
+              </h4>
+              <code className="block bg-background p-3 rounded font-mono text-sm break-all">
+                {ingestSecret || "Loading..."}
+              </code>
+              <p className="text-sm text-muted-foreground mt-2">
+                Enter this in the Settings tab when you first run the app
+              </p>
+            </div>
+
+            <div className="text-center bg-primary/5 p-4 rounded-lg">
+              <p className="text-sm font-semibold">
+                🎯 That's It! The app handles everything: scraping → AI curation → dataset building → marketplace publishing → revenue 24/7
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Monitor progress in the Dashboard tab. Check logs in the Logs tab.
+              </p>
             </div>
           </CardContent>
         </Card>
