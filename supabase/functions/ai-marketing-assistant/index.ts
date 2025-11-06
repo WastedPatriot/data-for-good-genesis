@@ -3,6 +3,30 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { Resend } from "https://esm.sh/resend@4.0.0";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
+/**
+ * Verify if a user has admin role
+ * @throws Error if user is not an admin
+ */
+async function requireAdmin(supabase: any, userId: string): Promise<boolean> {
+  const { data: roleData, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+
+  if (error) {
+    console.error("[requireAdmin] Database error:", error);
+    throw new Error("UNAUTHORIZED: Failed to verify admin status");
+  }
+
+  if (!roleData) {
+    throw new Error("UNAUTHORIZED: Admin access required");
+  }
+
+  return true;
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -61,17 +85,13 @@ serve(async (req) => {
       );
     }
 
-    // Verify admin role
-    const { data: roleData } = await supabaseClient
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userData.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (!roleData) {
+    // Verify admin role using shared auth module
+    try {
+      await requireAdmin(supabaseClient, userData.user.id);
+    } catch (err) {
+      const error = err as Error;
       return new Response(
-        JSON.stringify({ error: "Admin access required" }),
+        JSON.stringify({ error: error.message }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
       );
     }

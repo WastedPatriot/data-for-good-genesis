@@ -35,12 +35,29 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 // CORS configuration - allows frontend to call this function
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Input validation schema to prevent XSS and injection attacks
+const trackingSchema = z.object({
+  session_id: z.string().uuid({ message: "Invalid session ID format" }),
+  page_path: z.string()
+    .max(500, { message: "Page path too long" })
+    .regex(/^[a-zA-Z0-9\/#\-_?&=.%]+$/, { message: "Invalid characters in page path" }),
+  referrer: z.string()
+    .url({ message: "Invalid referrer URL" })
+    .max(500, { message: "Referrer URL too long" })
+    .optional()
+    .nullable(),
+  user_agent: z.string()
+    .max(500, { message: "User agent too long" })
+    .optional(),
+});
 
 /**
  * Main request handler
@@ -66,29 +83,23 @@ serve(async (req) => {
   );
 
   try {
-    // Parse request body
+    // Parse and validate request body
     const body = await req.json();
+    
+    // Validate input to prevent XSS and injection attacks
+    const validated = trackingSchema.parse(body);
     const {
       session_id,
       page_path,
       referrer,
       user_agent,
-    } = body;
+    } = validated;
 
     console.log("[track-visitor] Received tracking data:", {
-      session_id: session_id ? `${session_id.substring(0, 8)}...` : "missing",
+      session_id: `${session_id.substring(0, 8)}...`,
       page_path,
       has_referrer: !!referrer
     });
-
-    // Validate required fields
-    if (!session_id || !page_path) {
-      console.warn("[track-visitor] Missing required fields");
-      return new Response(
-        JSON.stringify({ error: "session_id and page_path required" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-      );
-    }
 
     /**
      * Extract IP address from headers
@@ -152,11 +163,22 @@ serve(async (req) => {
     );
   } catch (error: any) {
     console.error("[track-visitor] ❌ Error:", error.message);
-    console.error("[track-visitor] Stack trace:", error.stack);
+    
+    // Handle validation errors
+    if (error instanceof z.ZodError) {
+      console.warn("[track-visitor] Validation failed:", error.errors);
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid tracking data",
+          code: "VALIDATION_ERROR"
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
     
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: "Tracking failed",
         code: "TRACKING_FAILED" 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
