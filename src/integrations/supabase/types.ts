@@ -829,6 +829,66 @@ export type Database = {
         }
         Relationships: []
       }
+      esim_purchases: {
+        Row: {
+          activated_at: string | null
+          country: string
+          created_at: string | null
+          data_amount: string
+          data_used: number | null
+          duration: number
+          esim_activation_code: string | null
+          esim_iccid: string | null
+          esim_qr_code: string | null
+          expires_at: string | null
+          id: string
+          payment_method: string
+          plan_id: string
+          price: number
+          status: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          country: string
+          created_at?: string | null
+          data_amount: string
+          data_used?: number | null
+          duration: number
+          esim_activation_code?: string | null
+          esim_iccid?: string | null
+          esim_qr_code?: string | null
+          expires_at?: string | null
+          id?: string
+          payment_method: string
+          plan_id: string
+          price: number
+          status: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          country?: string
+          created_at?: string | null
+          data_amount?: string
+          data_used?: number | null
+          duration?: number
+          esim_activation_code?: string | null
+          esim_iccid?: string | null
+          esim_qr_code?: string | null
+          expires_at?: string | null
+          id?: string
+          payment_method?: string
+          plan_id?: string
+          price?: number
+          status?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       extension_activity: {
         Row: {
           co2_data_shown: boolean | null

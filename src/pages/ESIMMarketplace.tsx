@@ -1,101 +1,98 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Globe, Wifi, MapPin, Filter, TrendingUp } from "lucide-react";
+import { Search, Globe, Wifi, MapPin, TrendingUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-// Mock eSIM plans data - will be replaced with API integration
-const mockPlans = [
-  {
-    id: 1,
-    country: "United States",
-    flag: "🇺🇸",
-    region: "North America",
-    data: "5GB",
-    validity: "30 days",
-    price: 12.99,
-    speed: "4G/5G",
-    coverage: "Nationwide",
-    popular: true
-  },
-  {
-    id: 2,
-    country: "United Kingdom",
-    flag: "🇬🇧",
-    region: "Europe",
-    data: "3GB",
-    validity: "30 days",
-    price: 8.99,
-    speed: "4G/5G",
-    coverage: "Nationwide"
-  },
-  {
-    id: 3,
-    country: "Japan",
-    flag: "🇯🇵",
-    region: "Asia",
-    data: "10GB",
-    validity: "15 days",
-    price: 15.99,
-    speed: "4G/5G",
-    coverage: "Major cities",
-    popular: true
-  },
-  {
-    id: 4,
-    country: "France",
-    flag: "🇫🇷",
-    region: "Europe",
-    data: "5GB",
-    validity: "30 days",
-    price: 9.99,
-    speed: "4G/5G",
-    coverage: "Nationwide"
-  },
-  {
-    id: 5,
-    country: "Australia",
-    flag: "🇦🇺",
-    region: "Oceania",
-    data: "8GB",
-    validity: "30 days",
-    price: 14.99,
-    speed: "4G/5G",
-    coverage: "Nationwide"
-  },
-  {
-    id: 6,
-    country: "Global",
-    flag: "🌍",
-    region: "Worldwide",
-    data: "20GB",
-    validity: "30 days",
-    price: 49.99,
-    speed: "4G/5G",
-    coverage: "150+ countries",
-    popular: true
-  }
-];
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import type { ESIMPlan } from "@/types/esim";
 
 const ESIMMarketplace = () => {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [sortBy, setSortBy] = useState("popular");
+  const [plans, setPlans] = useState<ESIMPlan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [purchasing, setPurchasing] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  const filteredPlans = mockPlans.filter(plan => {
-    const matchesSearch = plan.country.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRegion = selectedRegion === "all" || plan.region === selectedRegion;
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const fetchPlans = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("list-esim-plans");
+      if (error) throw error;
+      setPlans(data.plans || []);
+    } catch (error) {
+      console.error("Error fetching plans:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load eSIM plans",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePurchase = async (plan: ESIMPlan, paymentMethod: "stripe" | "crypto") => {
+    try {
+      setPurchasing(plan.id);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please login to purchase eSIMs",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("purchase-esim", {
+        body: {
+          planId: plan.id,
+          country: plan.country,
+          dataAmount: plan.dataAmount,
+          duration: plan.duration,
+          price: plan.price,
+          paymentMethod,
+        },
+      });
+
+      if (error) throw error;
+
+      if (paymentMethod === "stripe" && data.url) {
+        window.open(data.url, "_blank");
+      } else if (paymentMethod === "crypto") {
+        toast({
+          title: "Crypto Payment",
+          description: data.message || "Crypto payment flow coming soon",
+        });
+      }
+    } catch (error) {
+      console.error("Purchase error:", error);
+      toast({
+        title: "Purchase Failed",
+        description: error instanceof Error ? error.message : "Failed to process purchase",
+        variant: "destructive",
+      });
+    } finally {
+      setPurchasing(null);
+    }
+  };
+
+  const filteredPlans = plans.filter(plan => {
+    const matchesSearch = plan.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          plan.countryCode.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRegion = selectedRegion === "all" || plan.coverage.some(c => c.includes(selectedRegion));
     return matchesSearch && matchesRegion;
   });
-
-  const handlePurchase = (planId: number) => {
-    navigate(`/esim/purchase/${planId}`);
-  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -151,9 +148,7 @@ const ESIMMarketplace = () => {
                 <SelectItem value="all">All Regions</SelectItem>
                 <SelectItem value="Europe">Europe</SelectItem>
                 <SelectItem value="Asia">Asia</SelectItem>
-                <SelectItem value="North America">North America</SelectItem>
-                <SelectItem value="Oceania">Oceania</SelectItem>
-                <SelectItem value="Worldwide">Worldwide</SelectItem>
+                <SelectItem value="America">America</SelectItem>
               </SelectContent>
             </Select>
 
@@ -179,77 +174,86 @@ const ESIMMarketplace = () => {
           <span className="text-sm text-muted-foreground">{filteredPlans.length} plans found</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPlans.map((plan, index) => (
-            <motion.div
-              key={plan.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="relative overflow-hidden hover:shadow-lg transition-shadow border-border/50 bg-card/50 backdrop-blur">
-                {plan.popular && (
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-primary text-primary-foreground">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      Popular
-                    </Badge>
-                  </div>
-                )}
-                
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-4xl">{plan.flag}</span>
-                    <div className="flex-1">
-                      <CardTitle className="text-xl">{plan.country}</CardTitle>
-                      <CardDescription className="text-xs">{plan.region}</CardDescription>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <p className="mt-4 text-muted-foreground">Loading eSIM plans...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPlans.map((plan, index) => (
+              <motion.div
+                key={plan.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Card className="relative overflow-hidden hover:shadow-lg transition-shadow border-border/50 bg-card/50 backdrop-blur">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Wifi className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-xl">{plan.country}</CardTitle>
+                        <CardDescription className="text-xs">{plan.countryCode}</CardDescription>
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
+                  </CardHeader>
 
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Wifi className="w-4 h-4 text-primary" />
-                    <span className="font-semibold">{plan.data}</span>
-                    <span className="text-muted-foreground">• {plan.validity}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
-                    <span>{plan.coverage}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                      {plan.speed}
-                    </span>
-                  </div>
-
-                  <div className="pt-2 border-t border-border/50">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold text-primary">${plan.price}</span>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Wifi className="w-4 h-4 text-primary" />
+                      <span className="font-semibold">{plan.dataAmount}</span>
+                      <span className="text-muted-foreground">• {plan.duration} days</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      🌍 Includes carbon offset
-                    </p>
-                  </div>
-                </CardContent>
+                    
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="w-4 h-4" />
+                      <span>{plan.coverage.join(", ")}</span>
+                    </div>
 
-                <CardFooter>
-                  <Button 
-                    className="w-full" 
-                    onClick={() => handlePurchase(plan.id)}
-                  >
-                    Get This Plan
-                  </Button>
-                </CardFooter>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                        {plan.networkType}
+                      </span>
+                    </div>
 
-        {filteredPlans.length === 0 && (
+                    <div className="pt-2 border-t border-border/50">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-bold text-primary">${plan.price}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        🌍 Includes carbon offset
+                      </p>
+                    </div>
+                  </CardContent>
+
+                  <CardFooter className="flex flex-col gap-2">
+                    <Button 
+                      className="w-full" 
+                      onClick={() => handlePurchase(plan, "stripe")}
+                      disabled={purchasing === plan.id}
+                    >
+                      {purchasing === plan.id ? "Processing..." : "Get This Plan"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full text-xs"
+                      onClick={() => handlePurchase(plan, "crypto")}
+                      disabled={purchasing === plan.id}
+                    >
+                      Pay with Crypto
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {filteredPlans.length === 0 && !loading && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">No plans found matching your criteria.</p>
           </div>
