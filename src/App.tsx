@@ -26,6 +26,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import Install from "./pages/Install";
 
 import Navigation from "./components/Navigation";
 import Earth3DBackground from "./components/Earth3DBackground";
@@ -72,6 +73,7 @@ const AppContent = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/install" element={<Install />} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>
