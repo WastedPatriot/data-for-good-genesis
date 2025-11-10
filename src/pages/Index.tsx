@@ -1,11 +1,34 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 
+/**
+ * Index - Smart Landing Page
+ * 
+ * Detects platform and routes users:
+ * - Native iOS/Android → /esim (eSIM app)
+ * - Web → /home (DataForEarth marketplace)
+ */
 const Index = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isNative = Capacitor.isNativePlatform();
+    
+    if (isNative) {
+      // Native mobile app - show eSIM app
+      navigate("/esim", { replace: true });
+    } else {
+      // Web browser - show data marketplace
+      navigate("/home", { replace: true });
+    }
+  }, [navigate]);
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+        <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <p className="mt-4 text-muted-foreground">Loading...</p>
       </div>
     </div>
   );
