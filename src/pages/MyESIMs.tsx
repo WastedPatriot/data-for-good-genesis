@@ -32,7 +32,7 @@ const MyESIMs = () => {
         toast({ title: "Error", description: "Could not load your eSIMs", variant: "destructive" });
         return;
       }
-      setPurchases(data || []);
+      setPurchases((data || []) as ESIMPurchase[]);
     };
 
     fetchPurchases();
