@@ -19,8 +19,8 @@ const Index = () => {
       // Native mobile app - show eSIM app
       navigate("/esim", { replace: true });
     } else {
-      // Web browser - show data marketplace
-      navigate("/home", { replace: true });
+      // Web browser - show app install/preview page
+      navigate("/install", { replace: true });
     }
   }, [navigate]);
 

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { QRCodeCanvas } from "qrcode.react";
+import PhoneMockup from "@/components/PhoneMockup";
 
 const Install = () => {
   const appUrl = useMemo(() => `${window.location.origin}/esim`, []);
@@ -22,7 +23,7 @@ const Install = () => {
       </header>
 
       <main className="container mx-auto px-4 pb-16">
-        <section className="grid gap-6 md:grid-cols-2 items-start">
+        <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-start">
           <Card className="p-6 flex flex-col items-center justify-center">
             <div className="mb-4 text-sm text-muted-foreground">Scan to open on your phone</div>
             <div className="rounded-xl bg-card p-4 shadow-sm">
@@ -32,6 +33,11 @@ const Install = () => {
               <Button variant="default">Open App Link</Button>
             </a>
             <p className="mt-2 text-xs text-muted-foreground break-all">{appUrl}</p>
+          </Card>
+          <Card className="p-6 flex items-center justify-center">
+            <PhoneMockup>
+              <iframe src="/esim" title="App preview" className="w-full h-full border-0" />
+            </PhoneMockup>
           </Card>
 
           <Card className="p-6">
