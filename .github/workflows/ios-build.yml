@@ -1,0 +1,68 @@
+name: iOS Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Ensure Capacitor is available
+        run: npx cap --version
+
+      - name: Add iOS platform (if missing)
+        run: |
+          if [ ! -d ios ]; then
+            npx cap add ios
+          else
+            echo "iOS platform already present"
+          fi
+
+      - name: Sync Capacitor
+        run: npx cap sync ios
+
+      - name: Install CocoaPods
+        working-directory: ios/App
+        run: pod install
+
+      - name: Build iOS app
+        working-directory: ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Create IPA (simulator)
+        working-directory: ios/App
+        run: |
+          mkdir -p Payload
+          cp -r build/Build/Products/Debug-iphonesimulator/App.app Payload/
+          zip -r DataForEarth-Debug.zip Payload
+          mv DataForEarth-Debug.zip DataForEarth-Debug.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DataForEarth-iOS-Debug.ipa
+          path: ios/App/DataForEarth-Debug.ipa
+          if-no-files-found: error
