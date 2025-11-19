@@ -1,0 +1,62 @@
+ext {
+    cdvMinSdkVersion = project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 22
+    // Plugin gradle extensions can append to this to have code run at
+    // the end.
+    cdvPluginPostBuildExtras = []
+}
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.2.1'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    namespace "com.getcapacitor.cordova.android.plugins"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        minSdkVersion cdvMinSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+    lintOptions {
+        abortOnError false
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+    flatDir {
+        dirs 'src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'src/main/libs', include: ['*.jar'])
+    implementation project(':capacitor-android')
+}
+
+def doPostBuildExtras() {
+    cdvPluginPostBuildExtras.each { it() }
+}
+
+android.libraryVariants.all { variant ->
+    variant.outputs.each { output ->
+        def buildTask = tasks.findByPath("bundle${variant.name.capitalize()}Aar") ?: tasks.findByPath("bundle${variant.name.capitalize()}")
+        buildTask.doLast {
+            doPostBuildExtras()
+        }
+    }
+}
