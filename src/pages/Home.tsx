@@ -1,148 +1,132 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
-import { Globe, Leaf, Smartphone, Zap, Shield, Wallet } from "lucide-react";
-import PhoneMockup from "@/components/PhoneMockup";
+import { Check, ArrowRight } from "lucide-react";
+import WalkingEarth from "@/components/WalkingEarth";
+import ScrollingMarquee from "@/components/ScrollingMarquee";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Home = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+      },
+    });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success!",
+        description: "Check your email to confirm your account.",
+      });
+      setEmail("");
+      setPassword("");
+    }
+    setLoading(false);
+  };
+
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="container mx-auto px-4 z-10">
+      <section className="relative min-h-screen flex items-center justify-center px-4 py-20">
+        <div className="container mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.6 }}
             >
-              <div className="mb-6 inline-block px-6 py-2 bg-primary/20 rounded-full border border-primary/40">
-                <p className="text-sm font-semibold text-primary uppercase tracking-wider">
-                  🌍 Climate-Positive Mobile Data
-                </p>
-              </div>
-              
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-6 text-gradient-hero glow-text leading-tight">
-                Travel Connected.
-                <br />
-                <span className="text-gradient">Save the Planet.</span>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-none uppercase">
+                STOP BUYING DATA THAT FUNDS GREED.
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-                Instant eSIM data plans for 190+ countries. Every purchase funds verified environmental projects. No roaming fees. No plastic SIM cards. Pure impact.
+              <p className="text-xl md:text-2xl font-bold mb-8 leading-tight">
+                The world's first eSIM that donates 40% of profits to verified climate action. You vote where the money goes.
               </p>
 
-              <div className="flex flex-wrap gap-4 mb-8">
-                <div className="flex items-center gap-2 text-foreground">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  <span className="font-medium">Instant activation</span>
-                </div>
-                <div className="flex items-center gap-2 text-foreground">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  <span className="font-medium">190+ countries</span>
-                </div>
-                <div className="flex items-center gap-2 text-foreground">
-                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                  <span className="font-medium">100% profit to planet</span>
-                </div>
-              </div>
-
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/esim/marketplace">
-                  <Button size="lg" className="text-lg px-8 py-6 shadow-xl hover-lift w-full sm:w-auto">
-                    <Globe className="w-5 h-5 mr-2" />
-                    Browse Plans
-                  </Button>
-                </Link>
                 <Link to="/install">
-                  <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift w-full sm:w-auto">
-                    <Smartphone className="w-5 h-5 mr-2" />
+                  <Button 
+                    size="lg" 
+                    className="text-lg px-8 py-6 w-full sm:w-auto border-2 border-foreground shadow-[4px_4px_0px_0px_#000] hover:shadow-[2px_2px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all font-black uppercase"
+                  >
                     Get the App
                   </Button>
                 </Link>
+                <Button 
+                  size="lg"
+                  variant="secondary"
+                  className="text-lg px-8 py-6 w-full sm:w-auto border-2 border-foreground shadow-[4px_4px_0px_0px_#000] hover:shadow-[2px_2px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all font-black uppercase"
+                  onClick={() => document.getElementById('signup')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  Create Account
+                </Button>
               </div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               className="relative"
             >
-              <PhoneMockup>
-                <div className="p-6 space-y-6">
-                  <div className="text-center pt-8">
-                    <h3 className="text-xl font-bold mb-2">Global eSIM Plans</h3>
-                    <p className="text-sm text-muted-foreground">190+ Countries</p>
-                  </div>
-                  <div className="space-y-3">
-                    {["Europe 5GB", "USA 10GB", "Asia 8GB"].map((plan, i) => (
-                      <div key={i} className="bg-primary/10 rounded-xl p-4 border border-primary/20">
-                        <div className="flex justify-between items-center">
-                          <span className="font-semibold text-sm">{plan}</span>
-                          <span className="text-xs text-primary">From $9</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </PhoneMockup>
+              <WalkingEarth />
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-24 px-4">
+      {/* Marquee */}
+      <ScrollingMarquee />
+
+      {/* How It Works */}
+      <section className="py-20 px-4">
         <div className="container mx-auto">
           <motion.h2
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-black text-center mb-4 text-gradient"
+            className="text-4xl md:text-6xl font-black text-center mb-16 uppercase"
           >
-            Why DataForEarth?
+            How It Works
           </motion.h2>
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center text-muted-foreground text-lg mb-16 max-w-2xl mx-auto"
-          >
-            The world's first eSIM service that fights climate change with every connection
-          </motion.p>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
-                icon: Globe,
-                title: "Global Coverage",
-                description: "Access reliable mobile data in 190+ countries with instant eSIM activation. No physical SIM cards, no waiting.",
+                step: "01",
+                title: "SELECT",
+                description: "Pick a plan for 100+ countries.",
               },
               {
-                icon: Leaf,
-                title: "Climate Positive",
-                description: "100% of profits fund verified environmental projects. Every GB you use plants trees, removes plastic, and offsets carbon.",
+                step: "02",
+                title: "INSTALL",
+                description: "One-tap activation before you fly.",
               },
               {
-                icon: Zap,
-                title: "Instant Setup",
-                description: "Download the app, choose a plan, pay with crypto or card, and connect in minutes. It's that simple.",
-              },
-              {
-                icon: Shield,
-                title: "Virtual Location",
-                description: "Mask your IP location with built-in virtual routing. Browse privately while traveling the world.",
-              },
-              {
-                icon: Wallet,
-                title: "Flexible Payments",
-                description: "Pay with Stripe, Apple Pay, Google Pay, or crypto. We accept Bitcoin, Ethereum, and major stablecoins.",
-              },
-              {
-                icon: Smartphone,
-                title: "Cancel Anytime",
-                description: "No contracts, no hidden fees. Pause or cancel your plan anytime with full control over your data.",
+                step: "03",
+                title: "IMPACT",
+                description: "We donate. You track the trees planted in real-time.",
               },
             ].map((item, index) => (
               <motion.div
@@ -151,102 +135,147 @@ const Home = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="card-gradient border-2 border-border rounded-2xl p-8 hover-lift hover:border-primary/50 backdrop-blur-sm relative overflow-hidden group"
+                className="bg-card border-2 border-foreground p-8 shadow-[4px_4px_0px_0px_#000]"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-6 shadow-lg">
-                    <item.icon className="w-8 h-8 text-primary-foreground" />
-                  </div>
-                  <h3 className="text-2xl font-black mb-4 text-gradient">{item.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{item.description}</p>
-                </div>
+                <div className="text-6xl font-black mb-4 text-secondary">{item.step}</div>
+                <h3 className="text-2xl font-black mb-4 uppercase">{item.title}</h3>
+                <p className="text-lg font-bold leading-relaxed">{item.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Impact Stats */}
-      <section className="py-24 px-4 bg-card/30">
-        <div className="container mx-auto text-center">
+      {/* Community Vote */}
+      <section className="py-20 px-4 bg-foreground">
+        <div className="container mx-auto">
           <motion.h2
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-black mb-4 text-gradient"
+            className="text-4xl md:text-6xl font-black text-center mb-4 text-background uppercase"
           >
-            Our Collective Impact
+            Community Vote
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-muted-foreground text-lg mb-16 max-w-2xl mx-auto"
+            className="text-center text-background/80 text-xl mb-12 font-bold"
           >
-            Together we're building a better planet, one connection at a time
+            Live Ballot - Where Your Money Goes
           </motion.p>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="max-w-3xl mx-auto space-y-6">
             {[
-              { value: "190+", label: "Countries" },
-              { value: "100%", label: "Profit to Planet" },
-              { value: "0kg", label: "Plastic Used" },
-              { value: "24/7", label: "Support" },
-            ].map((stat, index) => (
+              { name: "Sungai Watch Indonesia", votes: 42, total: 100 },
+              { name: "Amazonia Live Brazil", votes: 31, total: 100 },
+              { name: "Ocean Cleanup Initiative", votes: 27, total: 100 },
+            ].map((project, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
+                className="bg-background border-2 border-background p-6"
               >
-                <div className="text-5xl md:text-6xl font-black text-gradient glow-text mb-2">
-                  {stat.value}
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-xl font-black uppercase">{project.name}</h3>
+                  <span className="text-2xl font-black">{project.votes}%</span>
                 </div>
-                <div className="text-muted-foreground font-medium text-lg">{stat.label}</div>
+                <div className="w-full bg-foreground/20 h-4 border-2 border-foreground">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${project.votes}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, delay: index * 0.1 + 0.3 }}
+                    className="bg-secondary h-full"
+                  />
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 px-4">
-        <div className="container mx-auto">
+      {/* Signup Section */}
+      <section id="signup" className="py-20 px-4">
+        <div className="container mx-auto max-w-md">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="card-gradient border-2 border-primary/30 rounded-3xl p-12 text-center"
+            className="bg-card border-2 border-foreground p-8 shadow-[4px_4px_0px_0px_#000]"
           >
-            <div className="max-w-3xl mx-auto">
-              <div className="mb-6">
-                <Smartphone className="w-16 h-16 text-primary mx-auto mb-4" />
+            <h2 className="text-3xl font-black mb-6 uppercase text-center">Create Account</h2>
+            <form onSubmit={handleSignup} className="space-y-4">
+              <div>
+                <Label htmlFor="email" className="font-black uppercase">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="border-2 border-foreground shadow-[2px_2px_0px_0px_#000] font-bold"
+                />
               </div>
-              <h2 className="text-4xl md:text-5xl font-black mb-6 text-gradient glow-text">
-                Ready to Travel Sustainably?
-              </h2>
-              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                Join thousands of conscious travelers using DataForEarth eSIM. Stay connected globally while funding environmental restoration.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/esim/marketplace">
-                  <Button size="lg" className="text-lg px-8 py-6 shadow-xl hover-lift w-full sm:w-auto">
-                    <Globe className="w-5 h-5 mr-2" />
-                    Get Started Now
-                  </Button>
-                </Link>
-                <Link to="/about">
-                  <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift w-full sm:w-auto">
-                    Learn Our Mission
-                  </Button>
-                </Link>
+              <div>
+                <Label htmlFor="password" className="font-black uppercase">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="border-2 border-foreground shadow-[2px_2px_0px_0px_#000] font-bold"
+                />
               </div>
-            </div>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full border-2 border-foreground shadow-[4px_4px_0px_0px_#000] hover:shadow-[2px_2px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] transition-all font-black uppercase"
+              >
+                {loading ? "Creating..." : "Sign Up"}
+                <ArrowRight className="ml-2" />
+              </Button>
+            </form>
+            <p className="mt-4 text-center font-bold">
+              Already have an account?{" "}
+              <Link to="/login" className="underline font-black">
+                Log in
+              </Link>
+            </p>
           </motion.div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="border-t-2 border-foreground py-8 px-4">
+        <div className="container mx-auto">
+          <div className="flex flex-wrap justify-center gap-6 text-sm font-black uppercase">
+            <Link to="/about" className="hover:text-secondary transition-colors">
+              About
+            </Link>
+            <Link to="/projects" className="hover:text-secondary transition-colors">
+              Projects
+            </Link>
+            <Link to="/contact" className="hover:text-secondary transition-colors">
+              Contact
+            </Link>
+            <Link to="/privacy" className="hover:text-secondary transition-colors">
+              Privacy
+            </Link>
+            <Link to="/terms" className="hover:text-secondary transition-colors">
+              Terms
+            </Link>
+          </div>
+          <p className="text-center mt-6 font-bold">
+            © 2025 DataForEarth. Fighting greed, one GB at a time.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
