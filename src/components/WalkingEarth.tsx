@@ -14,7 +14,7 @@ const WalkingEarth = () => {
       }}
     >
       <svg
-        viewBox="0 0 400 400"
+        viewBox="0 0 450 400"
         className="w-full h-auto"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -64,6 +64,7 @@ const WalkingEarth = () => {
           <circle cx="95" cy="185" r="8" fill="#000" />
         </motion.g>
         
+        {/* Right arm holding sign */}
         <motion.g
           animate={{
             rotate: [5, -5, 5],
@@ -76,36 +77,67 @@ const WalkingEarth = () => {
           style={{ transformOrigin: "260px 180px" }}
         >
           <path
-            d="M 260 180 Q 280 190 300 185"
+            d="M 260 180 Q 280 170 300 160"
             stroke="#000"
             strokeWidth="8"
             fill="none"
             strokeLinecap="round"
           />
-          <circle cx="305" cy="185" r="8" fill="#000" />
+          <circle cx="300" cy="155" r="8" fill="#000" />
         </motion.g>
         
-        {/* Smartphone in hand */}
-        <g transform="translate(290, 170)">
-          <rect
-            x="0"
-            y="0"
-            width="30"
-            height="50"
-            rx="3"
+        {/* Sign saying "NO MORE GREED" */}
+        <motion.g
+          animate={{
+            rotate: [-3, 3, -3],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          style={{ transformOrigin: "350px 100px" }}
+        >
+          {/* Sign board */}
+          <rect 
+            x="280" 
+            y="60" 
+            width="140" 
+            height="70" 
+            fill="#FFD900" 
+            stroke="#000" 
+            strokeWidth="4"
+          />
+          <text 
+            x="350" 
+            y="90" 
+            textAnchor="middle" 
+            fontSize="18" 
+            fontWeight="900" 
             fill="#000"
-            stroke="#000"
-            strokeWidth="2"
+          >
+            NO MORE
+          </text>
+          <text 
+            x="350" 
+            y="115" 
+            textAnchor="middle" 
+            fontSize="18" 
+            fontWeight="900" 
+            fill="#000"
+          >
+            GREED
+          </text>
+          {/* Sign pole */}
+          <line 
+            x1="350" 
+            y1="130" 
+            x2="305" 
+            y2="160" 
+            stroke="#000" 
+            strokeWidth="4" 
           />
-          <rect
-            x="2"
-            y="4"
-            width="26"
-            height="42"
-            fill="#FFD900"
-          />
-          <circle cx="15" cy="48" r="2" fill="#000" />
-        </g>
+        </motion.g>
         
         {/* Legs */}
         <motion.g
